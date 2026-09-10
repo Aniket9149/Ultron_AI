@@ -45,6 +45,13 @@ class BrainEngineTests(unittest.TestCase):
         self.assertEqual(self.engine.decide("hello")["action"], "CHAT")
         self.http.post.assert_called_once()
 
+    def test_extracts_click_target_without_calling_lm(self) -> None:
+        self.router.extract_cursor_intent.return_value = None
+        packet = self.engine.decide("New tab par click karo")
+        self.assertEqual(packet["action"], "CLICK_UI")
+        self.assertEqual(packet["target"], "new tab")
+        self.http.post.assert_not_called()
+
     def test_falls_back_when_lm_studio_is_unavailable(self) -> None:
         self.http.post.side_effect = MODULE.requests.RequestException("offline")
         self.router.extract_cursor_intent.return_value = None

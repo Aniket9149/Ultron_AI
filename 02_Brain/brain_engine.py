@@ -15,10 +15,7 @@ import requests
 
 BASE_DIR = Path(__file__).resolve().parent
 ROUTER_PATH = BASE_DIR / "cursor_router.py"
-LM_STUDIO_URL = os.getenv(
-    "ULTRON_LM_STUDIO_CHAT_URL",
-    "http://localhost:1234/v1/chat/completions",
-)
+LM_STUDIO_URL = os.getenv("ULTRON_LM_STUDIO_CHAT_URL", "http://localhost:1234/v1/chat/completions")
 MODEL_NAME = os.getenv("ULTRON_LM_STUDIO_MODEL", "qwen2.5-coder-1.5b-instruct")
 
 SYSTEM_PROMPT = """You are Ultron, an autonomous OS automation brain.
@@ -67,7 +64,6 @@ class BrainEngine:
         self.timeout = timeout
 
     def decide(self, user_text: str) -> dict[str, Any]:
-        """Return one tactical packet for the supplied user command."""
         if not isinstance(user_text, str) or not user_text.strip():
             return self._chat_fallback()
 
@@ -80,15 +76,35 @@ class BrainEngine:
         if self.router is not None:
             cursor_packet = self.router.extract_cursor_intent(normalized)
             if cursor_packet:
-                cursor_packet["response"] = (
-                    f"Pointer ko {cursor_packet['zone']} par move kar diya."
-                )
+                cursor_packet["response"] = f"Pointer ko {cursor_packet['zone']} par move kar diya."
                 return cursor_packet
+
+        click_target = self._extract_click_target(normalized)
+        if click_target:
+            return {
+                "action": "CLICK_UI",
+                "target": click_target,
+                "response": f"'{click_target}' par click kar raha hoon.",
+            }
 
         llm_packet = self._ask_local_model(user_text)
         if llm_packet is not None:
             return llm_packet
         return self._heuristic_fallback(normalized)
+
+    @staticmethod
+    def _extract_click_target(normalized: str) -> str:
+        if not any(word in normalized.split() for word in ("click", "dabao", "chuno", "select")):
+            return ""
+        stop_words = {
+            "click", "dabao", "chuno", "select", "karo", "karna", "par", "pe",
+            "button", "use", "ko",
+        }
+        target_words = [
+            word for word in re.findall(r"[\w']+", normalized)
+            if word not in stop_words
+        ]
+        return " ".join(target_words).strip()
 
     def _ask_local_model(self, user_text: str) -> dict[str, Any] | None:
         payload = {
