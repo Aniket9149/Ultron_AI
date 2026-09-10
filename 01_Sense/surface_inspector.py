@@ -1,56 +1,41 @@
-"""Grounded foreground and running-window inspection for Windows."""
-
-from __future__ import annotations
-
-from typing import Any
-
+﻿# -*- coding: utf-8 -*-
+"""
+ULTRON SURFACE & WINDOW INSPECTOR (01_Sense)
+Reads direct OS window handles. Zero optical hallucination.
+"""
 import pygetwindow as gw
 
-
 class SurfaceInspector:
-    """Read visible desktop surfaces through the operating-system window list."""
-
-    def __init__(self) -> None:
-        self.ignored_titles = {
-            "",
-            "Default IME",
-            "MSCTFIME UI",
-            "Program Manager",
-            "Settings",
-            "Windows Input Experience",
-        }
+    def __init__(self):
+        self.ignored_titles = [
+            "", "Default IME", "MSCTFIME UI", "Program Manager", 
+            "Settings", "Windows Input Experience"
+        ]
 
     def get_active_window(self) -> str:
-        """Return the title of the currently focused foreground window."""
-        window = gw.getActiveWindow()
-        title = getattr(window, "title", "") if window is not None else ""
-        return title.strip() if title else "Unknown"
+        """Returns the title of the currently focused foreground window."""
+        win = gw.getActiveWindow()
+        return win.title.strip() if win and win.title else "Unknown"
 
-    def get_running_surfaces(self) -> list[str]:
-        """Return unique, non-minimized application titles."""
-        clean: list[str] = []
-        for window in gw.getAllWindows():
-            title = getattr(window, "title", "").strip()
-            if (
-                title
-                and title not in self.ignored_titles
-                and len(title) > 2
-                and not getattr(window, "isMinimized", False)
-                and title not in clean
-            ):
-                clean.append(title)
+    def get_running_surfaces(self) -> list:
+        """Returns clean list of all non-minimized running application titles."""
+        clean = []
+        for w in gw.getAllWindows():
+            t = w.title.strip()
+            if t and t not in self.ignored_titles and len(t) > 2:
+                if t not in clean and not w.isMinimized:
+                    clean.append(t)
         return clean
 
     def summarize_view(self) -> str:
-        """Construct an accurate description from current OS window state."""
+        """Constructs accurate grounded description of visible desktop surfaces."""
         active = self.get_active_window()
         open_apps = self.get_running_surfaces()
-
+        
         if not open_apps:
             return "Screen par filhal koi major window active nahi hai."
-
-        apps_string = ", ".join(open_apps[:4])
-        return f"Currently active window '{active}' hai, aur samne ye apps open hain: {apps_string}."
-
+        
+        apps_str = ", ".join(open_apps[:4])
+        return f"Currently active window '{active}' hai, aur samne ye apps open hain: {apps_str}."
 
 surface_inspector = SurfaceInspector()
