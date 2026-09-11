@@ -155,7 +155,12 @@ class BrainEngine:
             return ""
         target = match.group(1).strip()
         target = re.sub(r"^(?:(?:karke|kar ke)\s+)?(?:dikhao|dikhado|please|zara)\s+", "", target)
-        target = re.sub(r"\s+(?:karo|karna|please)$", "", target).strip()
+        target = re.sub(r"\s+(?:kar|karo|karna|please)$", "", target).strip()
+        if target in {"kar", "karo", "karna", "please"}:
+            target = ""
+        if not target:
+            before = normalized[:match.start()].strip()
+            target = before.split()[-1] if before else ""
         return target
 
     @staticmethod

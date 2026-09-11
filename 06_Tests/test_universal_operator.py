@@ -45,7 +45,7 @@ class UniversalOperatorTests(unittest.TestCase):
         with patch.object(MODULE.subprocess, "Popen") as popen:
             self.assertTrue(self.operator.open_any_app("Calculator"))
 
-        popen.assert_called_once_with(r"C:\Apps\Calculator.exe")
+        popen.assert_called_once_with([r"C:\Apps\Calculator.exe"])
         self.input_api.press.assert_not_called()
 
     def test_publishes_grounded_click_and_rejects_missing_target(self) -> None:
