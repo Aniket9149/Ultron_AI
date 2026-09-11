@@ -27,12 +27,14 @@ class NeuralVocalEngineTests(unittest.TestCase):
             music = MagicMock()
             music.get_busy.side_effect = [True, False]
 
+            async def write_audio(_: str) -> None:
+                audio_path.write_bytes(b"audio" * 30)
+
             with patch.object(MODULE, "phonetic_mapper", mapper), \
                     patch.object(MODULE.pygame.time, "Clock", return_value=clock), \
                     patch.object(MODULE.pygame.mixer, "music", music), \
                     patch.object(MODULE.NeuralVocalEngine, "_init_mixer"), \
-                    patch.object(MODULE.NeuralVocalEngine, "_generate_audio", new_callable=AsyncMock) as generate:
-                audio_path.touch()
+                    patch.object(MODULE.NeuralVocalEngine, "_generate_audio", new=AsyncMock(side_effect=write_audio)) as generate:
                 engine = MODULE.NeuralVocalEngine(audio_cache_path=audio_path)
                 engine.speak("Mujhe browser")
 

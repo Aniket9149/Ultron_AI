@@ -5,6 +5,8 @@ from __future__ import annotations
 import importlib.util
 from pathlib import Path
 import sys
+import threading
+import time
 from typing import Any
 
 
@@ -35,8 +37,20 @@ class VocalTract:
         self._bus = bus if bus is not None else synapse
         self._engine = engine if engine is not None else neural_engine
         self._subscription = None
+        self._speaking = threading.Event()
+        self._speech_generation = 0
+        self._state_lock = threading.Lock()
         if self._bus is not None:
             self._subscription = self._bus.subscribe("VOCAL_IMPULSE", self._handle_vocal_impulse)
+
+    @property
+    def is_speaking(self) -> bool:
+        return self._speaking.is_set()
+
+    @property
+    def speech_generation(self) -> int:
+        with self._state_lock:
+            return self._speech_generation
 
     def close(self) -> None:
         """Detach this tract from the bus."""
@@ -56,10 +70,17 @@ class VocalTract:
         if not text:
             return
         print(f'\n[ULTRON VOCAL]: "{text}"')
-        if self._engine is not None:
-            self._engine.speak(text)
-        else:
-            print(f"[VOCAL FALLBACK]: {text}")
+        self._speaking.set()
+        try:
+            if self._engine is not None:
+                self._engine.speak(text)
+            else:
+                print(f"[VOCAL FALLBACK]: {text}")
+        finally:
+            time.sleep(0.4)
+            with self._state_lock:
+                self._speech_generation += 1
+            self._speaking.clear()
 
 
 vocal_tract = VocalTract()

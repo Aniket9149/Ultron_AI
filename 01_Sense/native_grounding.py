@@ -3,12 +3,23 @@
 ULTRON NATIVE UI ACCESSIBILITY GROUNDING (01_Sense)
 Extracts exact center coordinates of UI elements via Windows UIA.
 """
+import sys
+from typing import Any
+
+# Preserve the apartment-threaded mode before comtypes or pywinauto imports.
+sys.coinit_flags = 2
+
+try:
+    import comtypes
+except Exception:
+    pass
+
 import pygetwindow as gw
 from pywinauto import Desktop
 
 class NativeUIGrounding:
-    def __init__(self):
-        self.desktop = Desktop(backend="uia")
+    def __init__(self, desktop: Any = None):
+        self.desktop = desktop if desktop is not None else Desktop(backend="uia")
 
     def get_element_coords(self, window_keyword: str, target_name: str) -> tuple:
         """Scans the target window tree and returns exact (x, y) coordinates."""

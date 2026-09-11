@@ -42,7 +42,9 @@ class BrainEngineTests(unittest.TestCase):
         self.http.post.return_value = response
         self.router.extract_cursor_intent.return_value = None
 
-        self.assertEqual(self.engine.decide("hello")["action"], "CHAT")
+        packet = self.engine.decide("hello")
+        self.assertEqual(packet["type"], "TALK")
+        self.assertEqual(packet["action"], "CONVERSATION")
         self.http.post.assert_called_once()
 
     def test_extracts_click_target_without_calling_lm(self) -> None:

@@ -55,6 +55,17 @@ class LifePulseTests(unittest.TestCase):
         self.runtime.inspector.summarize_view.assert_called_once_with()
         self.runtime.synapse.publish.assert_any_call("MOTOR_DIRECTIVE", {"action": "HOTKEY", "data": {"keys": ["ctrl", "l"]}})
 
+    def test_talk_only_publishes_vocal_reply(self) -> None:
+        MODULE.dispatch_action(
+            {"type": "TALK", "action": "CONVERSATION", "reply": "Main theek hoon."},
+            self.runtime,
+        )
+        self.runtime.synapse.publish.assert_called_once_with(
+            "VOCAL_IMPULSE", {"text": "Main theek hoon."}
+        )
+        self.runtime.operator.assert_not_called()
+        self.runtime.inspector.assert_not_called()
+
 
 if __name__ == "__main__":
     unittest.main()

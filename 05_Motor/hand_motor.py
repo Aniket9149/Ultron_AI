@@ -102,5 +102,11 @@ class HandMotor:
         self.input_backend.hotkey(*keys)
         time.sleep(0.12)
 
+    def scroll(self, direction: str = "down", amount: int = 3) -> None:
+        """Scroll a small, deliberate number of wheel steps."""
+        clicks = abs(int(amount))
+        self.input_backend.scroll(clicks if direction.casefold() == "up" else -clicks)
+        time.sleep(0.12)
+
 
 hand_motor = HandMotor()

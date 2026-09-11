@@ -50,6 +50,11 @@ class HandMotorTests(unittest.TestCase):
         self.backend.press.assert_called_once_with("enter")
         self.backend.hotkey.assert_called_once_with("ctrl", "l")
 
+    def test_scroll_dispatches_directional_wheel_steps(self) -> None:
+        with patch.object(MODULE.time, "sleep"):
+            self.motor.scroll("up", 4)
+        self.backend.scroll.assert_called_once_with(4)
+
 
 if __name__ == "__main__":
     unittest.main()

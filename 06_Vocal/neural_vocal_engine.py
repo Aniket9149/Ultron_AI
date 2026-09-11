@@ -6,7 +6,8 @@ import asyncio
 import importlib.util
 import os
 from pathlib import Path
-from types import ModuleType
+import threading
+import time
 
 import edge_tts
 
@@ -45,6 +46,7 @@ class NeuralVocalEngine:
         self.pitch = pitch
         self.rate = rate
         self.audio_cache_path = Path(audio_cache_path)
+        self._playback_lock = threading.Lock()
         self._init_mixer()
 
     def _init_mixer(self) -> None:
@@ -71,22 +73,48 @@ class NeuralVocalEngine:
         if not text:
             return
 
-        mapper = phonetic_mapper
-        tts_payload = mapper.map_for_neural_tts(text) if mapper is not None else text
+        with self._playback_lock:
+            mapper = phonetic_mapper
+            tts_payload = mapper.map_for_neural_tts(text) if mapper is not None else text
+            try:
+                os.makedirs(self.audio_cache_path.parent, exist_ok=True)
+                try:
+                    self.audio_cache_path.unlink(missing_ok=True)
+                except OSError as exc:
+                    print(f"[NEURAL VOCAL ERROR]: Could not clear audio cache: {exc}")
+                    return
 
-        try:
-            asyncio.run(self._generate_audio(tts_payload))
-            if not self.audio_cache_path.exists():
-                return
+                try:
+                    asyncio.run(self._generate_audio(tts_payload))
+                except Exception as exc:
+                    print(f"[NEURAL VOCAL ERROR]: Speech synthesis failed: {exc}")
+                    return
 
-            pygame.mixer.music.load(str(self.audio_cache_path))
-            pygame.mixer.music.play()
-            clock = pygame.time.Clock()
-            while pygame.mixer.music.get_busy():
-                clock.tick(30)
-            pygame.mixer.music.unload()
-        except Exception as exc:  # Audio/network failures must not kill the orchestrator.
-            print(f"[NEURAL VOCAL ERROR]: {exc}")
+                deadline = time.monotonic() + 1.0
+                while time.monotonic() < deadline:
+                    if os.path.exists(self.audio_cache_path) and self.audio_cache_path.stat().st_size > 100:
+                        break
+                    time.sleep(0.05)
+                else:
+                    print("[NEURAL VOCAL ERROR]: Speech audio was not written or is empty.")
+                    return
+
+                self._init_mixer()
+                pygame.mixer.music.load(str(self.audio_cache_path))
+                pygame.mixer.music.play()
+                clock = pygame.time.Clock()
+                while pygame.mixer.music.get_busy():
+                    clock.tick(30)
+            except Exception as exc:  # Audio/network failures must not kill the orchestrator.
+                print(f"[NEURAL VOCAL ERROR]: {exc}")
+            finally:
+                try:
+                    pygame.mixer.music.stop()
+                    pygame.mixer.music.unload()
+                    pygame.mixer.quit()
+                except (AttributeError, pygame.error):
+                    pass
+                time.sleep(0.05)
 
 
 neural_vocal_engine = NeuralVocalEngine()

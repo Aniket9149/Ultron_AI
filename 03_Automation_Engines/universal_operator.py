@@ -3,8 +3,10 @@
 from __future__ import annotations
 
 import importlib.util
+import os
 from pathlib import Path
 import sys
+import subprocess
 import time
 from typing import Any
 
@@ -33,6 +35,8 @@ uia_module = _load_module("ultron_operator_native_grounding", ROOT_DIR / "01_Sen
 spine_module = _load_module("ultron_operator_reflex_planner", ROOT_DIR / "04_Spine" / "reflex_planner.py")
 uia = getattr(uia_module, "native_grounding", None)
 synapse = getattr(spine_module, "synapse", None)
+catalog_module = _load_module("ultron_operator_system_catalog", ROOT_DIR / "01_Sense" / "system_catalog.py")
+system_catalog = getattr(catalog_module, "system_catalog", None)
 
 
 class UniversalOperator:
@@ -44,14 +48,16 @@ class UniversalOperator:
         bus: Any | None = None,
         window_api: Any = gw,
         input_api: Any = pyautogui,
+        app_catalog: Any | None = None,
     ) -> None:
         self.ui_grounding = ui_grounding if ui_grounding is not None else uia
         self.bus = bus if bus is not None else synapse
         self.window_api = window_api
         self.input_api = input_api
+        self.app_catalog = app_catalog if app_catalog is not None else system_catalog
 
-    def open_any_app(self, app_name: str) -> bool:
-        """Focus a matching window or launch the name through Windows Search."""
+    def open_any_app(self, app_name: str) -> bool | dict[str, str]:
+        """Focus a running app or launch a locally verified app without web search."""
         target = app_name.strip().casefold()
         if not target:
             return False
@@ -69,13 +75,42 @@ class UniversalOperator:
                 except Exception:
                     continue
 
-        print(f"[OPERATOR]: Discovering and launching '{app_name}' via Windows Index...")
-        self.input_api.press("win")
-        time.sleep(0.4)
-        self.input_api.write(app_name, interval=0.03)
-        time.sleep(0.6)
-        self.input_api.press("enter")
-        time.sleep(1.2)
+        installed, path = self.app_catalog.is_app_installed(app_name) if self.app_catalog is not None else (False, "")
+        if not installed:
+            prompt = f"'{app_name}' aapke PC me installed nahi hai. Kya aap chahte hain ki main ise download ya install karoon?"
+            print(f"[OPERATOR]: {prompt}")
+            return {"success": False, "status": "NOT_INSTALLED", "prompt": prompt}
+
+        print(f"[OPERATOR]: Launching locally verified app '{app_name}' from '{path}'")
+        if path.casefold().endswith((".lnk", ".url")):
+            os.startfile(path)
+        else:
+            subprocess.Popen([path])
+        return True
+
+    def close_window(self, target: str = "") -> bool:
+        """Close a matching window, or the current foreground window when empty."""
+        target_folded = target.strip().casefold()
+        windows = self.window_api.getAllWindows()
+        selected = None
+        if target_folded:
+            selected = next(
+                (
+                    window for window in windows
+                    if target_folded in str(getattr(window, "title", "")).casefold()
+                ),
+                None,
+            )
+        else:
+            active = getattr(self.window_api, "getActiveWindow", lambda: None)()
+            selected = active
+        if selected is not None:
+            try:
+                selected.close()
+                return True
+            except Exception:
+                return False
+        self.input_api.hotkey("alt", "f4")
         return True
 
     def click_element(self, element_query: str) -> bool:

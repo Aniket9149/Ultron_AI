@@ -60,6 +60,8 @@ class FakeDesktop:
 FAKE_GW = types.ModuleType("pygetwindow")
 FAKE_PYWINAUTO = types.ModuleType("pywinauto")
 FAKE_PYWINAUTO.Desktop = MagicMock()
+ORIGINAL_GW = sys.modules.get("pygetwindow")
+ORIGINAL_PYWINAUTO = sys.modules.get("pywinauto")
 sys.modules["pygetwindow"] = FAKE_GW
 sys.modules["pywinauto"] = FAKE_PYWINAUTO
 SPEC = importlib.util.spec_from_file_location("native_grounding", MODULE_PATH)
@@ -67,6 +69,14 @@ if SPEC is None or SPEC.loader is None:
     raise RuntimeError(f"Could not load {MODULE_PATH}")
 MODULE = importlib.util.module_from_spec(SPEC)
 SPEC.loader.exec_module(MODULE)
+if ORIGINAL_GW is None:
+    sys.modules.pop("pygetwindow", None)
+else:
+    sys.modules["pygetwindow"] = ORIGINAL_GW
+if ORIGINAL_PYWINAUTO is None:
+    sys.modules.pop("pywinauto", None)
+else:
+    sys.modules["pywinauto"] = ORIGINAL_PYWINAUTO
 
 
 class NativeGroundingTests(unittest.TestCase):

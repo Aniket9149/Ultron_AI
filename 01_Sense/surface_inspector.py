@@ -14,8 +14,13 @@ class SurfaceInspector:
 
     def get_active_window(self) -> str:
         """Returns the title of the currently focused foreground window."""
-        win = gw.getActiveWindow()
-        return win.title.strip() if win and win.title else "Unknown"
+        get_active_window = getattr(gw, "getActiveWindow", None)
+        if get_active_window is not None:
+            win = get_active_window()
+            return win.title.strip() if win and win.title else "Unknown"
+        get_active_title = getattr(gw, "getActiveWindowTitle", None)
+        title = get_active_title() if get_active_title is not None else ""
+        return title.strip() if title else "Unknown"
 
     def get_running_surfaces(self) -> list:
         """Returns clean list of all non-minimized running application titles."""

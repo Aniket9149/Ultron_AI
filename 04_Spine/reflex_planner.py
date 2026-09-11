@@ -43,6 +43,7 @@ class ReflexSpine:
             "CLICK_COORDS": self._click_coords,
             "TYPE_TEXT": self._type_text,
             "HOTKEY": self._hotkey,
+            "SCROLL": self._scroll,
         }
         if self._bus is not None:
             self._subscription = self._bus.subscribe("MOTOR_DIRECTIVE", self._execute_directive)
@@ -84,6 +85,12 @@ class ReflexSpine:
         keys = data.get("keys", [])
         if isinstance(keys, (list, tuple)) and keys:
             self._motor.hotkey_combo(*keys)
+
+    def _scroll(self, data: dict[str, Any]) -> None:
+        direction = data.get("direction", "down")
+        amount = data.get("amount", 3)
+        if isinstance(direction, str):
+            self._motor.scroll(direction, amount)
 
 
 reflex_spine = ReflexSpine()
