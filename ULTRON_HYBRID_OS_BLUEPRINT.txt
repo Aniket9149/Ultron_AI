@@ -1,0 +1,160 @@
+﻿================================================================================
+          ULTRON HYBRID OPERATING SYSTEM (HOS) : MASTER ARCHITECTURAL BLUEPRINT
+                               Version: 1.0 (Enterprise Core)
+                         Target Paradigm: Decoupled Synapse Bus
+================================================================================
+
+1. CORE PHILOSOPHY & SYSTEM ARCHITECTURE
+--------------------------------------------------------------------------------
+Ultron is not a linear script or simple automation macro; it is a decoupled,
+multimodal Hybrid Operating System designed to interface natively with the Windows
+subsystem. The architecture mirrors human biological conduits:
+
+* No Micro-Engine Blocks Another: All inter-engine communication is event-driven
+  via the central Synapse Bus (Nervous System).
+* Zero Stack Trace Dumps: The Immune System (Watchdog Sentinel) catches runtime
+  faults silently and displays a native GUI HUD Modal for self-healing.
+* Mirror-Mode Dialect Adaptation: Dynamic cognitive detection switches feedback
+  between natural English and colloquial Hinglish based on user input.
+
+================================================================================
+2. TOTAL SUBSYSTEM ENGINES & COMPONENT DIRECTORY
+================================================================================
+
+TOTAL CORE ENGINES: 7 DEDICATED DOMAINS (14 MICRO-SERVICES)
+
+[01] NERVES (The Nervous System)
+     Path: 02_Nerves/synapse_bus.py
+     * Engine: SynapseBus Pub/Sub Event Conduit.
+     * Function: Asynchronous message bus. Routes telemetry, directives, and
+       vocal pulses across memory without circular module imports.
+
+[02] BRAIN (The Cognitive Core)
+     Path: 02_Brain/
+     * Engine 1 (brain_engine.py): Intent classifier & LM Studio local inference.
+     * Engine 2 (task_planner.py): Tactical multi-step action breakdown.
+     * Engine 3 (working_memory.py): Session-bound context tracker (retains
+       target application handles across continuous turns).
+     * Engine 4 (language_mirror.py): Input parser that flags dialect (EN vs HI)
+       and adapts spoken responses dynamically.
+
+[03] SENSE & PERCEPTION (Sensory Organs - Eyes & Ears)
+     Path: 01_Sense/ & 01_Voice/
+     * Engine 1 (wake_detector.py): Continuous low-resource wake-word vigilance
+       listening for "Ultron".
+     * Engine 2 (surface_inspector.py): UI visual tree parser & window tracker.
+     * Engine 3 (native_grounding.py): Win32/UIA boundary coordinate resolver
+       (translates fuzzy target names like "Edit menu" to exact screen X/Y).
+
+[04] VOCAL TRACT & LARYNX (Acoustic Feedback)
+     Path: 06_Vocal/
+     * Engine 1 (vocal_tract.py): Speech queue manager & dynamic synthesizer.
+     * Engine 2 (audio_player.py): Non-blocking audio streamer with auto-cleanup.
+     * Engine 3 (acoustic_damper.py): Feedback canceller. Mutes microphone
+       admittance while Ultron is speaking to prevent acoustic loops.
+
+[05] MUSCULOSKELETAL SYSTEM (Motor Execution & Hands)
+     Path: 04_Spine/, 05_Motor/ & 03_Automation_Engines/
+     * Engine 1 (reflex_planner.py): High-level physical action sequencer.
+     * Engine 2 (motor_controller.py): Kinetic Bezier curve mouse trajectory
+       interpolator (produces human-like movement instead of instant teleports).
+     * Engine 3 (universal_operator.py): Direct Win32 input emulator for clicks,
+       window switching, and keyboard strokes.
+     * Engine 4 (closed_loop_verifier.py): UI post-action validation engine.
+       Verifies if a clicked window opened or text was cleared before returning.
+
+[06] IMMUNE SYSTEM & METRIC VITALITY
+     Path: 01_Sense/ & 04_Display/
+     * Engine 1 (system_watchdog.py): Background thread & heartbeat monitor.
+       Tracks CPU/RAM spikes and catches deadlocks.
+     * Engine 2 (watchdog_fixer.py): In-memory isolate restarter. Revives broken
+       threads without restarting the entire workstation process.
+     * Engine 3 (hud_crash_modal.py): Topmost native dark-themed card window
+       displaying error summaries and a one-click "Fix & Revive" button.
+
+[07] LIFE PULSE (The Biological Heartbeat)
+     Path: life_pulse.py & main.py
+     * Engine: Master lifecycle bootstrapper. Orchestrates the Wake -> Listen
+       -> Decide -> Act -> Verify bounded loop.
+
+================================================================================
+3. SYSTEM DIRECTORY STRUCTURE
+================================================================================
+
+ultron/
+│
+├── main.py                          # Master bootstrapper & watchdog hook
+├── life_pulse.py                    # Rhythmic operational loop & session lifecycle
+├── requirements.txt                 # Cleaned, lightweight native dependencies
+│
+├── 01_Sense/                        # Perception & Diagnostics
+│   ├── native_grounding.py          # Coordinate & UI element resolver
+│   ├── surface_inspector.py         # Visual screen structure inspector
+│   ├── subconscious_pulse.py        # Background telemetry & vital checker
+│   ├── system_watchdog.py           # Thread health monitor & crash interceptor
+│   └── watchdog_fixer.py            # Micro-engine dynamic restarter
+│
+├── 01_Voice/                        # Vigilant Acoustic Input
+│   └── wake_detector.py             # Wake-word acoustic filter
+│
+├── 02_Brain/                        # Cognition & Context
+│   ├── brain_engine.py              # LLM reasoning & prompt dispatch
+│   ├── task_planner.py              # Multi-step command decomposition
+│   ├── working_memory.py            # Context retention across multi-turn sessions
+│   └── language_mirror.py           # Real-time English/Hinglish mirror dialect engine
+│
+├── 02_Nerves/                       # Central Nervous Bus
+│   └── synapse_bus.py               # Asynchronous decoupled pub/sub message router
+│
+├── 03_Automation_Engines/           # Execution Primitives
+│   ├── universal_operator.py        # Win32 OS controller
+│   ├── execution_engine.py          # Plan step execution pipeline
+│   └── closed_loop_verifier.py      # Post-action execution validator
+│
+├── 04_Display/                      # Visual Interface
+│   └── hud_crash_modal.py           # Native floating diagnostic recovery UI
+│
+├── 04_Spine/                        # Reflex Reflexes
+│   └── reflex_planner.py            # Low-latency reflex router
+│
+├── 05_Motor/                        # Kinematics & Physics
+│   └── motor_controller.py          # Human-like Bezier curve cursor movements
+│
+└── 06_Vocal/                        # Acoustic Output
+    ├── vocal_tract.py               # Speech synthesizer (Native SAPI5 / Windows Speech)
+    ├── acoustic_damper.py           # Acoustic feedback canceller
+    └── audio_player.py              # Collision-proof dynamic stream player
+
+================================================================================
+4. COMPLETE PHASE-BY-PHASE IMPLEMENTATION PLAN
+================================================================================
+
+PHASE 1: THE NERVOUS CONDUIT (ZERO DEPENDENCY)
+* Build `02_Nerves/synapse_bus.py`.
+* Implement non-blocking asynchronous publisher/subscriber queues.
+* Verify message routing between independent threads without mutual imports.
+
+PHASE 2: THE BULLETPROOF VOCAL TRACT
+* Build `06_Vocal/` using Native Windows Speech API (SAPI5).
+* Eliminate fragile external wheel builds (`pyttsx3` dependency issues).
+* Implement `acoustic_damper.py` to prevent self-triggering during wake-word loops.
+
+PHASE 3: COGNITIVE REFLEX & LANGUAGE MIRRORING
+* Build `02_Brain/language_mirror.py` to classify incoming dialect.
+* Integrate multi-turn context retention in `working_memory.py` so follow-up
+  commands like "isko close karo" know what application is active.
+* Setup fallback rule planner alongside local LM Studio integration.
+
+PHASE 4: MOTOR KINEMATICS & VERIFIED AUTOMATION
+* Connect `05_Motor/motor_controller.py` using cubic Bezier curve algorithms.
+* Implement UI targeting in `01_Sense/native_grounding.py` for menus and buttons.
+* Ensure `closed_loop_verifier.py` handles non-visual primitives without exceptions.
+
+PHASE 5: IMMUNE SYSTEM & SENTINEL DEPLOYMENT
+* Attach `system_watchdog.py` at runtime initialization in `main.py`.
+* Hook unhandled exceptions to spawn `hud_crash_modal.py` directly on the display.
+* Wire the "Fix & Revive" button to `watchdog_fixer.py` for in-memory repair.
+
+================================================================================
+                        END OF ARCHITECTURAL BLUEPRINT
+================================================================================

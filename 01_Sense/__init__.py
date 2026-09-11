@@ -1,1 +1,0 @@
-"""ULTRON sensory inspection modules."""
