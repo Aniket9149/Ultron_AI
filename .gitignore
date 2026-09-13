@@ -1,0 +1,13 @@
+﻿venv_rvc/
+venv*/
+*.dll
+*.ckpt
+*.pth
+*.onnx
+*.bin
+__pycache__/
+*.pyc
+.env
+.idea/
+.vscode/
+01_Memory/models/
