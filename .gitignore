@@ -1,34 +1,17 @@
-﻿# Virtual Environments
+﻿venv_rvc/
 venv*/
-venv_rvc/
-env/
-ENV/
-
-# Byte-compiled / optimized files
-__pycache__/
-*.py[cod]
-*$py.class
-*.pyc
-
-# Heavy ML Weights, Checkpoints & Artifacts
+*.dll
 *.ckpt
 *.pth
-*.pt
-*.bin
 *.onnx
+*.bin
 *.npy
-01_Memory/models/
-01_Memory/*.npy
-01_Memory/user_voice_profile.npy
-
-# OS & IDE caches
-.DS_Store
-Thumbs.db
+*.pyc
+**/__pycache__/
+__pycache__/
+.env
 .idea/
 .vscode/
-*.swp
-*.swo
-
-# Local runtime states & logs
-*.log
-.env
+01_Memory/models/
+01_Memory/pending_tasks.json
+01_Memory/long_term_store.json

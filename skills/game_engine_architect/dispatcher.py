@@ -1,10 +1,11 @@
 ﻿"""
-Central Brain Dispatcher with Integrated Memory Context Injection.
+Central Brain Dispatcher with Dynamic Memory Cortex Injection.
 """
 from __future__ import annotations
 import re
 import requests
 import importlib
+from typing import Optional
 
 LM_STUDIO_URL = "http://127.0.0.1:1234/v1/chat/completions"
 MODEL_ID = "qwen2.5-coder-1.5b-instruct"
@@ -17,21 +18,23 @@ class BrainDispatcher:
             self.memory = None
 
     def ask(self, system_role: str, instruction: str, max_tokens: int = 1500) -> str:
-        augmented_instruction = instruction
+        prompt_body = instruction
         if self.memory:
-            context = self.memory.get_prompt_context(instruction)
-            if context.strip():
-                augmented_instruction = f"{context}\n\n[TASK INSTRUCTION]:\n{instruction}"
+            memory_ctx = self.memory.get_prompt_context(instruction)
+            if memory_ctx.strip():
+                prompt_body = f"{memory_ctx}\n\n[DIRECTIVE]:\n{instruction}"
+            self.memory.record_turn("User/Agent", instruction[:250])
 
         payload = {
             "model": MODEL_ID,
             "messages": [
                 {"role": "system", "content": system_role},
-                {"role": "user", "content": augmented_instruction}
+                {"role": "user", "content": prompt_body}
             ],
             "temperature": 0.2,
             "max_tokens": max_tokens
         }
+
         try:
             res = requests.post(LM_STUDIO_URL, json=payload, timeout=90)
             if res.status_code == 200:
