@@ -1,0 +1,506 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ultron OS - Precision HUD Spatial Studio</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      user-select: none;
+      -webkit-font-smoothing: antialiased;
+      text-rendering: geometricPrecision;
+    }
+
+    html, body {
+      width: 100vw;
+      height: 100vh;
+      overflow: hidden;
+      background-color: #01040a;
+      font-family: 'Consolas', 'Segoe UI', monospace;
+    }
+
+    #studio-stage {
+      width: 100vw;
+      height: 100vh;
+      position: absolute;
+      left: 0;
+      top: 0;
+      background: radial-gradient(circle at 50% 50%, rgba(0, 32, 68, 0.28) 0%, rgba(1, 4, 10, 1) 100%);
+      perspective: 1600px;
+    }
+
+    /* Retractable Drawer */
+    #dock-drawer {
+      position: fixed;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      width: 260px;
+      background: rgba(3, 11, 22, 0.98);
+      border-right: 1px solid rgba(0, 229, 255, 0.4);
+      z-index: 100000;
+      display: flex;
+      flex-direction: column;
+      transform: translateX(-260px);
+      transition: transform 0.2s ease;
+      box-shadow: 10px 0 35px rgba(0, 0, 0, 0.9);
+    }
+
+    #dock-drawer.open {
+      transform: translateX(0);
+    }
+
+    #dock-toggle {
+      position: absolute;
+      right: -32px;
+      top: 24px;
+      width: 32px;
+      height: 42px;
+      background: rgba(3, 11, 22, 0.98);
+      border: 1px solid rgba(0, 229, 255, 0.4);
+      border-left: none;
+      border-radius: 0 4px 4px 0;
+      color: #00e5ff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      font-size: 14px;
+      box-shadow: 4px 0 10px rgba(0,0,0,0.6);
+    }
+
+    .dock-title {
+      padding: 16px 14px;
+      border-bottom: 1px solid rgba(0, 229, 255, 0.25);
+      font-size: 11px;
+      letter-spacing: 2px;
+      color: #00e5ff;
+      font-weight: bold;
+    }
+
+    .dock-list {
+      flex: 1;
+      overflow-y: auto;
+      padding: 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .dock-item {
+      padding: 9px 12px;
+      background: rgba(0, 229, 255, 0.08);
+      border: 1px solid rgba(0, 229, 255, 0.3);
+      border-radius: 3px;
+      color: #9cdcfe;
+      font-size: 11px;
+      cursor: pointer;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .dock-item:hover {
+      background: rgba(0, 229, 255, 0.25);
+      color: #fff;
+      border-color: #00e5ff;
+    }
+
+    .dock-item.active {
+      border-color: #00e5ff;
+      background: rgba(0, 229, 255, 0.3);
+      color: #00e5ff;
+    }
+
+    /* Spatial HUD Frame Window */
+    .hud-window {
+      position: absolute;
+      background: rgba(2, 8, 16, 0.94);
+      border: 1px solid rgba(0, 229, 255, 0.45);
+      border-radius: 4px;
+      box-shadow: 0 12px 40px rgba(0, 0, 0, 0.85);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      z-index: 100;
+      transform-style: preserve-3d;
+    }
+
+    .hud-window.is-dragging {
+      outline: 2px dashed #00e5ff;
+      box-shadow: 0 0 35px rgba(0, 229, 255, 0.7);
+      z-index: 99999 !important;
+    }
+
+    .hud-window.is-tilting {
+      outline: 2px solid #ffaa00;
+      box-shadow: 0 0 35px rgba(255, 170, 0, 0.7);
+      z-index: 99999 !important;
+    }
+
+    .win-header {
+      height: 28px;
+      background: rgba(0, 24, 46, 0.98);
+      border-bottom: 1px solid rgba(0, 229, 255, 0.35);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 8px;
+      cursor: grab;
+      z-index: 10;
+    }
+
+    .win-header:active {
+      cursor: grabbing;
+    }
+
+    .win-title {
+      font-size: 11px;
+      font-weight: 700;
+      color: #00e5ff;
+      letter-spacing: 1px;
+      pointer-events: none;
+    }
+
+    .win-tools {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .scale-tag {
+      font-size: 9px;
+      color: rgba(255, 255, 255, 0.85);
+      min-width: 32px;
+      text-align: center;
+      pointer-events: none;
+    }
+
+    .tool-btn {
+      width: 22px;
+      height: 19px;
+      background: rgba(0, 229, 255, 0.12);
+      border: 1px solid rgba(0, 229, 255, 0.4);
+      color: #00e5ff;
+      font-size: 11px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 2px;
+      cursor: pointer;
+    }
+
+    .tool-btn:hover {
+      background: rgba(0, 229, 255, 0.45);
+      color: #fff;
+      box-shadow: 0 0 8px #00e5ff;
+    }
+
+    .tool-btn.btn-tilt {
+      color: #ffaa00;
+      border-color: rgba(255, 170, 0, 0.5);
+    }
+    .tool-btn.btn-tilt:hover {
+      background: rgba(255, 170, 0, 0.45);
+      box-shadow: 0 0 8px #ffaa00;
+    }
+
+    .tool-btn.btn-close:hover {
+      background: rgba(255, 50, 50, 0.6);
+      border-color: #ff3333;
+    }
+
+    .win-body {
+      flex: 1;
+      width: 100%;
+      height: calc(100% - 28px);
+      position: relative;
+      overflow: hidden;
+      background: #000;
+    }
+
+    .viewport-scaler {
+      position: absolute;
+      left: 0;
+      top: 0;
+      transform-origin: 0 0;
+    }
+
+    iframe {
+      border: none;
+      background: transparent;
+      display: block;
+      pointer-events: auto;
+      overflow: hidden;
+    }
+
+    body.manipulating iframe {
+      pointer-events: none !important;
+    }
+  </style>
+</head>
+<body>
+
+  <div id="dock-drawer">
+    <div id="dock-toggle">▶</div>
+    <div class="dock-title">ULTRON OS MODULES (11)</div>
+    <div class="dock-list" id="dock-list"></div>
+  </div>
+
+  <div id="studio-stage"></div>
+
+  <script>
+    const PANELS = [
+      { id: "component_sidebar.html",    name: "00 NAVIGATION",     nativeW: 380,  nativeH: 1020, x: 20,   y: 20,   scale: 0.75, initialOpen: true },
+      { id: "component_globe_3d.html",    name: "02 GLOBE 3D",       nativeW: 480,  nativeH: 600,  x: 155,  y: 20,   scale: 0.35, initialOpen: true },
+      { id: "component_cards.html",       name: "03 ACTIVE AGENTS",  nativeW: 480,  nativeH: 820,  x: 135,  y: 300,  scale: 0.60, initialOpen: true },
+      { id: "component_center_core.html", name: "04 MONOLITH CORE",  nativeW: 900,  nativeH: 800,  x: 290,  y: 50,   scale: 0.85, initialOpen: true },
+      { id: "component_center_dock.html", name: "05 SYSTEM DOCK",    nativeW: 900,  nativeH: 160,  x: 305,  y: 740,  scale: 0.70, initialOpen: true },
+      { id: "component_header.html",     name: "01 TOP HEADER",     nativeW: 1100, nativeH: 80,   x: 400,  y: 20,   scale: 1.00, initialOpen: false },
+      { id: "01_time_deck.html",          name: "06 TIME DECK",      nativeW: 400,  nativeH: 170,  x: 620,  y: 120,  scale: 0.85, initialOpen: false },
+      { id: "02_system_vitals.html",      name: "07 SYSTEM VITALS",  nativeW: 400,  nativeH: 210,  x: 620,  y: 200,  scale: 0.85, initialOpen: false },
+      { id: "03_neural_activity.html",    name: "08 NEURAL ACTIVITY",nativeW: 400,  nativeH: 220,  x: 620,  y: 280,  scale: 0.85, initialOpen: false },
+      { id: "04_mission_log.html",        name: "09 MISSION LOG",    nativeW: 400,  nativeH: 210,  x: 620,  y: 360,  scale: 0.85, initialOpen: false },
+      { id: "05_world_feed.html",         name: "10 WORLD FEED",     nativeW: 400,  nativeH: 170,  x: 620,  y: 440,  scale: 0.85, initialOpen: false }
+    ];
+
+    const stage = document.getElementById('studio-stage');
+    const dockList = document.getElementById('dock-list');
+    const drawer = document.getElementById('dock-drawer');
+    const drawerToggle = document.getElementById('dock-toggle');
+
+    drawerToggle.addEventListener('click', () => {
+      drawer.classList.toggle('open');
+      drawerToggle.textContent = drawer.classList.contains('open') ? '◀' : '▶';
+    });
+
+    let activeDragWin = null;
+    let activeTiltWin = null;
+    let startMouseX = 0, startMouseY = 0;
+    let initX = 0, initY = 0;
+    let initRotX = 0, initRotY = 0;
+
+    function applySpatialOrientation(win) {
+      const rx = parseFloat(win.dataset.rotX) || 0;
+      const ry = parseFloat(win.dataset.rotY) || 0;
+      win.style.transform = `translateZ(50px) rotateX(${rx}deg) rotateY(${ry}deg)`;
+    }
+
+    function bringToCenterFront(win) {
+      document.querySelectorAll('.hud-window').forEach(w => w.style.zIndex = "100");
+      win.style.zIndex = "99999";
+      win.style.left = '620px';
+      win.style.top = '160px';
+      win.dataset.rotX = "0";
+      win.dataset.rotY = "0";
+      applySpatialOrientation(win);
+    }
+
+    function toggleWindow(panel, listItem, forceCenter = false) {
+      let win = document.getElementById('win-' + panel.id);
+      
+      if (win) {
+        if (forceCenter) {
+          bringToCenterFront(win);
+          return;
+        } else {
+          win.remove();
+          listItem.classList.remove('active');
+          return;
+        }
+      }
+
+      listItem.classList.add('active');
+
+      win = document.createElement('div');
+      win.className = 'hud-window';
+      win.id = 'win-' + panel.id;
+      
+      const defaultScale = panel.scale || 1.0;
+      win.dataset.nativeW = panel.nativeW;
+      win.dataset.nativeH = panel.nativeH;
+      win.dataset.scale = defaultScale.toFixed(2);
+      win.dataset.rotX = "0";
+      win.dataset.rotY = "0";
+
+      const posX = forceCenter ? 620 : panel.x;
+      const posY = forceCenter ? 160 : panel.y;
+      win.style.left = posX + 'px';
+      win.style.top = posY + 'px';
+      applySpatialOrientation(win);
+
+      win.innerHTML = `
+        <div class="win-header">
+          <span class="win-title">${panel.name}</span>
+          <div class="win-tools">
+            <span class="scale-tag">${Math.round(defaultScale * 100)}%</span>
+            <div class="tool-btn btn-zin" title="Scale Up">+</div>
+            <div class="tool-btn btn-zout" title="Scale Down">-</div>
+            <div class="tool-btn btn-tilt" title="Drag to 3D Tilt">📐</div>
+            <div class="tool-btn btn-reset" title="Reset Tilt">⟲</div>
+            <div class="tool-btn btn-close" title="Hide">✕</div>
+          </div>
+        </div>
+        <div class="win-body">
+          <div class="viewport-scaler">
+            <iframe src="${panel.id}" scrolling="no" style="width:${panel.nativeW}px; height:${panel.nativeH}px;"></iframe>
+          </div>
+        </div>
+      `;
+
+      stage.appendChild(win);
+
+      const header = win.querySelector('.win-header');
+      const tiltBtn = win.querySelector('.btn-tilt');
+      const resetBtn = win.querySelector('.btn-reset');
+      const closeBtn = win.querySelector('.btn-close');
+      const zinBtn = win.querySelector('.btn-zin');
+      const zoutBtn = win.querySelector('.btn-zout');
+      const scaleTag = win.querySelector('.scale-tag');
+      const scaler = win.querySelector('.viewport-scaler');
+
+      win.addEventListener('mousedown', () => {
+        document.querySelectorAll('.hud-window').forEach(w => w.style.zIndex = "100");
+        win.style.zIndex = "500";
+      });
+
+      function updateDimensions() {
+        const s = parseFloat(win.dataset.scale);
+        const nw = parseFloat(win.dataset.nativeW);
+        const nh = parseFloat(win.dataset.nativeH);
+
+        win.style.width = Math.round(nw * s) + 'px';
+        win.style.height = Math.round(nh * s + 28) + 'px';
+        scaler.style.transform = `scale(${s})`;
+        scaleTag.textContent = `${Math.round(s * 100)}%`;
+      }
+
+      updateDimensions();
+
+      zinBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        let s = parseFloat(win.dataset.scale);
+        s = Math.min(s + 0.05, 2.0);
+        win.dataset.scale = s.toFixed(2);
+        updateDimensions();
+      });
+
+      zoutBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        let s = parseFloat(win.dataset.scale);
+        s = Math.max(s - 0.05, 0.2);
+        win.dataset.scale = s.toFixed(2);
+        updateDimensions();
+      });
+
+      resetBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        win.dataset.rotX = "0";
+        win.dataset.rotY = "0";
+        applySpatialOrientation(win);
+      });
+
+      closeBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        win.remove();
+        listItem.classList.remove('active');
+      });
+
+      tiltBtn.addEventListener('mousedown', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        activeTiltWin = win;
+        document.body.classList.add('manipulating');
+        win.classList.add('is-tilting');
+
+        startMouseX = e.clientX;
+        startMouseY = e.clientY;
+        initRotX = parseFloat(win.dataset.rotX) || 0;
+        initRotY = parseFloat(win.dataset.rotY) || 0;
+      });
+
+      header.addEventListener('mousedown', (e) => {
+        if (e.target.classList.contains('tool-btn')) return;
+        e.preventDefault();
+        activeDragWin = win;
+        document.body.classList.add('manipulating');
+        win.classList.add('is-dragging');
+
+        startMouseX = e.clientX;
+        startMouseY = e.clientY;
+        initX = win.offsetLeft;
+        initY = win.offsetTop;
+      });
+
+      if (forceCenter) {
+        bringToCenterFront(win);
+      }
+    }
+
+    PANELS.forEach(panel => {
+      const item = document.createElement('div');
+      item.className = 'dock-item';
+      item.innerHTML = `<span>${panel.name}</span><span style="font-size:9px;opacity:0.7;">SUMMON</span>`;
+
+      item.addEventListener('click', () => {
+        const win = document.getElementById('win-' + panel.id);
+        if (!win) {
+          toggleWindow(panel, item, true);
+        } else {
+          bringToCenterFront(win);
+        }
+      });
+
+      item.addEventListener('dblclick', () => {
+        const win = document.getElementById('win-' + panel.id);
+        if (!win) {
+          toggleWindow(panel, item, true);
+        } else {
+          bringToCenterFront(win);
+        }
+      });
+
+      dockList.appendChild(item);
+
+      if (panel.initialOpen) {
+        toggleWindow(panel, item, false);
+      }
+    });
+
+    window.addEventListener('mousemove', (e) => {
+      if (activeDragWin) {
+        const dx = e.clientX - startMouseX;
+        const dy = e.clientY - startMouseY;
+        activeDragWin.style.left = `${initX + dx}px`;
+        activeDragWin.style.top = `${initY + dy}px`;
+      }
+
+      if (activeTiltWin) {
+        const dx = (e.clientX - startMouseX) * 0.15;
+        const dy = (e.clientY - startMouseY) * 0.15;
+        let newRotY = Math.max(Math.min(initRotY + dx, 45), -45);
+        let newRotX = Math.max(Math.min(initRotX - dy, 45), -45);
+
+        activeTiltWin.dataset.rotX = newRotX;
+        activeTiltWin.dataset.rotY = newRotY;
+        applySpatialOrientation(activeTiltWin);
+      }
+    });
+
+    window.addEventListener('mouseup', () => {
+      if (activeDragWin) {
+        activeDragWin.classList.remove('is-dragging');
+        activeDragWin = null;
+      }
+      if (activeTiltWin) {
+        activeTiltWin.classList.remove('is-tilting');
+        activeTiltWin = null;
+      }
+      document.body.classList.remove('manipulating');
+    });
+  </script>
+</body>
+</html>

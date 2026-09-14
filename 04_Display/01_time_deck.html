@@ -1,0 +1,110 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; }
+  body {
+    background: radial-gradient(ellipse at 50% 50%, rgba(0, 45, 90, 0.25) 0%, #010612 100%);
+    width: 100vw; height: 100vh; overflow: hidden; padding: 10px 14px;
+    border: 1px solid rgba(0, 229, 255, 0.35); display: flex; flex-direction: column; justify-content: space-between;
+    box-shadow: inset 0 0 35px rgba(0, 229, 255, 0.08);
+  }
+  .hud-top {
+    display: flex; justify-content: space-between; align-items: center;
+    font-size: 8px; letter-spacing: 2.5px; color: #00e5ff; font-weight: 700;
+    border-bottom: 1px solid rgba(0, 229, 255, 0.2); padding-bottom: 4px;
+  }
+  .holo-container {
+    display: flex; align-items: center; justify-content: space-between; gap: 12px; margin: 4px 0;
+  }
+  .arc-meter {
+    width: 72px; height: 72px; position: relative; flex-shrink: 0;
+  }
+  .arc-meter svg { width: 100%; height: 100%; transform: rotate(-90deg); }
+  .arc-bg { fill: none; stroke: rgba(0, 229, 255, 0.12); stroke-width: 5; }
+  .arc-val {
+    fill: none; stroke: #00e5ff; stroke-width: 5; stroke-dasharray: 200; stroke-dashoffset: 50;
+    filter: drop-shadow(0 0 6px #00e5ff); transition: stroke-dashoffset 0.1s linear;
+  }
+  .arc-inner-text {
+    position: absolute; inset: 0; display: flex; flex-direction: column;
+    align-items: center; justify-content: center; font-size: 9px; font-weight: 800; color: #ffaa00;
+  }
+  .time-block { flex: 1; display: flex; flex-direction: column; }
+  .chrono-main {
+    font-size: 34px; font-weight: 900; letter-spacing: 3px; color: #ffffff;
+    line-height: 1; text-shadow: 0 0 20px rgba(0, 229, 255, 0.8), 0 0 40px rgba(0, 229, 255, 0.35);
+  }
+  .chrono-sub {
+    display: flex; align-items: center; gap: 8px; margin-top: 5px;
+    font-size: 10px; font-weight: 700; color: #7ad7ff; letter-spacing: 1.5px;
+  }
+  .badge-ms {
+    background: rgba(255, 170, 0, 0.15); color: #ffaa00; border: 1px solid rgba(255, 170, 0, 0.4);
+    padding: 1px 6px; border-radius: 2px; font-size: 9px;
+  }
+  .hud-bottom {
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px;
+  }
+  .telemetry-chip {
+    background: rgba(0, 229, 255, 0.05); border: 1px solid rgba(0, 229, 255, 0.2);
+    border-radius: 2px; padding: 3px 6px; text-align: center;
+  }
+  .telemetry-chip span { font-size: 7.5px; color: rgba(255, 255, 255, 0.5); display: block; letter-spacing: 1px; }
+  .telemetry-chip b { font-size: 9px; color: #00e5ff; letter-spacing: 1px; }
+</style>
+</head>
+<body>
+  <div class="hud-top">
+    <span>// QUANTUM CHRONOMETER // ULTRON OS</span>
+    <span style="color:#00ffaa;">STABLE LOCK</span>
+  </div>
+
+  <div class="holo-container">
+    <div class="arc-meter">
+      <svg viewBox="0 0 80 80">
+        <circle class="arc-bg" cx="40" cy="40" r="32"/>
+        <circle id="sec-ring" class="arc-val" cx="40" cy="40" r="32"/>
+      </svg>
+      <div class="arc-inner-text">
+        <span id="sec-label">00s</span>
+      </div>
+    </div>
+
+    <div class="time-block">
+      <div class="chrono-main" id="clock">00:00:00</div>
+      <div class="chrono-sub">
+        <span class="badge-ms" id="ms">.000 MS</span>
+        <span>UTC+05:30</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="hud-bottom">
+    <div class="telemetry-chip"><span>TIMELINE DATE</span><b id="date">2026.09.14</b></div>
+    <div class="telemetry-chip"><span>DRIFT OSCILLATION</span><b style="color:#00ffaa;">±0.001 MS</b></div>
+    <div class="telemetry-chip"><span>CORE SYNAPSE</span><b>144.00 MHZ</b></div>
+  </div>
+
+  <script>
+    const secRing = document.getElementById('sec-ring');
+    const circumference = 2 * Math.PI * 32; // ~201
+    secRing.style.strokeDasharray = circumference;
+
+    function tick() {
+      const d = new Date();
+      const p = n => String(n).padStart(2, '0');
+      document.getElementById('clock').innerText = `${p(d.getHours())}:${p(d.getMinutes())}:${p(d.getSeconds())}`;
+      document.getElementById('ms').innerText = '.' + String(d.getMilliseconds()).padStart(3, '0') + ' MS';
+      document.getElementById('date').innerText = `${d.getFullYear()}.${p(d.getMonth()+1)}.${p(d.getDate())}`;
+
+      const secFraction = (d.getSeconds() + d.getMilliseconds() / 1000) / 60;
+      secRing.style.strokeDashoffset = circumference - (circumference * secFraction);
+      document.getElementById('sec-label').innerText = `${p(d.getSeconds())}s`;
+    }
+    setInterval(tick, 35);
+    tick();
+  </script>
+</body>
+</html>

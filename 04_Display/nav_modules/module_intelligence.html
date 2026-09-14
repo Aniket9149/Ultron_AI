@@ -1,0 +1,267 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<style>
+  * {
+    margin: 0; padding: 0; box-sizing: border-box;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Consolas, monospace;
+    user-select: none;
+    -webkit-font-smoothing: subpixel-antialiased;
+    text-rendering: geometricPrecision;
+  }
+  body {
+    background: transparent !important;
+    width: 480px;
+    height: 820px;
+    overflow: hidden;
+    color: #fff;
+  }
+
+  #spatial-hologram-stage {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    animation: holoProject 0.35s cubic-bezier(0.1, 0.9, 0.2, 1);
+  }
+  @keyframes holoProject {
+    from { opacity: 0; transform: scale(0.95); filter: blur(3px); }
+    to { opacity: 1; transform: scale(1); filter: blur(0); }
+  }
+
+  .holo-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 6px;
+    padding-left: 4px;
+  }
+  .holo-header-title {
+    font-size: 9px;
+    letter-spacing: 2.5px;
+    font-weight: 900;
+    color: #00f0ff;
+    text-shadow: 0 0 10px rgba(0, 240, 255, 0.85);
+  }
+  .holo-tag {
+    font-size: 7.5px;
+    letter-spacing: 1.5px;
+    color: #00ffaa;
+    font-weight: 800;
+    text-shadow: 0 0 8px rgba(0, 255, 170, 0.7);
+  }
+
+  .holo-viewport {
+    width: 420px;
+    height: 240px;
+    position: relative;
+    background: transparent;
+  }
+  #holo-canvas {
+    width: 100%;
+    height: 100%;
+    display: block;
+    image-rendering: -webkit-optimize-contrast;
+  }
+
+  .holo-telemetry-layer {
+    width: 420px;
+    margin-top: 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding-left: 6px;
+  }
+  .telemetry-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px dashed rgba(0, 229, 255, 0.18);
+    padding-bottom: 5px;
+  }
+  .label {
+    font-size: 8px;
+    letter-spacing: 2px;
+    color: rgba(180, 235, 255, 0.7);
+    font-weight: 700;
+  }
+  .val {
+    font-size: 11px;
+    font-weight: 900;
+    font-family: 'Consolas', monospace;
+    color: #ffffff;
+    letter-spacing: 1.5px;
+    text-shadow: 0 0 10px rgba(0, 240, 255, 0.8);
+  }
+
+  .vector-rail {
+    width: 100%;
+    height: 2px;
+    background: rgba(0, 229, 255, 0.12);
+    margin-top: 4px;
+    position: relative;
+    overflow: hidden;
+  }
+  .vector-glow {
+    position: absolute;
+    left: 0; top: 0; bottom: 0; width: 88%;
+    background: linear-gradient(90deg, #0077aa, #00f0ff 70%, #00ffaa);
+    box-shadow: 0 0 8px #00f0ff;
+  }
+</style>
+</head>
+<body>
+
+  <div id="spatial-hologram-stage">
+    <div class="holo-header">
+      <span class="holo-header-title">// QUANTUM REASONING MATRIX</span>
+      <span class="holo-tag">● 16K RESOLUTION ENGAGED</span>
+    </div>
+
+    <div class="holo-viewport">
+      <canvas id="holo-canvas"></canvas>
+    </div>
+
+    <div class="holo-telemetry-layer">
+      <div class="telemetry-row">
+        <span class="label">SYNAPSE VECTOR SLOTS</span>
+        <span class="val">1,048,576</span>
+      </div>
+      <div class="telemetry-row">
+        <span class="label">COGNITIVE HEURISTIC FLUX</span>
+        <span class="val" id="flux-val" style="color: #00ffaa;">0.9998 &plusmn;0.001%</span>
+      </div>
+      <div class="telemetry-row">
+        <span class="label">INFERENCE STREAM</span>
+        <span class="val" id="tps-val">144.8 T/SEC</span>
+      </div>
+      <div class="telemetry-row">
+        <span class="label">NEURAL WEIGHT ALIGNMENT</span>
+        <span class="val" style="color: #00f0ff;">CONVERGED (99.9%)</span>
+      </div>
+      <div class="vector-rail">
+        <div class="vector-glow"></div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const cvs = document.getElementById('holo-canvas');
+    const ctx = cvs.getContext('2d', { alpha: true, desynchronized: true });
+
+    function resize16K() {
+      const scaleMultiplier = 8;
+      const rect = cvs.getBoundingClientRect();
+      cvs.width = Math.round(rect.width * scaleMultiplier);
+      cvs.height = Math.round(rect.height * scaleMultiplier);
+      ctx.scale(scaleMultiplier, scaleMultiplier);
+    }
+    window.addEventListener('resize', resize16K);
+    resize16K();
+
+    let angleA = 0, angleB = 0, angleC = 0;
+
+    function draw3DRing(cx, cy, radiusX, radiusY, rotAngle, color, strokeW, dash) {
+      ctx.save();
+      ctx.translate(cx, cy);
+      ctx.rotate(rotAngle);
+      ctx.beginPath();
+      ctx.ellipse(0, 0, radiusX, radiusY, 0, 0, Math.PI * 2);
+      ctx.strokeStyle = color;
+      ctx.lineWidth = strokeW;
+      if (dash) ctx.setLineDash(dash);
+      ctx.shadowColor = color;
+      ctx.shadowBlur = 12;
+      ctx.stroke();
+      ctx.restore();
+    }
+
+    const CORE_NODES = 28;
+    const coreNodes = [];
+    for (let i = 0; i < CORE_NODES; i++) {
+      const u = Math.random(), v = Math.random();
+      const theta = u * 2.0 * Math.PI;
+      const phi = Math.acos(2.0 * v - 1.0);
+      const r = 24 + Math.random() * 18;
+      coreNodes.push({
+        x: r * Math.sin(phi) * Math.cos(theta),
+        y: r * Math.sin(phi) * Math.sin(theta),
+        z: r * Math.cos(phi),
+        color: (i % 3 === 0) ? '#00ffaa' : '#00f0ff'
+      });
+    }
+
+    function renderHoloEngine() {
+      const rect = cvs.getBoundingClientRect();
+      const w = rect.width;
+      const h = rect.height;
+      ctx.clearRect(0, 0, w, h);
+
+      const cx = w / 2;
+      const cy = h / 2;
+
+      angleA += 0.015;
+      angleB -= 0.022;
+      angleC += 0.010;
+
+      draw3DRing(cx, cy, 95, 38, angleA, 'rgba(0, 240, 255, 0.5)', 1.2, [8, 6]);
+      draw3DRing(cx, cy, 80, 28, angleB, 'rgba(0, 255, 170, 0.6)', 1.0, [4, 4]);
+      draw3DRing(cx, cy, 65, 55, angleC, 'rgba(0, 180, 255, 0.4)', 0.8, null);
+
+      const fov = 160;
+      const projected = [];
+
+      coreNodes.forEach(n => {
+        let x1 = n.x * Math.cos(angleA) + n.z * Math.sin(angleA);
+        let z1 = -n.x * Math.sin(angleA) + n.z * Math.cos(angleA);
+        let y2 = n.y * Math.cos(angleB) - z1 * Math.sin(angleB);
+        let z2 = n.y * Math.sin(angleB) + z1 * Math.cos(angleB);
+
+        const scale = fov / (fov + z2 + 60);
+        const px = cx + x1 * scale;
+        const py = cy + y2 * scale;
+        projected.push({ x: px, y: py, z: z2, scale, color: n.color });
+      });
+
+      for (let i = 0; i < projected.length; i++) {
+        for (let j = i + 1; j < projected.length; j++) {
+          const dx = projected[i].x - projected[j].x;
+          const dy = projected[i].y - projected[j].y;
+          const dist = Math.sqrt(dx*dx + dy*dy);
+          if (dist < 32) {
+            ctx.beginPath();
+            ctx.moveTo(projected[i].x, projected[i].y);
+            ctx.lineTo(projected[j].x, projected[j].y);
+            ctx.strokeStyle = `rgba(0, 240, 255, ${(1 - dist/32) * 0.65})`;
+            ctx.lineWidth = 0.8;
+            ctx.stroke();
+          }
+        }
+      }
+
+      projected.sort((a,b) => b.z - a.z);
+      projected.forEach(p => {
+        const radius = Math.max(1, p.scale * 2.2);
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, radius, 0, Math.PI * 2);
+        ctx.fillStyle = p.color;
+        ctx.shadowColor = p.color;
+        ctx.shadowBlur = 10;
+        ctx.fill();
+        ctx.shadowBlur = 0;
+      });
+
+      requestAnimationFrame(renderHoloEngine);
+    }
+    renderHoloEngine();
+
+    setInterval(() => {
+      document.getElementById('tps-val').innerText = (144.0 + Math.random() * 1.6).toFixed(1) + ' T/SEC';
+      document.getElementById('flux-val').innerText = '0.9998 ±' + (0.001 + Math.random()*0.0004).toFixed(4) + '%';
+    }, 1200);
+  </script>
+</body>
+</html>

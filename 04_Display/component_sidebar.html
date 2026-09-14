@@ -203,6 +203,47 @@
             text-shadow: 0 0 8px var(--cyan-glow), 0 0 16px rgba(0, 240, 255, 0.8), 0 0 24px rgba(0, 240, 255, 0.5);
         }
     </style>
+<style id="ultron-universal-fluid-engine">
+  /* Universal Responsive & Crisp Vector Engine */
+  html, body {
+    width: 100% !important;
+    height: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    overflow: hidden !important;
+    box-sizing: border-box !important;
+    -webkit-font-smoothing: subpixel-antialiased !important;
+    text-rendering: geometricPrecision !important;
+  }
+
+  *, *::before, *::after {
+    box-sizing: border-box !important;
+  }
+
+  /* Root containers fluid fit */
+  body > div, body > main, .container, .card, .panel, .wrapper {
+    max-width: 100% !important;
+    max-height: 100% !important;
+  }
+
+  /* Canvases & SVGs auto-fill without pixelation */
+  canvas, svg {
+    max-width: 100% !important;
+    max-height: 100% !important;
+    image-rendering: -webkit-optimize-contrast !important;
+  }
+</style>
+<script id="ultron-universal-resize-watcher">
+  // Auto-trigger resize event on iframe scale changes for Three.js / Canvas sync
+  window.addEventListener('DOMContentLoaded', () => {
+    const triggerCanvasResize = () => {
+      window.dispatchEvent(new Event('resize'));
+    };
+    new ResizeObserver(() => {
+      triggerCanvasResize();
+    }).observe(document.body);
+  });
+</script>
 </head>
 <body>
     <aside class="ultron-sidebar">
@@ -271,5 +312,66 @@
             el.classList.add('active');
         }
     </script>
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    document.body.addEventListener('click', (e) => {
+      const target = e.target.closest('.nav-item, [class*="nav"], .menu-item, div, button');
+      if (!target) return;
+      const text = target.innerText.trim().toUpperCase();
+      if (text.includes('INTELLIGENCE')) {
+        window.parent.postMessage({ type: 'NAV_CLICK', target: 'INTELLIGENCE' }, '*');
+      } else if (text.includes('HOME')) {
+        window.parent.postMessage({ type: 'NAV_CLICK', target: 'HOME' }, '*');
+      } else if (text.includes('AGENTS')) {
+        window.parent.postMessage({ type: 'NAV_CLICK', target: 'AGENTS' }, '*');
+      } else if (text.includes('MEMORY')) {
+        window.parent.postMessage({ type: 'NAV_CLICK', target: 'MEMORY' }, '*');
+      } else if (text.includes('SYSTEM')) {
+        window.parent.postMessage({ type: 'NAV_CLICK', target: 'SYSTEMS' }, '*');
+      } else if (text.includes('NETWORK')) {
+        window.parent.postMessage({ type: 'NAV_CLICK', target: 'NETWORK' }, '*');
+      } else if (text.includes('TOOL')) {
+        window.parent.postMessage({ type: 'NAV_CLICK', target: 'TOOLS' }, '*');
+      }
+    });
+  });
+</script>
+<script id="ultron-nav-hook">
+  window.addEventListener('load', () => {
+    function dispatchNav(targetName) {
+      window.parent.postMessage({ type: 'NAV_CLICK', target: targetName }, '*');
+    }
+
+    document.querySelectorAll('*').forEach(el => {
+      const txt = (el.innerText || el.textContent || '').trim().toUpperCase();
+      if (el.children.length === 0 || el.classList.contains('nav-item') || el.tagName === 'BUTTON') {
+        if (txt === 'INTELLIGENCE' || txt.includes('INTELLIGENCE')) {
+          el.style.cursor = 'pointer';
+          el.addEventListener('click', (e) => { e.stopPropagation(); dispatchNav('INTELLIGENCE'); });
+        } else if (txt === 'HOME' || txt.includes('HOME')) {
+          el.style.cursor = 'pointer';
+          el.addEventListener('click', (e) => { e.stopPropagation(); dispatchNav('HOME'); });
+        } else if (txt === 'AGENTS' || txt.includes('AGENTS')) {
+          el.style.cursor = 'pointer';
+          el.addEventListener('click', (e) => { e.stopPropagation(); dispatchNav('AGENTS'); });
+        } else if (txt === 'MEMORY' || txt.includes('MEMORY')) {
+          el.style.cursor = 'pointer';
+          el.addEventListener('click', (e) => { e.stopPropagation(); dispatchNav('MEMORY'); });
+        } else if (txt === 'SYSTEMS' || txt.includes('SYSTEM')) {
+          el.style.cursor = 'pointer';
+          el.addEventListener('click', (e) => { e.stopPropagation(); dispatchNav('SYSTEMS'); });
+        } else if (txt === 'NETWORK' || txt.includes('NETWORK')) {
+          el.style.cursor = 'pointer';
+          el.addEventListener('click', (e) => { e.stopPropagation(); dispatchNav('NETWORK'); });
+        } else if (txt === 'TOOLS' || txt.includes('TOOL')) {
+          el.style.cursor = 'pointer';
+          el.addEventListener('click', (e) => { e.stopPropagation(); dispatchNav('TOOLS'); });
+        }
+      }
+    });
+  });
+</script>
 </body>
 </html>
+
+

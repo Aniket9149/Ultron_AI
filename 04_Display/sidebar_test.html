@@ -378,6 +378,47 @@
             letter-spacing: 1px;
         }
     </style>
+<style id="ultron-universal-fluid-engine">
+  /* Universal Responsive & Crisp Vector Engine */
+  html, body {
+    width: 100% !important;
+    height: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    overflow: hidden !important;
+    box-sizing: border-box !important;
+    -webkit-font-smoothing: subpixel-antialiased !important;
+    text-rendering: geometricPrecision !important;
+  }
+
+  *, *::before, *::after {
+    box-sizing: border-box !important;
+  }
+
+  /* Root containers fluid fit */
+  body > div, body > main, .container, .card, .panel, .wrapper {
+    max-width: 100% !important;
+    max-height: 100% !important;
+  }
+
+  /* Canvases & SVGs auto-fill without pixelation */
+  canvas, svg {
+    max-width: 100% !important;
+    max-height: 100% !important;
+    image-rendering: -webkit-optimize-contrast !important;
+  }
+</style>
+<script id="ultron-universal-resize-watcher">
+  // Auto-trigger resize event on iframe scale changes for Three.js / Canvas sync
+  window.addEventListener('DOMContentLoaded', () => {
+    const triggerCanvasResize = () => {
+      window.dispatchEvent(new Event('resize'));
+    };
+    new ResizeObserver(() => {
+      triggerCanvasResize();
+    }).observe(document.body);
+  });
+</script>
 </head>
 <body>
 
@@ -540,3 +581,4 @@
     </script>
 </body>
 </html>
+

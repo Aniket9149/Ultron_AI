@@ -1,0 +1,19 @@
+2026-09-14 17:25:30.653: [INFO] CurrentProfilePath: C:\Users\as712\ultron\04_display\.ultron_production_profile\Default
+2026-09-14 17:25:30.653: [INFO] Profiles total count: 1
+2026-09-14 17:25:30.653: [INFO] Profile: name=Personal path=C:\Users\as712\ultron\04_display\.ultron_production_profile\Default lastActive=2026-09-14T17:25:30.591Z
+2026-09-14 17:25:30.653: [INFO] LastUsedProfileDir: C:\Users\as712\ultron\04_display\.ultron_production_profile\Default
+2026-09-14 17:25:30.653: [INFO] MostRecentlyActiveProfile: name=Personal path=C:\Users\as712\ultron\04_display\.ultron_production_profile\Default lastActive=2026-09-14T17:25:30.591Z
+2026-09-14 17:25:30.653: [INFO] OnDoneLoading sync enabled: 0
+2026-09-14 17:25:30.653: [INFO] BookmarkModelLoaded, ids_reassigned: 0
+2026-09-14 17:25:30.653: [INFO] BookmarksLoadDropped droppedNodes=0
+2026-09-14 17:25:30.653: [INFO] BookmarksSnapshot Startup total=0 bar=0 other=0 mobile=0 showBar=0 showBarNTP=1
+2026-09-14 17:25:40.550: [INFO] RecordSyncInitDuration has_sync_been_enabled: 0 state: 3
+2026-09-14 17:25:40.552: [INFO] RecordSyncInitDuration has_sync_been_enabled: 0 state: 3
+2026-09-14 17:25:40.553: [INFO] RecordSyncInitDuration has_sync_been_enabled: 0 state: 3
+2026-09-14 17:25:40.554: [INFO] RecordSyncInitDuration has_sync_been_enabled: 0 state: 5
+2026-09-14 17:25:40.555: [INFO] RecordSyncInitDuration has_sync_been_enabled: 0 state: 5
+2026-09-14 17:25:40.558: [INFO] RecordSyncInitDuration has_sync_been_enabled: 0 state: 6
+2026-09-14 17:25:40.559: [INFO] RecordSyncInitDuration has_sync_been_enabled: 0 state: 6
+2026-09-14 17:25:41.058: [INFO] RecordSyncInitDuration has_sync_been_enabled: 0 state: 6
+2026-09-14 17:25:41.075: [INFO] RecordSyncInitDuration has_sync_been_enabled: 0 state: 6
+2026-09-14 17:25:53.206: [INFO] BookmarksSnapshot Shutdown total=0 bar=0 other=0 mobile=0 showBar=0 showBarNTP=1

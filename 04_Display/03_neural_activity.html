@@ -1,0 +1,69 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body {
+    background: #020611; width: 100vw; height: 100vh; overflow: hidden;
+    border: 1px solid rgba(0, 229, 255, 0.25);
+  }
+  .head-label {
+    position: absolute; top: 8px; left: 12px; font-size: 9px;
+    font-family: 'Segoe UI', monospace; letter-spacing: 2px; color: #00e5ff;
+    z-index: 10; pointer-events: none;
+    background: rgba(2, 6, 17, 0.85); padding: 2px 6px; border-radius: 2px;
+  }
+  canvas { display: block; width: 100%; height: 100%; }
+</style>
+</head>
+<body>
+  <div class="head-label">// NEURAL FREQUENCY OSCILLOSCOPE [MK-VII] //</div>
+  <canvas id="c"></canvas>
+  <script>
+    const cvs = document.getElementById('c');
+    const ctx = cvs.getContext('2d');
+    function resize() { cvs.width = window.innerWidth; cvs.height = window.innerHeight; }
+    window.addEventListener('resize', resize); resize();
+    let t = 0;
+    function draw() {
+      ctx.fillStyle = 'rgba(2, 6, 17, 0.25)';
+      ctx.fillRect(0, 0, cvs.width, cvs.height);
+
+      // Digital Grid Background
+      ctx.strokeStyle = 'rgba(0, 229, 255, 0.04)';
+      ctx.lineWidth = 1;
+      for (let x = 0; x < cvs.width; x += 30) {
+        ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, cvs.height); ctx.stroke();
+      }
+      for (let y = 0; y < cvs.height; y += 20) {
+        ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(cvs.width, y); ctx.stroke();
+      }
+
+      // Three Dynamic Neural Layers
+      const waves = [
+        { color: '#00e5ff', speed: 0.04, amp: 26, freq: 0.018, glow: 12 },
+        { color: '#7928ca', speed: 0.025, amp: 38, freq: 0.012, glow: 16 },
+        { color: '#00ffcc', speed: 0.05, amp: 14, freq: 0.028, glow: 8 }
+      ];
+
+      waves.forEach(w => {
+        ctx.strokeStyle = w.color;
+        ctx.shadowColor = w.color;
+        ctx.shadowBlur = w.glow;
+        ctx.lineWidth = 2.2;
+        ctx.beginPath();
+        for (let x = 0; x < cvs.width; x++) {
+          let y = cvs.height/2 + Math.sin(x * w.freq + t * w.speed) * Math.cos(x * 0.004 + t * 0.01) * w.amp;
+          if (x === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+        }
+        ctx.stroke();
+      });
+      ctx.shadowBlur = 0;
+      t += 1;
+      requestAnimationFrame(draw);
+    }
+    draw();
+  </script>
+</body>
+</html>
