@@ -1,0 +1,32 @@
+﻿:root {
+    --bg-canvas: #090b10;
+    --glass-card: rgba(22, 27, 38, 0.45);
+    --glass-border: rgba(255, 255, 255, 0.08);
+    --accent-cyan: #00f0ff;
+    --text-pure: #ffffff;
+    --text-muted: #8b9bb4;
+    --text-sub: #546277;
+    --neon-green: #00ff88;
+    --neon-red: #ff3344;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; user-select: none; }
+
+body {
+    background: var(--bg-canvas);
+    color: var(--text-pure);
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    height: 100vh;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+.ambient-glow {
+    position: fixed; border-radius: 50%; pointer-events: none; z-index: 0; filter: blur(140px);
+}
+.glow-top { top: -150px; left: 50%; transform: translateX(-50%); width: 650px; height: 350px; background: rgba(0, 240, 255, 0.07); }
+.glow-bottom { bottom: -180px; right: 10%; width: 500px; height: 300px; background: rgba(59, 130, 246, 0.06); }
+
+.stage-view { display: none; height: 100vh; width: 100vw; flex-direction: column; z-index: 1; }
+.stage-view.active { display: flex; }

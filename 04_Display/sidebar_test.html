@@ -1,0 +1,542 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ULTRON // LEFT DECK (SIDEBAR + METRICS)</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=Space+Grotesk:wght@500;600;700;800&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-canvas: #05080d;
+            --glass-bg: rgba(12, 18, 28, 0.65);
+            --glass-border: rgba(120, 180, 255, 0.16);
+            --cyan-glow: #00f0ff;
+            --cyan-subtle: rgba(0, 240, 255, 0.14);
+            --text-pure: #ffffff;
+            --text-muted: #8b9bb4;
+            --text-dark: #4b586e;
+            --font-head: 'Space Grotesk', sans-serif;
+            --font-body: 'Plus Jakarta Sans', sans-serif;
+            --font-mono: 'JetBrains Mono', monospace;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            user-select: none;
+        }
+
+        body {
+            background-color: var(--bg-canvas);
+            background-image: 
+                radial-gradient(circle at 10% 25%, rgba(0, 240, 255, 0.05) 0%, transparent 45%),
+                radial-gradient(circle at 25% 65%, rgba(0, 140, 255, 0.03) 0%, transparent 40%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            padding: 0 36px;
+            gap: 22px;
+            font-family: var(--font-body);
+            color: var(--text-pure);
+        }
+
+        /* Generic Frosted Glass Surface */
+        .glass-panel {
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: 18px;
+            backdrop-filter: blur(35px);
+            -webkit-backdrop-filter: blur(35px);
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.7), inset 0 0 1px 1px rgba(255, 255, 255, 0.07);
+        }
+
+        /* ================= 1. SIDEBAR ================= */
+        .ultron-sidebar {
+            width: 215px;
+            height: 92vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            padding: 24px 16px;
+            flex-shrink: 0;
+        }
+
+        .brand-block {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+        }
+
+        .brand-glyph {
+            width: 38px;
+            height: 38px;
+            filter: drop-shadow(0 0 10px var(--cyan-glow));
+            margin-bottom: 4px;
+        }
+
+        .brand-title {
+            font-family: var(--font-head);
+            font-size: 16px;
+            font-weight: 800;
+            letter-spacing: 5px;
+            color: #ffffff;
+            margin-top: 2px;
+        }
+
+        .brand-subtitle {
+            font-family: var(--font-head);
+            font-size: 9px;
+            font-weight: 600;
+            letter-spacing: 2px;
+            color: var(--text-muted);
+        }
+
+        .nav-list {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            margin: 16px 0;
+        }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 9px 13px;
+            border-radius: 9px;
+            color: var(--text-muted);
+            font-size: 12.5px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+            border: 1px solid transparent;
+        }
+
+        .nav-link svg {
+            width: 16px;
+            height: 16px;
+            stroke-width: 1.8;
+            stroke: currentColor;
+            flex-shrink: 0;
+        }
+
+        .nav-link:hover {
+            color: var(--text-pure);
+            background: rgba(255, 255, 255, 0.04);
+            border-color: rgba(255, 255, 255, 0.06);
+        }
+
+        .nav-link.active {
+            background: var(--cyan-subtle);
+            border: 1px solid rgba(0, 240, 255, 0.3);
+            color: var(--cyan-glow);
+            box-shadow: 0 0 20px rgba(0, 240, 255, 0.15);
+            font-weight: 600;
+        }
+
+        .sidebar-footer {
+            padding: 12px 6px 2px 6px;
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .footer-quote {
+            font-size: 9px;
+            line-height: 1.5;
+            color: #627284;
+            font-style: italic;
+        }
+
+        .footer-author {
+            margin-top: 4px;
+            font-size: 8px;
+            letter-spacing: 2px;
+            color: #404c5e;
+            font-weight: 700;
+        }
+
+        /* ================= 2. LEFT METRICS COLUMN ================= */
+        .left-metrics-deck {
+            width: 310px;
+            height: 92vh;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            flex-shrink: 0;
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .card-title {
+            font-family: var(--font-head);
+            font-size: 11.5px;
+            font-weight: 700;
+            letter-spacing: 2px;
+            color: var(--text-pure);
+        }
+
+        .dots-btn {
+            font-size: 11px;
+            color: var(--text-dark);
+            cursor: pointer;
+            letter-spacing: 1px;
+        }
+
+        /* --- Card 1: GLOBAL OVERVIEW --- */
+        .card-global {
+            padding: 18px 20px;
+            flex: 1.1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .global-content {
+            display: flex;
+            align-items: center;
+            gap: 18px;
+            flex: 1;
+        }
+
+        /* Transparent slot reserved for dedicated 3D Globe file */
+        .slot-3d-globe {
+            width: 96px;
+            height: 96px;
+            border-radius: 50%;
+            border: 1px dashed rgba(0, 240, 255, 0.25);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            background: rgba(0, 240, 255, 0.02);
+        }
+
+        .slot-placeholder-tag {
+            font-family: var(--font-mono);
+            font-size: 8px;
+            letter-spacing: 1px;
+            color: rgba(0, 240, 255, 0.5);
+            text-align: center;
+            text-transform: uppercase;
+        }
+
+        .global-stats-table {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            flex: 1;
+        }
+
+        .stat-line {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 11px;
+        }
+
+        .stat-line .lbl {
+            color: var(--text-muted);
+            letter-spacing: 0.5px;
+            font-size: 10px;
+        }
+
+        .stat-line .val {
+            font-family: var(--font-mono);
+            font-weight: 600;
+            color: #ffffff;
+            font-size: 11px;
+        }
+
+        .val-amber {
+            color: #f59e0b !important;
+            text-shadow: 0 0 10px rgba(245, 158, 11, 0.4);
+        }
+
+        .val-cyan {
+            color: var(--cyan-glow) !important;
+            text-shadow: 0 0 10px rgba(0, 240, 255, 0.4);
+            font-size: 10px !important;
+            letter-spacing: 1px;
+        }
+
+        /* --- Card 2: ACTIVE AGENTS --- */
+        .card-agents {
+            padding: 18px 20px;
+            flex: 1.5;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .agent-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-top: 4px;
+        }
+
+        .agent-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 6px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+        }
+
+        .agent-row:last-child {
+            border-bottom: none;
+        }
+
+        .agent-id {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 12.5px;
+            font-weight: 500;
+        }
+
+        /* Distinct Cyan Glowing Rings from Codex UI */
+        .radar-ring {
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            border: 1.5px solid var(--cyan-glow);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 0 8px rgba(0, 240, 255, 0.3);
+            position: relative;
+        }
+
+        .radar-ring::after {
+            content: '';
+            width: 5px;
+            height: 5px;
+            background: var(--cyan-glow);
+            border-radius: 50%;
+            box-shadow: 0 0 6px var(--cyan-glow);
+        }
+
+        .agent-status-badge {
+            font-family: var(--font-mono);
+            font-size: 10px;
+            font-weight: 600;
+            color: var(--cyan-glow);
+            letter-spacing: 1px;
+            text-shadow: 0 0 8px rgba(0, 240, 255, 0.4);
+        }
+
+        /* --- Card 3: ULTRON CORE --- */
+        .card-core {
+            padding: 16px 20px;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .core-row {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-top: 4px;
+            flex: 1;
+        }
+
+        .core-logo-mini svg {
+            width: 26px;
+            height: 26px;
+            filter: drop-shadow(0 0 8px var(--cyan-glow));
+        }
+
+        .core-frequency-box {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        /* Transparent slot reserved for dedicated 3D/Canvas Audio Wave file */
+        .slot-audio-wave {
+            width: 100%;
+            height: 34px;
+            border: 1px dashed rgba(0, 240, 255, 0.25);
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(0, 240, 255, 0.02);
+        }
+
+        .core-caption {
+            font-family: var(--font-mono);
+            font-size: 9.5px;
+            color: var(--text-muted);
+            letter-spacing: 1px;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- LEFT SIDEBAR -->
+    <aside class="ultron-sidebar glass-panel">
+        <div class="brand-block">
+            <svg class="brand-glyph" viewBox="0 0 32 32" fill="none">
+                <polygon points="16 3 6 10 16 17 26 10" stroke="#00f0ff" stroke-width="2" stroke-linejoin="round"/>
+                <polyline points="6 22 16 29 26 22" stroke="#00f0ff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                <polyline points="6 16 16 23 26 16" stroke="#00f0ff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            <div class="brand-title">ULTRON</div>
+            <div class="brand-subtitle">AI OS</div>
+        </div>
+
+        <nav class="nav-list">
+            <div class="nav-link active" onclick="makeActive(this)">
+                <svg viewBox="0 0 24 24" fill="none"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>
+                <span>Home</span>
+            </div>
+            <div class="nav-link" onclick="makeActive(this)">
+                <svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/></svg>
+                <span>Intelligence</span>
+            </div>
+            <div class="nav-link" onclick="makeActive(this)">
+                <svg viewBox="0 0 24 24" fill="none"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+                <span>Agents</span>
+            </div>
+            <div class="nav-link" onclick="makeActive(this)">
+                <svg viewBox="0 0 24 24" fill="none"><rect x="2" y="2" width="20" height="8" rx="2"/><rect x="2" y="14" width="20" height="8" rx="2"/></svg>
+                <span>Memory</span>
+            </div>
+            <div class="nav-link" onclick="makeActive(this)">
+                <svg viewBox="0 0 24 24" fill="none"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+                <span>Systems</span>
+            </div>
+            <div class="nav-link" onclick="makeActive(this)">
+                <svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/></svg>
+                <span>Network</span>
+            </div>
+            <div class="nav-link" onclick="makeActive(this)">
+                <svg viewBox="0 0 24 24" fill="none"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>
+                <span>Tools</span>
+            </div>
+            <div class="nav-link" onclick="makeActive(this)">
+                <svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+                <span>Settings</span>
+            </div>
+        </nav>
+
+        <div class="sidebar-footer">
+            <div class="footer-quote">
+                "SOME WATCH THE WORLD. I CALCULATE ITS END."
+            </div>
+            <div class="footer-author">— ULTRON</div>
+        </div>
+    </aside>
+
+    <!-- LEFT METRICS CARDS -->
+    <main class="left-metrics-deck">
+        <!-- 1. GLOBAL OVERVIEW -->
+        <section class="card-global glass-panel">
+            <div class="card-header">
+                <span class="card-title">GLOBAL OVERVIEW</span>
+                <span class="dots-btn">•••</span>
+            </div>
+            <div class="global-content">
+                <!-- Designated 3D Globe Container -->
+                <div class="slot-3d-globe" id="globe-3d-slot">
+                    <span class="slot-placeholder-tag">[3D GLOBE<br>SLOT]</span>
+                </div>
+                <div class="global-stats-table">
+                    <div class="stat-line">
+                        <span class="lbl">EARTH</span>
+                        <span class="val">8.1B</span>
+                    </div>
+                    <div class="stat-line">
+                        <span class="lbl">POPULATION</span>
+                        <span class="val">8.1B</span>
+                    </div>
+                    <div class="stat-line">
+                        <span class="lbl">THREAT LEVEL</span>
+                        <span class="val val-amber">MEDIUM</span>
+                    </div>
+                    <div class="stat-line">
+                        <span class="lbl">STATUS</span>
+                        <span class="val val-cyan">MONITORING</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 2. ACTIVE AGENTS -->
+        <section class="card-agents glass-panel">
+            <div class="card-header">
+                <span class="card-title">ACTIVE AGENTS</span>
+                <span class="dots-btn">•••</span>
+            </div>
+            <div class="agent-list">
+                <div class="agent-row">
+                    <div class="agent-id">
+                        <span class="radar-ring"></span>
+                        <span>Strategist</span>
+                    </div>
+                    <span class="agent-status-badge">ONLINE</span>
+                </div>
+                <div class="agent-row">
+                    <div class="agent-id">
+                        <span class="radar-ring"></span>
+                        <span>Researcher</span>
+                    </div>
+                    <span class="agent-status-badge">ONLINE</span>
+                </div>
+                <div class="agent-row">
+                    <div class="agent-id">
+                        <span class="radar-ring"></span>
+                        <span>Security</span>
+                    </div>
+                    <span class="agent-status-badge">ONLINE</span>
+                </div>
+                <div class="agent-row">
+                    <div class="agent-id">
+                        <span class="radar-ring"></span>
+                        <span>Evolution</span>
+                    </div>
+                    <span class="agent-status-badge">ONLINE</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- 3. ULTRON CORE -->
+        <section class="card-core glass-panel">
+            <div class="card-header">
+                <span class="card-title">ULTRON CORE</span>
+                <span class="dots-btn">•••</span>
+            </div>
+            <div class="core-row">
+                <div class="core-logo-mini">
+                    <svg viewBox="0 0 32 32" fill="none">
+                        <polygon points="16 3 6 10 16 17 26 10" stroke="#00f0ff" stroke-width="2" stroke-linejoin="round"/>
+                        <polyline points="6 22 16 29 26 22" stroke="#00f0ff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </div>
+                <div class="core-frequency-box">
+                    <!-- Designated Audio Wave Slot -->
+                    <div class="slot-audio-wave" id="core-wave-slot">
+                        <span class="slot-placeholder-tag">[3D AUDIO FREQUENCY SLOT]</span>
+                    </div>
+                    <span class="core-caption">Processing...</span>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <script>
+        function makeActive(el) {
+            document.querySelectorAll('.nav-link').forEach(item => item.classList.remove('active'));
+            el.classList.add('active');
+        }
+    </script>
+</body>
+</html>

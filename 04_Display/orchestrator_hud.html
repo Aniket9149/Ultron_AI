@@ -1,0 +1,265 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ultron OS - Tactical HUD Orchestrator</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      user-select: none;
+    }
+
+    html, body {
+      width: 100vw;
+      height: 100vh;
+      overflow: hidden;
+      background-color: #03070d;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    #hud-viewport {
+      width: 1920px;
+      height: 1080px;
+      min-width: 1920px;
+      min-height: 1080px;
+      transform-origin: center center;
+      position: absolute;
+      display: grid;
+      grid-template-columns: 80px 380px 1fr 400px;
+      grid-template-rows: 1fr;
+      gap: 16px;
+      padding: 16px;
+      background: radial-gradient(circle at 50% 50%, rgba(0, 30, 60, 0.25) 0%, rgba(2, 6, 12, 0.95) 100%);
+      box-shadow: inset 0 0 100px rgba(0, 150, 255, 0.05);
+      left: 0;
+      top: 0;
+    }
+
+    .hud-panel {
+      position: relative;
+      height: 100%;
+      border: 1px solid rgba(0, 220, 255, 0.22);
+      border-radius: 4px;
+      background: rgba(4, 12, 24, 0.45);
+      backdrop-filter: blur(8px);
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.6), inset 0 0 15px rgba(0, 200, 255, 0.03);
+      overflow: hidden;
+    }
+
+    /* Grab bar strip indicating drag possibility on double click */
+    .drag-indicator {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 6px;
+      background: rgba(0, 220, 255, 0.3);
+      z-index: 50;
+      cursor: grab;
+      transition: background 0.2s ease;
+    }
+
+    .hud-panel.is-dragging {
+      opacity: 0.9;
+      outline: 2px dashed #00e5ff;
+      z-index: 9999 !important;
+    }
+
+    iframe {
+      width: 100%;
+      height: 100%;
+      border: none;
+      display: block;
+      pointer-events: auto; /* Buttons and controls are fully interactive */
+    }
+
+    body.dragging-active iframe {
+      pointer-events: none !important; /* Temporarily disabled only while actively moving */
+    }
+
+    .col-sidebar { grid-column: 1; }
+    
+    .col-left-stack {
+      grid-column: 2;
+      display: grid;
+      grid-template-rows: 420px 1fr;
+      gap: 14px;
+    }
+
+    .col-center-stage {
+      grid-column: 3;
+      display: grid;
+      grid-template-rows: 1fr 110px;
+      gap: 16px;
+    }
+
+    .col-right-telemetry {
+      grid-column: 4;
+      display: grid;
+      grid-template-rows: 120px 180px 220px 1fr 210px;
+      gap: 12px;
+    }
+  </style>
+</head>
+<body>
+
+  <div id="hud-viewport">
+
+    <!-- Extreme Left / Sidebar -->
+    <div class="hud-panel col-sidebar">
+      <div class="drag-indicator" title="Double-click and hold to drag"></div>
+      <iframe src="component_sidebar.html" scrolling="no"></iframe>
+    </div>
+
+    <!-- Left Stack -->
+    <div class="col-left-stack">
+      <div class="hud-panel">
+        <div class="drag-indicator" title="Double-click and hold to drag"></div>
+        <iframe src="component_globe_3d.html" scrolling="no"></iframe>
+      </div>
+      <div class="hud-panel">
+        <div class="drag-indicator" title="Double-click and hold to drag"></div>
+        <iframe src="component_cards.html" scrolling="no"></iframe>
+      </div>
+    </div>
+
+    <!-- Center Stage -->
+    <div class="col-center-stage">
+      <div class="hud-panel">
+        <div class="drag-indicator" title="Double-click and hold to drag"></div>
+        <iframe src="component_center_core.html" scrolling="no"></iframe>
+      </div>
+      <div class="hud-panel">
+        <div class="drag-indicator" title="Double-click and hold to drag"></div>
+        <iframe src="component_center_dock.html" scrolling="no"></iframe>
+      </div>
+    </div>
+
+    <!-- Right Telemetry -->
+    <div class="col-right-telemetry">
+      <div class="hud-panel">
+        <div class="drag-indicator" title="Double-click and hold to drag"></div>
+        <iframe src="01_time_deck.html" scrolling="no"></iframe>
+      </div>
+      <div class="hud-panel">
+        <div class="drag-indicator" title="Double-click and hold to drag"></div>
+        <iframe src="02_system_vitals.html" scrolling="no"></iframe>
+      </div>
+      <div class="hud-panel">
+        <div class="drag-indicator" title="Double-click and hold to drag"></div>
+        <iframe src="03_neural_activity.html" scrolling="no"></iframe>
+      </div>
+      <div class="hud-panel">
+        <div class="drag-indicator" title="Double-click and hold to drag"></div>
+        <iframe src="04_mission_log.html" scrolling="no"></iframe>
+      </div>
+      <div class="hud-panel">
+        <div class="drag-indicator" title="Double-click and hold to drag"></div>
+        <iframe src="05_world_feed.html" scrolling="no"></iframe>
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    (function () {
+      const viewport = document.getElementById('hud-viewport');
+      const BASE_W = 1920;
+      const BASE_H = 1080;
+      let currentScale = 1;
+
+      // Master Viewport Auto Scaler
+      function resizeHud() {
+        currentScale = Math.min(window.innerWidth / BASE_W, window.innerHeight / BASE_H);
+        const offsetX = (window.innerWidth - BASE_W * currentScale) / 2;
+        const offsetY = (window.innerHeight - BASE_H * currentScale) / 2;
+        viewport.style.transform = `scale(${currentScale})`;
+        viewport.style.left = `${offsetX}px`;
+        viewport.style.top = `${offsetY}px`;
+      }
+      window.addEventListener('resize', resizeHud);
+      window.addEventListener('DOMContentLoaded', resizeHud);
+      resizeHud();
+
+      // Double-Click + Hold to Move Mechanism
+      let activeDragTarget = null;
+      let startMouseX = 0, startMouseY = 0;
+      let initialLeft = 0, initialTop = 0;
+      let lastClickTime = 0;
+      let clickTimerTarget = null;
+
+      const panels = document.querySelectorAll('.hud-panel');
+
+      panels.forEach(panel => {
+        // Drag Indicator bar triggers direct drag on mousedown, or entire panel on double click + hold
+        const indicator = panel.querySelector('.drag-indicator');
+
+        function initiateMove(e) {
+          activeDragTarget = panel;
+          document.body.classList.add('dragging-active');
+          panel.classList.add('is-dragging');
+
+          // If panel isn't absolute yet, detach cleanly
+          if (window.getComputedStyle(panel).position !== 'absolute') {
+            const rect = panel.getBoundingClientRect();
+            const viewRect = viewport.getBoundingClientRect();
+            
+            panel.style.width = (rect.width / currentScale) + 'px';
+            panel.style.height = (rect.height / currentScale) + 'px';
+            panel.style.position = 'absolute';
+            panel.style.left = ((rect.left - viewRect.left) / currentScale) + 'px';
+            panel.style.top = ((rect.top - viewRect.top) / currentScale) + 'px';
+          }
+
+          startMouseX = e.clientX;
+          startMouseY = e.clientY;
+          initialLeft = parseFloat(panel.style.left) || 0;
+          initialTop = parseFloat(panel.style.top) || 0;
+        }
+
+        // Top drag bar allows normal click-and-drag directly
+        indicator.addEventListener('mousedown', (e) => {
+          e.preventDefault();
+          initiateMove(e);
+        });
+
+        // Double Click + Hold listener on panel border
+        panel.addEventListener('mousedown', (e) => {
+          const now = Date.now();
+          if (e.target.tagName.toLowerCase() !== 'iframe') {
+            if (now - lastClickTime < 350 && clickTimerTarget === panel) {
+              initiateMove(e);
+            }
+            lastClickTime = now;
+            clickTimerTarget = panel;
+          }
+        });
+      });
+
+      // Window drag & release listeners
+      window.addEventListener('mousemove', (e) => {
+        if (!activeDragTarget) return;
+
+        const deltaX = (e.clientX - startMouseX) / currentScale;
+        const deltaY = (e.clientY - startMouseY) / currentScale;
+
+        activeDragTarget.style.left = `${initialLeft + deltaX}px`;
+        activeDragTarget.style.top = `${initialTop + deltaY}px`;
+      });
+
+      window.addEventListener('mouseup', () => {
+        if (activeDragTarget) {
+          activeDragTarget.classList.remove('is-dragging');
+          document.body.classList.remove('dragging-active');
+          activeDragTarget = null;
+        }
+      });
+    })();
+  </script>
+</body>
+</html>

@@ -1,0 +1,74 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ULTRON // AI OPERATING SYSTEM</title>
+    <link rel="stylesheet" href="/static/css/hud_cinema.css">
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+</head>
+<body>
+    <div class="cinema-viewport">
+        <!-- Exact Full Backdrop with Baked Luxury Aesthetics -->
+        <img src="/static/bg_suite.png" class="master-bg" alt="Ultron Interface">
+
+        <!-- LIVE DYNAMIC OVERLAYS ONLY (NO DUPLICATE TEXT OR BOXES) -->
+        
+        <!-- Live Clock (Right Top) -->
+        <div class="live-clock-spot">
+            <div id="hud-date" class="live-date">14 SEP 2026</div>
+            <div id="hud-time" class="live-time">10:24:17</div>
+            <div id="hud-day" class="live-day">MON</div>
+        </div>
+
+        <!-- Live Dynamic Dial Numbers (System Vitals) -->
+        <div class="vitals-overlay">
+            <span id="val-cpu">98%</span>
+            <span id="val-gpu">87%</span>
+            <span id="val-mem">72%</span>
+            <span id="val-temp">41%</span>
+        </div>
+
+        <!-- Real-Time Neural Activity Waveform -->
+        <div class="neural-canvas-spot">
+            <canvas id="neural-canvas" width="280" height="42"></canvas>
+        </div>
+
+        <!-- Mini Core Waveform -->
+        <div class="mini-wave-spot">
+            <canvas id="mini-core-wave" width="130" height="24"></canvas>
+        </div>
+
+        <!-- World Feed Live Pulse -->
+        <div class="feed-pulse-spot">
+            <canvas id="world-feed-canvas" width="90" height="36"></canvas>
+        </div>
+
+        <!-- Real 3D Rotating Hologram Core (Aligned over the Pedestal) -->
+        <div id="spatial-core-anchor" class="core-3d-spot"></div>
+
+        <!-- Interactive Clickable Overlay Hotspots -->
+        <div class="nav-hotspots">
+            <div class="hotspot" onclick="selectTab('Home')"></div>
+            <div class="hotspot" onclick="selectTab('Intelligence')"></div>
+            <div class="hotspot" onclick="selectTab('Agents')"></div>
+            <div class="hotspot" onclick="selectTab('Memory')"></div>
+            <div class="hotspot" onclick="selectTab('Systems')"></div>
+            <div class="hotspot" onclick="selectTab('Network')"></div>
+            <div class="hotspot" onclick="selectTab('Tools')"></div>
+            <div class="hotspot" onclick="selectTab('Settings')"></div>
+        </div>
+
+        <!-- Bottom Dock Interactive Trigger -->
+        <div class="dock-hotspot" onclick="triggerCorePresence()"></div>
+
+        <!-- Ultron Voice Speech Indicator (Hidden until active) -->
+        <div id="voice-banner" class="voice-cue-overlay">
+            <div class="cue-pill">● VOICE COMM LINK ACTIVE</div>
+        </div>
+    </div>
+
+    <script src="/static/js/hud_cinema.js"></script>
+</body>
+</html>

@@ -1,0 +1,139 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ultron OS - Right Telemetry Stack</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@600;700&family=Michroma&family=Orbitron:wght@700;800;900&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      user-select: none;
+    }
+
+    body, html {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background-color: #010408;
+      background-image: 
+        radial-gradient(circle at 85% 50%, rgba(0, 240, 255, 0.04) 0%, #000104 80%),
+        linear-gradient(rgba(255, 255, 255, 0.01) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, 0.01) 1px, transparent 1px);
+      background-size: 100% 100%, 32px 32px, 32px 32px;
+      display: flex;
+      align-items: center;
+      justify-content: flex-end; /* Reference image ke hisaab se right aligned */
+      padding-right: 48px;
+      perspective: 1400px;
+    }
+
+    /* Master Vertical Telemetry Column Rig */
+    .telemetry-column {
+      width: 500px;
+      height: 94vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 12px;
+      transform-style: preserve-3d;
+      transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    /* Standardized Modular Card Frames */
+    .card-slot {
+      width: 100%;
+      background: rgba(6, 12, 22, 0.75);
+      border: 1px solid rgba(0, 240, 255, 0.18);
+      border-top: 1.5px solid rgba(255, 255, 255, 0.32);
+      border-radius: 20px;
+      overflow: hidden;
+      backdrop-filter: blur(28px);
+      -webkit-backdrop-filter: blur(28px);
+      box-shadow: 
+        0 18px 45px rgba(0, 0, 0, 0.9),
+        inset 0 1px 0 rgba(255, 255, 255, 0.08);
+      position: relative;
+    }
+
+    /* Proportional Vertical Distribution matching Reference */
+    .slot-time     { height: 115px; flex-shrink: 0; }
+    .slot-vitals   { height: 175px; flex-shrink: 0; }
+    .slot-neural   { height: 170px; flex-shrink: 0; }
+    .slot-mission  { height: 180px; flex-shrink: 0; }
+    .slot-feed     { height: 185px; flex-shrink: 0; }
+
+    /* Seamless IFrame Viewports */
+    .module-frame {
+      width: 100%;
+      height: 100%;
+      border: none;
+      display: block;
+      background: transparent;
+    }
+
+    /* Subtle Glass Rail Track */
+    .telemetry-column::after {
+      content: "";
+      position: absolute;
+      right: -14px;
+      top: 5%;
+      height: 90%;
+      width: 2px;
+      background: linear-gradient(180deg, transparent, rgba(0, 240, 255, 0.3), transparent);
+      pointer-events: none;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Master Telemetry Column -->
+  <div class="telemetry-column" id="telemetryRig">
+
+    <!-- 01: Time & Weather Deck -->
+    <div class="card-slot slot-time">
+      <iframe class="module-frame" src="01_time_deck.html"></iframe>
+    </div>
+
+    <!-- 02: System Vitals Deck -->
+    <div class="card-slot slot-vitals">
+      <iframe class="module-frame" src="02_system_vitals.html"></iframe>
+    </div>
+
+    <!-- 03: Neural Activity Deck -->
+    <div class="card-slot slot-neural">
+      <iframe class="module-frame" src="03_neural_activity.html"></iframe>
+    </div>
+
+    <!-- 04: Mission Log Deck -->
+    <div class="card-slot slot-mission">
+      <iframe class="module-frame" src="04_mission_log.html"></iframe>
+    </div>
+
+    <!-- 05: World Feed Deck -->
+    <div class="card-slot slot-feed">
+      <iframe class="module-frame" src="05_world_feed.html"></iframe>
+    </div>
+
+  </div>
+
+  <script>
+    // Unified Gyroscopic 3D Parallax Tilt across entire Column
+    const rig = document.getElementById('telemetryRig');
+
+    window.addEventListener('mousemove', (e) => {
+      const xAxis = (window.innerWidth / 2 - e.clientX) / 75;
+      const yAxis = (e.clientY - window.innerHeight / 2) / 60;
+      rig.style.transform = `rotateY(${xAxis}deg) rotateX(${yAxis}deg)`;
+    });
+
+    window.addEventListener('mouseleave', () => {
+      rig.style.transform = `rotateY(0deg) rotateX(0deg)`;
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,341 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ultron OS - Mission Log</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@600;700&family=Michroma&family=Orbitron:wght@700;800&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <style>
+    :root {
+      --card-bg: rgba(6, 12, 22, 0.85);
+      --card-border: rgba(0, 240, 255, 0.22);
+      --cyan: #00f0ff;
+      --font-head: 'Orbitron', sans-serif;
+      --font-label: 'Michroma', sans-serif;
+      --font-val: 'Chakra Petch', sans-serif;
+      --font-mono: 'Share Tech Mono', monospace;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; }
+
+    body, html {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background-color: #010409;
+      background-image: radial-gradient(circle at 50% 50%, rgba(0, 240, 255, 0.06) 0%, #010307 80%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* Outer Clean Card Frame */
+    .mission-card {
+      width: 490px;
+      height: 188px;
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-top: 1.5px solid rgba(255, 255, 255, 0.3);
+      border-radius: 20px;
+      padding: 14px 18px 12px 18px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      backdrop-filter: blur(30px);
+      -webkit-backdrop-filter: blur(30px);
+      box-shadow: 0 20px 45px rgba(0, 0, 0, 0.9), inset 0 0 1px 1px rgba(255, 255, 255, 0.04);
+    }
+
+    .card-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      width: 100%;
+    }
+
+    .card-title {
+      font-family: var(--font-head);
+      font-size: 12px;
+      letter-spacing: 2.5px;
+      color: #ffffff;
+      text-transform: uppercase;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .card-title::before {
+      content: "";
+      width: 5px;
+      height: 5px;
+      background: var(--cyan);
+      border-radius: 50%;
+    }
+
+    .header-tag {
+      font-family: var(--font-mono);
+      font-size: 9px;
+      letter-spacing: 1.5px;
+      color: #62829f;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      padding: 2px 7px;
+      border-radius: 4px;
+    }
+
+    /* Center Stage: Left 3D Hard-Surface Model + Right Telemetry Grid */
+    .card-stage {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      height: 108px;
+      width: 100%;
+    }
+
+    /* 3D Realistic Recessed Reactor Chamber */
+    .model-viewport {
+      width: 108px;
+      height: 100%;
+      background: radial-gradient(circle at 45% 40%, #0a1b2d 0%, #030811 90%);
+      border: 1px solid rgba(0, 240, 255, 0.25);
+      border-radius: 12px;
+      box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.95);
+      position: relative;
+      flex-shrink: 0;
+      overflow: hidden;
+    }
+
+    #three-mount {
+      width: 100%;
+      height: 100%;
+    }
+
+    /* Right Telemetry Rows */
+    .log-list {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+
+    .log-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 4px 10px;
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px solid rgba(255, 255, 255, 0.04);
+      border-radius: 6px;
+    }
+
+    .row-key {
+      font-family: var(--font-label);
+      font-size: 8.5px;
+      letter-spacing: 1.4px;
+      color: #8da2b8;
+      text-transform: uppercase;
+    }
+
+    .row-val {
+      font-family: var(--font-val);
+      font-size: 11.5px;
+      letter-spacing: 1.2px;
+      text-transform: uppercase;
+      font-weight: 700;
+    }
+
+    .val-online { color: var(--cyan); }
+    .val-sync { color: #38bdf8; }
+    .val-warn { color: #f59e0b; }
+
+    /* Footer */
+    .card-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-family: var(--font-mono);
+      font-size: 9px;
+      letter-spacing: 1.8px;
+      color: #58748f;
+      text-transform: uppercase;
+      border-top: 1px solid rgba(255, 255, 255, 0.05);
+      padding-top: 6px;
+    }
+
+    .footer-live {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .dot {
+      width: 4px;
+      height: 4px;
+      background: var(--cyan);
+      border-radius: 50%;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="mission-card">
+    
+    <div class="card-header">
+      <div class="card-title">MISSION LOG</div>
+      <div class="header-tag">3D DATA CARRIER // MK-IV</div>
+    </div>
+
+    <div class="card-stage">
+      <!-- 3D PBR Mechanical Rotor Model -->
+      <div class="model-viewport">
+        <div id="three-mount"></div>
+      </div>
+
+      <!-- Clean Mission Items -->
+      <div class="log-list">
+        <div class="log-row">
+          <span class="row-key">DIRECTIVE 01</span>
+          <span class="row-val val-online">EXECUTED</span>
+        </div>
+        <div class="log-row">
+          <span class="row-key">DATA UPLINK</span>
+          <span class="row-val val-online">ACTIVE</span>
+        </div>
+        <div class="log-row">
+          <span class="row-key">SECTOR AUDIT</span>
+          <span class="row-val val-warn">VERIFIED</span>
+        </div>
+        <div class="log-row">
+          <span class="row-key">ORBIT MESH</span>
+          <span class="row-val val-sync">SYNCED</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="card-footer">
+      <div class="footer-live">
+        <span class="dot"></span>
+        <span>ALL MISSION SUBROUTINES RUNNING</span>
+      </div>
+      <span>SYS // ACTIVE</span>
+    </div>
+
+  </div>
+
+  <script>
+    // -------------------------------------------------------------
+    // REALISTIC PBR 3D MECHANICAL ROTOR MODULE
+    // -------------------------------------------------------------
+    const container = document.getElementById('three-mount');
+    const width = container.clientWidth;
+    const height = container.clientHeight;
+
+    const scene = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(36, width / height, 0.1, 100);
+    camera.position.set(0, 1.2, 4.8);
+    camera.lookAt(0, 0, 0);
+
+    const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
+    renderer.setSize(width, height);
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    renderer.toneMapping = THREE.ACESFilmicToneMapping;
+    renderer.toneMappingExposure = 1.3;
+    container.appendChild(renderer.domElement);
+
+    // Studio Environment Reflections
+    const c = document.createElement('canvas');
+    c.width = 256; c.height = 128;
+    const ctx = c.getContext('2d');
+    ctx.fillStyle = '#050b14';
+    ctx.fillRect(0, 0, 256, 128);
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(80, 10, 96, 40);
+    ctx.fillStyle = '#00f0ff';
+    ctx.fillRect(10, 80, 50, 30);
+    const envTex = new THREE.CanvasTexture(c);
+    envTex.mapping = THREE.EquirectangularReflectionMapping;
+    scene.environment = envTex;
+
+    // Metal Materials
+    const darkSteel = new THREE.MeshStandardMaterial({
+      color: 0x111c26,
+      roughness: 0.2,
+      metalness: 0.95,
+      envMap: envTex
+    });
+
+    const brushedChrome = new THREE.MeshStandardMaterial({
+      color: 0x47637f,
+      roughness: 0.1,
+      metalness: 1.0,
+      envMap: envTex
+    });
+
+    const cyanNeon = new THREE.MeshBasicMaterial({ color: 0x00f0ff });
+
+    // 3D Assembly Rig
+    const masterModel = new THREE.Group();
+    scene.add(masterModel);
+
+    // 1. Central Metallic Spindle
+    const shaft = new THREE.Mesh(new THREE.CylinderGeometry(0.2, 0.2, 2.4, 32), brushedChrome);
+    masterModel.add(shaft);
+
+    // 2. Beveled Rotor Hubs (Top & Bottom)
+    const hubTop = new THREE.Mesh(new THREE.CylinderGeometry(0.9, 0.7, 0.25, 24), darkSteel);
+    hubTop.position.y = 0.85;
+    masterModel.add(hubTop);
+
+    const hubBot = new THREE.Mesh(new THREE.CylinderGeometry(0.7, 0.9, 0.25, 24), darkSteel);
+    hubBot.position.y = -0.85;
+    masterModel.add(hubBot);
+
+    // 3. Segmented Gimbal Ring with Precision Cutouts
+    const ringGeo = new THREE.TorusGeometry(1.2, 0.08, 16, 48);
+    const outerRing = new THREE.Mesh(ringGeo, brushedChrome);
+    masterModel.add(outerRing);
+
+    // 4. Optical Data Carrier Disc (Center Floating Disc)
+    const discGeo = new THREE.CylinderGeometry(0.75, 0.75, 0.05, 32);
+    const carrierDisc = new THREE.Mesh(discGeo, darkSteel);
+    masterModel.add(carrierDisc);
+
+    // Inner Glowing Conduit Rim
+    const conduit = new THREE.Mesh(new THREE.TorusGeometry(0.76, 0.02, 12, 48), cyanNeon);
+    conduit.rotation.x = Math.PI / 2;
+    masterModel.add(conduit);
+
+    // Real Lighting Setup
+    const lightTop = new THREE.DirectionalLight(0xffffff, 2.2);
+    lightTop.position.set(4, 8, 4);
+    scene.add(lightTop);
+
+    const lightCyan = new THREE.DirectionalLight(0x00f0ff, 1.4);
+    lightCyan.position.set(-4, -4, 2);
+    scene.add(lightCyan);
+
+    scene.add(new THREE.AmbientLight(0x0b1726, 1.0));
+
+    // Animation Loop
+    function animate() {
+      requestAnimationFrame(animate);
+      masterModel.rotation.y += 0.012;
+      outerRing.rotation.x += 0.018;
+      outerRing.rotation.z -= 0.01;
+      carrierDisc.rotation.y -= 0.02;
+      renderer.render(scene, camera);
+    }
+    animate();
+
+    window.addEventListener('resize', () => {
+      const w = container.clientWidth;
+      const h = container.clientHeight;
+      camera.aspect = w / h;
+      camera.updateProjectionMatrix();
+      renderer.setSize(w, h);
+    });
+  </script>
+</body>
+</html>

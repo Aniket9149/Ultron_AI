@@ -1,0 +1,371 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ultron OS - God-Tier Hyper-Realistic Navigation Deck</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      user-select: none;
+    }
+
+    body, html {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background: radial-gradient(circle at center, #061326 0%, #020712 60%, #000205 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+
+    /* Ambient Floor Refraction & Ground Shadow */
+    .deck-rig {
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .deck-rig::before {
+      content: "";
+      position: absolute;
+      width: 90%;
+      height: 70px;
+      bottom: -28px;
+      background: radial-gradient(ellipse at center, rgba(0, 240, 255, 0.28) 0%, rgba(0, 90, 180, 0.12) 45%, transparent 75%);
+      filter: blur(32px);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* Outer Aerospace Titanium + Glass Bezel */
+    .deck-chassis {
+      position: relative;
+      z-index: 1;
+      display: inline-flex;
+      align-items: center;
+      gap: 16px;
+      padding: 12px 24px;
+      background: linear-gradient(180deg, rgba(16, 28, 48, 0.55) 0%, rgba(4, 9, 20, 0.92) 100%);
+      border-radius: 32px;
+      border: 1px solid rgba(0, 240, 255, 0.25);
+      border-top: 1.5px solid rgba(255, 255, 255, 0.55);
+      border-bottom: 1.5px solid rgba(0, 5, 15, 0.95);
+      box-shadow: 
+        0 24px 60px rgba(0, 0, 0, 0.9),
+        inset 0 1px 2px rgba(255, 255, 255, 0.4),
+        inset 0 -2px 10px rgba(0, 0, 0, 0.8),
+        0 0 30px rgba(0, 210, 255, 0.12);
+      backdrop-filter: blur(36px) saturate(220%);
+      -webkit-backdrop-filter: blur(36px) saturate(220%);
+    }
+
+    /* Optical Prism Tile Housing */
+    .dock-tile {
+      position: relative;
+      width: 66px;
+      height: 66px;
+      border-radius: 20px;
+      background: linear-gradient(145deg, rgba(22, 38, 64, 0.6) 0%, rgba(6, 14, 28, 0.9) 100%);
+      border: 1px solid rgba(80, 170, 240, 0.18);
+      border-top: 1.2px solid rgba(255, 255, 255, 0.35);
+      box-shadow: 
+        0 10px 22px rgba(0, 0, 0, 0.65),
+        inset 0 1px 2px rgba(255, 255, 255, 0.22),
+        inset 0 -1px 4px rgba(0, 0, 0, 0.8);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      overflow: hidden;
+      transition: all 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    /* Physical Glass Specular Arc */
+    .dock-tile::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 48%;
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0.22) 0%, transparent 100%);
+      border-radius: 20px 20px 0 0;
+      pointer-events: none;
+      z-index: 2;
+    }
+
+    /* Micro Inner Refraction Ring */
+    .dock-tile::after {
+      content: "";
+      position: absolute;
+      inset: 2px;
+      border-radius: 17px;
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    /* Multi-layered Vector Canvas */
+    .dock-tile svg {
+      width: 38px;
+      height: 38px;
+      position: relative;
+      z-index: 3;
+      transition: all 0.28s ease;
+      filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.6));
+    }
+
+    /* Active State (Folder/Directory from Reference) */
+    .dock-tile.active {
+      background: linear-gradient(145deg, rgba(0, 180, 255, 0.55) 0%, rgba(0, 75, 150, 0.9) 100%);
+      border: 1px solid rgba(0, 240, 255, 0.85);
+      border-top: 1.5px solid #ffffff;
+      box-shadow: 
+        0 12px 28px rgba(0, 0, 0, 0.7),
+        0 0 26px rgba(0, 220, 255, 0.45),
+        inset 0 1px 4px rgba(255, 255, 255, 0.8);
+      transform: translateY(-3px);
+    }
+
+    /* Hover Elevation */
+    .dock-tile:hover:not(.active) {
+      transform: translateY(-4px);
+      background: linear-gradient(145deg, rgba(32, 58, 96, 0.75) 0%, rgba(10, 22, 45, 0.95) 100%);
+      border-color: rgba(0, 240, 255, 0.55);
+      box-shadow: 
+        0 14px 26px rgba(0, 0, 0, 0.75),
+        0 0 22px rgba(0, 240, 255, 0.3),
+        inset 0 1px 3px rgba(255, 255, 255, 0.45);
+    }
+
+    .dock-tile:hover svg {
+      transform: scale(1.06);
+    }
+
+    /* Quantum Status Indicator Pip */
+    .tile-pip {
+      position: absolute;
+      bottom: 5px;
+      width: 4px;
+      height: 4px;
+      border-radius: 50%;
+      background: #00f0ff;
+      box-shadow: 0 0 8px #00f0ff, 0 0 14px #00f0ff;
+      opacity: 0;
+      z-index: 4;
+      transition: opacity 0.25s ease;
+    }
+
+    .dock-tile.active .tile-pip,
+    .dock-tile:hover .tile-pip {
+      opacity: 1;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="deck-rig">
+    <div class="deck-chassis">
+
+      <!-- MASTER SHADER FILTERS & METALLIC GRADIENTS -->
+      <svg width="0" height="0" style="position: absolute;">
+        <defs>
+          <!-- PBR Titanium Gradients -->
+          <linearGradient id="pbrChassis" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#ffffff" />
+            <stop offset="25%" stop-color="#bce8ff" />
+            <stop offset="60%" stop-color="#4090c0" />
+            <stop offset="100%" stop-color="#0a2540" />
+          </linearGradient>
+
+          <linearGradient id="pbrGold" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#fff8e7" />
+            <stop offset="35%" stop-color="#ffd56b" />
+            <stop offset="70%" stop-color="#c48a1c" />
+            <stop offset="100%" stop-color="#3d2200" />
+          </linearGradient>
+
+          <linearGradient id="hyperCyan" x1="0%" y1="0%" x2="0%" y2="100%">
+            <stop offset="0%" stop-color="#ffffff" />
+            <stop offset="45%" stop-color="#00f0ff" />
+            <stop offset="100%" stop-color="#005588" />
+          </linearGradient>
+
+          <!-- Core Emitter Radiance -->
+          <radialGradient id="plasmaSingularity" cx="50%" cy="50%" r="50%">
+            <stop offset="0%" stop-color="#ffffff" stop-opacity="1" />
+            <stop offset="35%" stop-color="#00f0ff" stop-opacity="0.85" />
+            <stop offset="75%" stop-color="#0077b6" stop-opacity="0.25" />
+            <stop offset="100%" stop-color="#000000" stop-opacity="0" />
+          </radialGradient>
+
+          <radialGradient id="sphereVolume" cx="35%" cy="30%" r="65%">
+            <stop offset="0%" stop-color="#7fe5ff" stop-opacity="0.9" />
+            <stop offset="50%" stop-color="#0e3a66" stop-opacity="0.7" />
+            <stop offset="100%" stop-color="#020d1c" stop-opacity="0.95" />
+          </radialGradient>
+
+          <!-- Optical Glow Filter -->
+          <filter id="hyperBloom" x="-40%" y="-40%" width="180%" height="180%">
+            <feGaussianBlur in="SourceGraphic" stdDeviation="1.8" result="blur" />
+            <feMerge>
+              <feMergeNode in="blur" />
+              <feMergeNode in="SourceGraphic" />
+            </feMerge>
+          </filter>
+        </defs>
+      </svg>
+
+      <!-- 1. VOLUMETRIC HOLOGRAPHIC TERRESTRIAL SPHERE -->
+      <div class="dock-tile">
+        <svg viewBox="0 0 38 38">
+          <!-- Ambient Equatorial Corona -->
+          <circle cx="19" cy="19" r="14.5" fill="url(#plasmaSingularity)" opacity="0.45" />
+          <!-- 3D Shadowed Planetary Body -->
+          <circle cx="19" cy="19" r="13" fill="url(#sphereVolume)" stroke="url(#pbrChassis)" stroke-width="1.2" />
+          <!-- Volumetric Curvature Coordinates -->
+          <ellipse cx="19" cy="19" rx="6.2" ry="13" fill="none" stroke="#00f0ff" stroke-width="0.9" opacity="0.8" />
+          <ellipse cx="19" cy="19" rx="11" ry="5.5" fill="none" stroke="#72d6ff" stroke-width="0.8" opacity="0.6" stroke-dasharray="2.5 1.5" />
+          <line x1="6" y1="19" x2="32" y2="19" stroke="#ffffff" stroke-width="1.1" opacity="0.95" />
+          <!-- Realtime Orbital Satellite Beacon -->
+          <circle cx="28" cy="12" r="1.6" fill="#ffffff" filter="url(#hyperBloom)" />
+          <circle cx="28" cy="12" r="3.2" fill="none" stroke="#00f0ff" stroke-width="0.6" opacity="0.75" />
+        </svg>
+        <div class="tile-pip"></div>
+      </div>
+
+      <!-- 2. AEROSPACE QUANTUM REPOSITORY (ACTIVE FOLDER SLAG) -->
+      <div class="dock-tile active">
+        <svg viewBox="0 0 38 38">
+          <!-- Back Armor Plate -->
+          <path d="M7 10.5 C7 9.2 8.2 8 9.5 8 L15 8 C16.2 8 17.2 8.8 17.8 9.8 L19.2 12 L28.5 12 C29.8 12 31 13.2 31 14.5 L31 27.5 C31 28.8 29.8 30 28.5 30 L9.5 30 C8.2 30 7 28.8 7 27.5 Z" 
+                fill="rgba(4, 22, 48, 0.75)" stroke="url(#pbrChassis)" stroke-width="1.2" />
+          <!-- Floating Luminescent Data Slate -->
+          <rect x="11" y="12" width="16" height="9" rx="1.8" fill="url(#hyperCyan)" opacity="0.85" />
+          <line x1="14" y1="15" x2="22" y2="15" stroke="#ffffff" stroke-width="1.2" stroke-linecap="round" />
+          <line x1="14" y1="18" x2="19" y2="18" stroke="#003366" stroke-width="1.2" stroke-linecap="round" />
+          <!-- Front Chamfered Metallic Cowling -->
+          <path d="M5.5 15.5 C5.5 14.2 6.6 13.2 8 13.2 L30 13.2 C31.4 13.2 32.5 14.2 32.5 15.5 L30.8 27.8 C30.6 29 29.5 30 28.2 30 L9.8 30 C8.5 30 7.4 29 7.2 27.8 Z" 
+                fill="url(#pbrChassis)" stroke="#ffffff" stroke-width="0.8" />
+          <line x1="11" y1="17" x2="27" y2="17" stroke="#ffffff" stroke-width="1.2" opacity="0.9" filter="url(#hyperBloom)" />
+        </svg>
+        <div class="tile-pip"></div>
+      </div>
+
+      <!-- 3. ISOMETRIC TENSOR CORE / CLUSTERING CONSTELLATION -->
+      <div class="dock-tile">
+        <svg viewBox="0 0 38 38">
+          <!-- Laser Quantum Waveguides -->
+          <line x1="10" y1="11" x2="28" y2="11" stroke="#00f0ff" stroke-width="1.2" opacity="0.75" />
+          <line x1="10" y1="11" x2="19" y2="28" stroke="#00f0ff" stroke-width="1.2" opacity="0.75" />
+          <line x1="28" y1="11" x2="19" y2="28" stroke="#00f0ff" stroke-width="1.2" opacity="0.75" />
+          <!-- Micro Geometric Lattice -->
+          <polygon points="19,16 10,11 19,28" fill="rgba(0, 240, 255, 0.12)" />
+          <polygon points="19,16 28,11 19,28" fill="rgba(0, 160, 255, 0.18)" />
+          <!-- Outer Hyper-dense Nodes -->
+          <circle cx="10" cy="11" r="3.6" fill="url(#pbrChassis)" stroke="#ffffff" stroke-width="1" />
+          <circle cx="28" cy="11" r="3.6" fill="url(#pbrChassis)" stroke="#ffffff" stroke-width="1" />
+          <circle cx="19" cy="28" r="3.6" fill="url(#pbrChassis)" stroke="#ffffff" stroke-width="1" />
+          <!-- Center Singularity Node -->
+          <circle cx="19" cy="16" r="2.5" fill="#ffffff" filter="url(#hyperBloom)" />
+          <circle cx="19" cy="16" r="5.2" fill="none" stroke="#00f0ff" stroke-width="0.8" stroke-dasharray="2 2" />
+        </svg>
+        <div class="tile-pip"></div>
+      </div>
+
+      <!-- 4. TACHYON SPECTRAL HARMONICS / BIOMETRIC FLUX -->
+      <div class="dock-tile">
+        <svg viewBox="0 0 38 38">
+          <!-- Oscilloscope Reticle Field -->
+          <rect x="6" y="8" width="26" height="22" rx="3" fill="rgba(4, 18, 36, 0.55)" stroke="rgba(0, 240, 255, 0.25)" stroke-width="1" />
+          <line x1="6" y1="19" x2="32" y2="19" stroke="rgba(255, 255, 255, 0.18)" stroke-width="1" stroke-dasharray="2 2" />
+          <!-- High Energy Bloom Plasma Trace -->
+          <path d="M7 19 L11 19 L14 10 L18 29 L22 13 L25 24 L27 19 L31 19" 
+                fill="none" stroke="#00f0ff" stroke-width="3" opacity="0.45" filter="url(#hyperBloom)" />
+          <!-- Pure White Spark Core Filament -->
+          <path d="M7 19 L11 19 L14 10 L18 29 L22 13 L25 24 L27 19 L31 19" 
+                fill="none" stroke="#ffffff" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" />
+          <!-- Discharge Vertices -->
+          <circle cx="14" cy="10" r="1.6" fill="#ffffff" filter="url(#hyperBloom)" />
+          <circle cx="18" cy="29" r="1.6" fill="#ffffff" filter="url(#hyperBloom)" />
+        </svg>
+        <div class="tile-pip"></div>
+      </div>
+
+      <!-- 5. SYNAPTIC NEURAL POSITRONIC MATRIX -->
+      <div class="dock-tile">
+        <svg viewBox="0 0 38 38">
+          <!-- Dual-Cortex Bioluminescent Halo -->
+          <path d="M19 7 C13 7 8 11.2 8 16.5 C8 20.8 10.5 23 11 26 C11.8 28.5 13.5 31 16 31 C18 31 18.5 29.5 19 28 C19.5 29.5 20 31 22 31 C24.5 31 26.2 28.5 27 26 C27.5 23 30 20.8 30 16.5 C30 11.2 25 7 19 7 Z" 
+                fill="rgba(6, 26, 52, 0.65)" stroke="url(#pbrChassis)" stroke-width="1.4" />
+          <!-- Quantum Synapse Longitudinal Fissure -->
+          <line x1="19" y1="8" x2="19" y2="28" stroke="#ffffff" stroke-width="1.6" stroke-linecap="round" filter="url(#hyperBloom)" />
+          <!-- Micro Logic Synaptic Pathways -->
+          <path d="M12 14 Q16 15 18 12 M11 19 Q15 20 18 17 M12 24 Q16 23 18 22" stroke="#00f0ff" stroke-width="1.2" fill="none" opacity="0.9" />
+          <path d="M26 14 Q22 15 20 12 M27 19 Q23 20 20 17 M26 24 Q22 23 20 22" stroke="#00f0ff" stroke-width="1.2" fill="none" opacity="0.9" />
+          <!-- Positron Spark Emitters -->
+          <circle cx="12" cy="14" r="1.3" fill="#ffffff" />
+          <circle cx="26" cy="14" r="1.3" fill="#ffffff" />
+          <circle cx="11" cy="19" r="1.3" fill="#ffffff" />
+          <circle cx="27" cy="19" r="1.3" fill="#ffffff" />
+        </svg>
+        <div class="tile-pip"></div>
+      </div>
+
+      <!-- 6. ULTRA-WIDE VOLUMETRIC HUD CONSOLE DISPLAY -->
+      <div class="dock-tile">
+        <svg viewBox="0 0 38 38">
+          <!-- Curved Titanium Outer Monitor Housing -->
+          <rect x="5.5" y="8" width="27" height="17" rx="3.5" fill="rgba(6, 18, 38, 0.85)" stroke="url(#pbrChassis)" stroke-width="1.4" />
+          <!-- Internal Radiant Polarized Screen -->
+          <rect x="7.5" y="10" width="23" height="13" rx="2" fill="url(#plasmaSingularity)" opacity="0.5" />
+          <rect x="7.5" y="10" width="23" height="13" rx="2" fill="none" stroke="rgba(0, 240, 255, 0.4)" stroke-width="0.8" />
+          <!-- Realtime Screen Diagnostics -->
+          <line x1="10" y1="13" x2="20" y2="13" stroke="#ffffff" stroke-width="1.3" stroke-linecap="round" filter="url(#hyperBloom)" />
+          <line x1="10" y1="16.5" x2="16" y2="16.5" stroke="#72d6ff" stroke-width="1.1" stroke-linecap="round" />
+          <circle cx="26" cy="16.5" r="1.8" fill="#00f0ff" filter="url(#hyperBloom)" />
+          <!-- Hydro-Pneumatic Swivel Pedestal -->
+          <path d="M16 25 L16 28 L22 28 L22 25" stroke="url(#pbrChassis)" stroke-width="1.4" fill="none" />
+          <line x1="13" y1="28.5" x2="25" y2="28.5" stroke="#ffffff" stroke-width="1.6" stroke-linecap="round" />
+        </svg>
+        <div class="tile-pip"></div>
+      </div>
+
+      <!-- 7. TOROIDAL TOKAMAK MAGNETIC CORE REACTOR -->
+      <div class="dock-tile">
+        <svg viewBox="0 0 38 38">
+          <!-- Toroidal Containment Stator Ring -->
+          <circle cx="19" cy="19" r="13.5" fill="none" stroke="url(#pbrChassis)" stroke-width="2.6" stroke-dasharray="4.2 2.8" />
+          <!-- Superconducting Ring Core -->
+          <circle cx="19" cy="19" r="9" fill="rgba(4, 18, 38, 0.75)" stroke="url(#pbrGold)" stroke-width="1.4" />
+          <!-- Blinding White Plasma Star Singularity -->
+          <circle cx="19" cy="19" r="5" fill="url(#plasmaSingularity)" />
+          <circle cx="19" cy="19" r="2.2" fill="#ffffff" filter="url(#hyperBloom)" />
+          <!-- Trilateral Magnetic Siphon Pointers -->
+          <circle cx="19" cy="8" r="1" fill="#ffffff" />
+          <circle cx="9.5" cy="24.5" r="1" fill="#ffffff" />
+          <circle cx="28.5" cy="24.5" r="1" fill="#ffffff" />
+        </svg>
+        <div class="tile-pip"></div>
+      </div>
+
+    </div>
+  </div>
+
+  <script>
+    const tiles = document.querySelectorAll('.dock-tile');
+    tiles.forEach(tile => {
+      tile.addEventListener('click', () => {
+        tiles.forEach(t => t.classList.remove('active'));
+        tile.classList.add('active');
+      });
+    });
+  </script>
+</body>
+</html>

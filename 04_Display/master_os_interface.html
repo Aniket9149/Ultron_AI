@@ -1,0 +1,595 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ultron OS - Master System Interface</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;600;700&family=Michroma&family=Orbitron:wght@600;700;800;900&family=Rajdhani:wght@500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <style>
+    :root {
+      --bg-dark: #010408;
+      --cyan: #00f0ff;
+      --cyan-dim: #38bdf8;
+      --glass-bg: rgba(6, 14, 24, 0.65);
+      --glass-border: rgba(0, 240, 255, 0.18);
+      --border-specular: rgba(255, 255, 255, 0.35);
+      --font-head: 'Orbitron', sans-serif;
+      --font-label: 'Michroma', sans-serif;
+      --font-body: 'Rajdhani', sans-serif;
+      --font-mono: 'Share Tech Mono', monospace;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      user-select: none;
+    }
+
+    body, html {
+      width: 100vw;
+      height: 100vh;
+      overflow: hidden;
+      background-color: var(--bg-dark);
+      background-image: 
+        radial-gradient(ellipse at 50% 45%, rgba(0, 240, 255, 0.05) 0%, rgba(1, 4, 8, 0.95) 70%, #000205 100%),
+        radial-gradient(circle at 85% 50%, rgba(0, 240, 255, 0.04) 0%, transparent 60%);
+      font-family: var(--font-body);
+      color: #ffffff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* Auto-Fitting Fixed Aspect Ratio Container (1920x1080 Native Scaling) */
+    #os-root {
+      width: 1920px;
+      height: 1080px;
+      position: absolute;
+      transform-origin: center center;
+      display: grid;
+      grid-template-columns: 380px 1fr 430px;
+      grid-template-rows: 1fr 75px;
+      padding: 24px 32px 18px 32px;
+      gap: 20px;
+      overflow: hidden;
+    }
+
+    /* Standard Glass Card Component */
+    .glass-card {
+      background: var(--glass-bg);
+      border: 1px solid var(--glass-border);
+      border-top: 1.4px solid var(--border-specular);
+      border-radius: 18px;
+      backdrop-filter: blur(28px);
+      -webkit-backdrop-filter: blur(28px);
+      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.9), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* =========================================================================
+       1. LEFT SECTOR: Nav Rail & Overview Cards
+       ========================================================================= */
+    .sector-left {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      height: 100%;
+    }
+
+    .nav-glass-panel {
+      height: 280px;
+      padding: 16px 20px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .brand-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .brand-logo {
+      width: 28px;
+      height: 28px;
+      filter: drop-shadow(0 0 8px var(--cyan));
+    }
+
+    .brand-title {
+      font-family: var(--font-head);
+      font-size: 13px;
+      letter-spacing: 3px;
+      color: #fff;
+    }
+
+    .nav-items {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      font-size: 13px;
+      letter-spacing: 1px;
+    }
+
+    .nav-btn {
+      padding: 6px 12px;
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      border-radius: 8px;
+      color: #94a3b8;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .nav-btn.active, .nav-btn:hover {
+      background: rgba(0, 240, 255, 0.12);
+      border-color: rgba(0, 240, 255, 0.4);
+      color: #ffffff;
+      box-shadow: 0 0 10px rgba(0, 240, 255, 0.2);
+    }
+
+    .card-agents {
+      flex: 1;
+      padding: 14px 18px;
+      justify-content: space-between;
+    }
+
+    .card-title-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-family: var(--font-head);
+      font-size: 10.5px;
+      letter-spacing: 2.2px;
+      color: #fff;
+    }
+
+    .agent-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 5px 8px;
+      background: rgba(255, 255, 255, 0.02);
+      border-radius: 6px;
+      font-size: 13px;
+      color: #cbd5e1;
+    }
+
+    .status-tag-green {
+      color: #10b981;
+      font-family: var(--font-mono);
+      font-size: 11px;
+      letter-spacing: 1.5px;
+    }
+
+    .left-quote {
+      font-family: var(--font-mono);
+      font-size: 9.5px;
+      letter-spacing: 2px;
+      color: #55728f;
+      text-transform: uppercase;
+      padding: 8px 12px;
+    }
+
+    /* =========================================================================
+       2. CENTER SECTOR: Ultron Hologram Monolith & View
+       ========================================================================= */
+    .sector-center {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: space-between;
+      position: relative;
+    }
+
+    .center-header {
+      text-align: center;
+      margin-top: 6px;
+    }
+
+    .os-title {
+      font-family: var(--font-head);
+      font-size: 28px;
+      font-weight: 900;
+      letter-spacing: 12px;
+      text-shadow: 0 0 20px rgba(0, 240, 255, 0.5);
+    }
+
+    .os-subtitle {
+      font-family: var(--font-label);
+      font-size: 9px;
+      letter-spacing: 6px;
+      color: #64748b;
+      margin-top: 4px;
+    }
+
+    .os-motto {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      letter-spacing: 4px;
+      color: #38bdf8;
+      margin-top: 10px;
+      opacity: 0.85;
+    }
+
+    /* Monolith ThreeJS Canvas Viewport */
+    #core-viewport {
+      width: 100%;
+      flex: 1;
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    #core-canvas {
+      width: 100%;
+      height: 100%;
+    }
+
+    /* =========================================================================
+       3. RIGHT SECTOR: The 5 Telemetry Stack Panels
+       ========================================================================= */
+    .sector-right {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      height: 100%;
+    }
+
+    .telemetry-slot {
+      width: 100%;
+      border-radius: 16px;
+      overflow: hidden;
+      border: 1px solid var(--glass-border);
+      border-top: 1.4px solid var(--border-specular);
+      background: var(--glass-bg);
+      backdrop-filter: blur(28px);
+      box-shadow: 0 14px 35px rgba(0, 0, 0, 0.85);
+    }
+
+    /* Proportional Heights aligned to Reference image */
+    .slot-time     { height: 110px; flex-shrink: 0; }
+    .slot-vitals   { height: 180px; flex-shrink: 0; }
+    .slot-neural   { height: 175px; flex-shrink: 0; }
+    .slot-mission  { height: 195px; flex-shrink: 0; }
+    .slot-feed     { flex: 1; min-height: 200px; }
+
+    .telemetry-iframe {
+      width: 100%;
+      height: 100%;
+      border: none;
+      display: block;
+      background: transparent;
+    }
+
+    /* =========================================================================
+       4. BOTTOM DOCK SECTOR
+       ========================================================================= */
+    .sector-bottom {
+      grid-column: 1 / -1;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 20px;
+    }
+
+    .dock-tray {
+      background: rgba(8, 16, 28, 0.7);
+      border: 1px solid rgba(0, 240, 255, 0.22);
+      border-top: 1.2px solid rgba(255, 255, 255, 0.3);
+      border-radius: 24px;
+      padding: 8px 24px;
+      display: flex;
+      align-items: center;
+      gap: 18px;
+      backdrop-filter: blur(24px);
+      box-shadow: 0 12px 30px rgba(0, 0, 0, 0.9);
+      margin: 0 auto;
+    }
+
+    .dock-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 12px;
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .dock-icon:hover {
+      background: rgba(0, 240, 255, 0.15);
+      border-color: rgba(0, 240, 255, 0.5);
+      box-shadow: 0 0 14px rgba(0, 240, 255, 0.3);
+      transform: translateY(-2px);
+    }
+
+    .dock-icon svg {
+      width: 20px;
+      height: 20px;
+      stroke: #38bdf8;
+      fill: none;
+      stroke-width: 1.8;
+    }
+
+    .signature {
+      font-family: var(--font-head);
+      font-size: 9.5px;
+      letter-spacing: 2.5px;
+      color: #64748b;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+  </style>
+</head>
+<body>
+
+  <div id="os-root">
+
+    <!-- 1. LEFT COLUMN -->
+    <div class="sector-left">
+      <!-- Navigation -->
+      <div class="glass-card nav-glass-panel">
+        <div class="brand-row">
+          <svg class="brand-logo" viewBox="0 0 32 32">
+            <path d="M16 3 L28 10 L28 22 L16 29 L4 22 L4 10 Z" stroke="#00f0ff" stroke-width="2" fill="none"/>
+            <path d="M16 8 L22 12 L22 20 L16 24 L10 20 L10 12 Z" stroke="#38bdf8" stroke-width="1.5" fill="none"/>
+          </svg>
+          <div>
+            <div class="brand-title">ULTRON</div>
+            <div style="font-family:var(--font-mono); font-size:8px; color:#64748b; letter-spacing:1px;">AI OPERATING SYSTEM</div>
+          </div>
+        </div>
+
+        <div class="nav-items">
+          <div class="nav-btn active">Home</div>
+          <div class="nav-btn">Intelligence</div>
+          <div class="nav-btn">Agents</div>
+          <div class="nav-btn">Memory</div>
+          <div class="nav-btn">Systems</div>
+          <div class="nav-btn">Network</div>
+          <div class="nav-btn">Tools</div>
+          <div class="nav-btn">Settings</div>
+        </div>
+      </div>
+
+      <!-- Active Agents -->
+      <div class="glass-card card-agents">
+        <div class="card-title-bar">
+          <span>ACTIVE AGENTS</span>
+          <span style="color:#64748b;">···</span>
+        </div>
+
+        <div class="agent-row">
+          <span>Strategist</span>
+          <span class="status-tag-green">ONLINE</span>
+        </div>
+        <div class="agent-row">
+          <span>Researcher</span>
+          <span class="status-tag-green">ONLINE</span>
+        </div>
+        <div class="agent-row">
+          <span>Security</span>
+          <span class="status-tag-green">ONLINE</span>
+        </div>
+        <div class="agent-row">
+          <span>Evolution</span>
+          <span class="status-tag-green">ONLINE</span>
+        </div>
+      </div>
+
+      <!-- Bottom Quote -->
+      <div class="left-quote">
+        "Some watch the world. I calculate its end."<br>
+        <span style="color:#00f0ff; opacity:0.6;">— ULTRON</span>
+      </div>
+    </div>
+
+    <!-- 2. CENTER STAGE (3D Core Monolith) -->
+    <div class="sector-center">
+      <div class="center-header">
+        <div class="os-title">ULTRON</div>
+        <div class="os-subtitle">AI OPERATING SYSTEM</div>
+        <div class="os-motto">THINK &nbsp;/&nbsp; ANALYZE &nbsp;/&nbsp; ADAPT &nbsp;/&nbsp; EXECUTE</div>
+      </div>
+
+      <div id="core-viewport">
+        <canvas id="core-canvas"></canvas>
+      </div>
+    </div>
+
+    <!-- 3. RIGHT COLUMN (Auto-Fitted Telemetry Stack) -->
+    <div class="sector-right">
+      <!-- 01: Time & Weather Deck -->
+      <div class="telemetry-slot slot-time">
+        <iframe class="telemetry-iframe" src="02_Right_Telemetry/01_time_deck.html"></iframe>
+      </div>
+
+      <!-- 02: System Vitals -->
+      <div class="telemetry-slot slot-vitals">
+        <iframe class="telemetry-iframe" src="02_Right_Telemetry/02_system_vitals.html"></iframe>
+      </div>
+
+      <!-- 03: Neural Activity -->
+      <div class="telemetry-slot slot-neural">
+        <iframe class="telemetry-iframe" src="02_Right_Telemetry/03_neural_activity.html"></iframe>
+      </div>
+
+      <!-- 04: Mission Log -->
+      <div class="telemetry-slot slot-mission">
+        <iframe class="telemetry-iframe" src="02_Right_Telemetry/04_mission_log.html"></iframe>
+      </div>
+
+      <!-- 05: World Feed -->
+      <div class="telemetry-slot slot-feed">
+        <iframe class="telemetry-iframe" src="02_Right_Telemetry/05_world_feed.html"></iframe>
+      </div>
+    </div>
+
+    <!-- 4. BOTTOM SECTOR: Floating Dock Tray -->
+    <div class="sector-bottom">
+      <div style="font-family:var(--font-mono); font-size:9px; color:#475569; letter-spacing:1px;">
+        DISCIPLINE CREATES FREEDOM
+      </div>
+
+      <div class="dock-tray">
+        <div class="dock-icon">
+          <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><line x1="3.6" y1="9" x2="20.4" y2="9"/><line x1="3.6" y1="15" x2="20.4" y2="15"/></svg>
+        </div>
+        <div class="dock-icon">
+          <svg viewBox="0 0 24 24"><path d="M3 7v13a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-6l-2-2H5a2 2 0 0 0-2 2z"/></svg>
+        </div>
+        <div class="dock-icon">
+          <svg viewBox="0 0 24 24"><circle cx="6" cy="6" r="3"/><circle cx="18" cy="18" r="3"/><line x1="8.5" y1="8.5" x2="15.5" y2="15.5"/></svg>
+        </div>
+        <div class="dock-icon">
+          <svg viewBox="0 0 24 24"><path d="M2 12h3l3-7 4 14 3-7h3l3 3"/></svg>
+        </div>
+        <div class="dock-icon">
+          <svg viewBox="0 0 24 24"><path d="M9.5 2A2.5 2.5 0 0 1 12 4.5v15a2.5 2.5 0 0 1-4.96.44 2.5 2.5 0 0 1-2.96-3.08 3 3 0 0 1-.34-5.58 2.5 2.5 0 0 1 1.32-4.24 2.5 2.5 0 0 1 4.44-5.04z"/></svg>
+        </div>
+        <div class="dock-icon">
+          <svg viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+        </div>
+        <div class="dock-icon">
+          <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+        </div>
+      </div>
+
+      <div class="signature">
+        <span>BUILT BY ANIKET</span>
+        <svg style="width:14px; height:14px; stroke:#00f0ff; fill:none;" viewBox="0 0 24 24">
+          <polygon points="12 2 2 22 12 17 22 22 12 2"/>
+        </svg>
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    // =========================================================================
+    // 1. DYNAMIC AUTO-FIT RESIZE ENGINE (Perfect Fitting on any Screen Size)
+    // =========================================================================
+    const root = document.getElementById('os-root');
+    function autoFit() {
+      const targetW = 1920;
+      const targetH = 1080;
+      const curW = window.innerWidth;
+      const curH = window.innerHeight;
+      const scale = Math.min(curW / targetW, curH / targetH);
+      root.style.transform = `scale(${scale})`;
+    }
+    window.addEventListener('resize', autoFit);
+    autoFit();
+
+    // =========================================================================
+    // 2. THREE.JS 3D QUANTUM MONOLITH PRISM (Center Core Stage)
+    // =========================================================================
+    const cCanvas = document.getElementById('core-canvas');
+    const cContainer = document.getElementById('core-viewport');
+
+    const scene = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(40, cContainer.clientWidth / cContainer.clientHeight, 0.1, 100);
+    camera.position.set(0, 0, 7.5);
+
+    const renderer = new THREE.WebGLRenderer({ canvas: cCanvas, alpha: true, antialias: true });
+    renderer.setSize(cContainer.clientWidth, cContainer.clientHeight);
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+
+    const coreGroup = new THREE.Group();
+    scene.add(coreGroup);
+
+    // Quantum Octahedron Crystal Core
+    const crystalGeo = new THREE.OctahedronGeometry(1.6, 0);
+    const crystalMat = new THREE.MeshStandardMaterial({
+      color: 0x081524,
+      roughness: 0.15,
+      metalness: 0.95,
+      wireframe: false
+    });
+    const crystalMesh = new THREE.Mesh(crystalGeo, crystalMat);
+    coreGroup.add(crystalMesh);
+
+    // Glowing Wireframe Cage
+    const wireGeo = new THREE.OctahedronGeometry(1.62, 0);
+    const wireMat = new THREE.MeshBasicMaterial({
+      color: 0x00f0ff,
+      wireframe: true,
+      transparent: true,
+      opacity: 0.65
+    });
+    const wireMesh = new THREE.Mesh(wireGeo, wireMat);
+    coreGroup.add(wireMesh);
+
+    // Inner Glowing Core Node
+    const innerLightNode = new THREE.Mesh(
+      new THREE.SphereGeometry(0.3, 16, 16),
+      new THREE.MeshBasicMaterial({ color: 0xffffff })
+    );
+    coreGroup.add(innerLightNode);
+
+    // Orbital Laser Gimbal Rings
+    function createGimbalRing(radius, tiltX, tiltY, color = 0x00f0ff) {
+      const rGeo = new THREE.TorusGeometry(radius, 0.018, 16, 64);
+      const rMat = new THREE.MeshBasicMaterial({ color: color, transparent: true, opacity: 0.65 });
+      const ring = new THREE.Mesh(rGeo, rMat);
+      ring.rotation.x = tiltX;
+      ring.rotation.y = tiltY;
+      return ring;
+    }
+
+    const ring1 = createGimbalRing(2.4, Math.PI / 3, 0);
+    const ring2 = createGimbalRing(2.7, -Math.PI / 4, Math.PI / 6, 0x38bdf8);
+    coreGroup.add(ring1);
+    coreGroup.add(ring2);
+
+    // Studio Lights
+    const lightTop = new THREE.DirectionalLight(0xffffff, 2.5);
+    lightTop.position.set(5, 10, 7);
+    scene.add(lightTop);
+
+    const lightCyan = new THREE.PointLight(0x00f0ff, 2, 20);
+    lightCyan.position.set(0, 0, 0);
+    scene.add(lightCyan);
+
+    scene.add(new THREE.AmbientLight(0x051322, 1.2));
+
+    // Core Animation Loop
+    let t = 0;
+    function animateCore() {
+      requestAnimationFrame(animateCore);
+      t += 0.01;
+
+      crystalMesh.rotation.y += 0.008;
+      crystalMesh.rotation.x += 0.005;
+      wireMesh.rotation.copy(crystalMesh.rotation);
+
+      ring1.rotation.z += 0.012;
+      ring2.rotation.z -= 0.015;
+
+      innerLightNode.scale.setScalar(1 + Math.sin(t * 3) * 0.15);
+
+      renderer.render(scene, camera);
+    }
+    animateCore();
+
+    window.addEventListener('resize', () => {
+      camera.aspect = cContainer.clientWidth / cContainer.clientHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(cContainer.clientWidth, cContainer.clientHeight);
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,491 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ultron OS - Planetary Chronometer</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700;900&family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      user-select: none;
+    }
+
+    body, html {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background: radial-gradient(circle at center, #051428 0%, #020710 65%, #000103 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Rajdhani', sans-serif;
+    }
+
+    .viewport-rig {
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .viewport-rig::before {
+      content: "";
+      position: absolute;
+      width: 90%;
+      height: 80px;
+      bottom: -32px;
+      background: radial-gradient(ellipse at center, rgba(0, 240, 255, 0.35) 0%, rgba(0, 80, 160, 0.12) 50%, transparent 75%);
+      filter: blur(36px);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .chronos-pod {
+      position: relative;
+      z-index: 1;
+      width: 530px;
+      height: 146px;
+      padding: 0 34px;
+      background: linear-gradient(135deg, rgba(16, 34, 62, 0.65) 0%, rgba(4, 9, 20, 0.95) 100%);
+      border-radius: 28px;
+      border: 1px solid rgba(0, 240, 255, 0.3);
+      border-top: 1.8px solid rgba(255, 255, 255, 0.75);
+      border-bottom: 1.5px solid rgba(0, 4, 12, 0.98);
+      box-shadow: 
+        0 30px 70px rgba(0, 0, 0, 0.95),
+        0 10px 25px rgba(0, 0, 0, 0.8),
+        inset 0 1px 3px rgba(255, 255, 255, 0.45),
+        inset 0 -2px 10px rgba(0, 0, 0, 0.9),
+        0 0 35px rgba(0, 210, 255, 0.16);
+      backdrop-filter: blur(40px) saturate(220%);
+      -webkit-backdrop-filter: blur(40px) saturate(220%);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      overflow: hidden;
+    }
+
+    .chronos-pod::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 46%;
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0.22) 0%, transparent 100%);
+      border-radius: 28px 28px 0 0;
+      pointer-events: none;
+      z-index: 2;
+    }
+
+    .readout-col {
+      position: relative;
+      z-index: 3;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    .meta-date {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 3px;
+      color: #72b5e8;
+      text-transform: uppercase;
+      margin-bottom: 2px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .meta-date::before {
+      content: "";
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: #00f0ff;
+      box-shadow: 0 0 8px #00f0ff, 0 0 14px #00f0ff;
+    }
+
+    .time-digits {
+      font-family: 'Orbitron', monospace;
+      font-size: 42px;
+      font-weight: 700;
+      letter-spacing: 4px;
+      color: #ffffff;
+      line-height: 1.1;
+      text-shadow: 
+        0 0 10px rgba(0, 240, 255, 0.8),
+        0 0 25px rgba(0, 240, 255, 0.4),
+        0 0 45px rgba(0, 160, 255, 0.2);
+    }
+
+    .meta-day {
+      font-size: 10.5px;
+      font-weight: 700;
+      letter-spacing: 3px;
+      color: #4b82ad;
+      text-transform: uppercase;
+      margin-top: 4px;
+    }
+
+    .telemetry-col {
+      position: relative;
+      z-index: 3;
+      display: flex;
+      align-items: center;
+      gap: 18px;
+    }
+
+    .env-stats {
+      text-align: right;
+    }
+
+    .env-stats .env-location {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 2px;
+      color: #ffffff;
+      text-shadow: 0 0 10px rgba(0, 240, 255, 0.6);
+    }
+
+    .env-stats .env-weather {
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 2px;
+      color: #5d92bd;
+      margin-top: 3px;
+    }
+
+    .env-stats .env-temp {
+      font-family: 'Orbitron', monospace;
+      font-size: 14px;
+      font-weight: 700;
+      color: #00f0ff;
+      margin-top: 3px;
+      text-shadow: 0 0 12px rgba(0, 240, 255, 0.9);
+    }
+
+    /* Clean 3D WebGL Spherical Viewport */
+    .globe-rig {
+      position: relative;
+      width: 114px;
+      height: 114px;
+      border-radius: 50%;
+      background: #000308;
+      box-shadow: 
+        0 0 26px rgba(0, 220, 255, 0.35),
+        inset 0 0 20px rgba(0, 0, 0, 0.95);
+      border: 1px solid rgba(0, 240, 255, 0.4);
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: grab;
+    }
+
+    .globe-rig:active {
+      cursor: grabbing;
+    }
+
+    #globe-viewport {
+      width: 100%;
+      height: 100%;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="viewport-rig">
+    <div class="chronos-pod">
+
+      <div class="readout-col">
+        <div class="meta-date" id="date-label">14 SEP 2026</div>
+        <div class="time-digits" id="clock-label">18:27:00</div>
+        <div class="meta-day" id="day-label">MON</div>
+      </div>
+
+      <div class="telemetry-col">
+        <div class="env-stats">
+          <div class="env-location">EARTH</div>
+          <div class="env-weather">CLEAR</div>
+          <div class="env-temp">26°C</div>
+        </div>
+
+        <div class="globe-rig" id="globe-rig" title="Hold & Drag to Spin in 3D">
+          <div id="globe-viewport"></div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <script>
+    function updateClock() {
+      const now = new Date();
+      const h = String(now.getHours()).padStart(2, '0');
+      const m = String(now.getMinutes()).padStart(2, '0');
+      const s = String(now.getSeconds()).padStart(2, '0');
+      document.getElementById('clock-label').innerText = `${h}:${m}:${s}`;
+    }
+    setInterval(updateClock, 1000);
+    updateClock();
+
+    // =========================================================================
+    // CLEAN TRUE 3D NOCTURNAL EARTH (NO SPOT BURNS, CRYSTAL VISUALS)
+    // =========================================================================
+    const container = document.getElementById('globe-viewport');
+    const width = 114;
+    const height = 114;
+
+    const scene = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(36, 1, 0.1, 1000);
+    camera.position.z = 175;
+
+    const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true, powerPreference: "high-performance" });
+    renderer.setSize(width, height);
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    renderer.toneMapping = THREE.ACESFilmicToneMapping;
+    renderer.toneMappingExposure = 1.25;
+    container.appendChild(renderer.domElement);
+
+    const earthGroup = new THREE.Group();
+    earthGroup.rotation.z = THREE.MathUtils.degToRad(23.4);
+    earthGroup.rotation.y = -Math.PI / 2.3; // Initial focus on Indian Ocean / Asia
+    scene.add(earthGroup);
+
+    // High-Resolution Procedural Map
+    function generateCleanNocturnalMap() {
+      const cvs = document.createElement('canvas');
+      cvs.width = 2048;
+      cvs.height = 1024;
+      const ctx = cvs.getContext('2d');
+
+      // Deep Midnight Ocean
+      const ocean = ctx.createLinearGradient(0, 0, 0, 1024);
+      ocean.addColorStop(0.0, '#040e1a');
+      ocean.addColorStop(0.5, '#020710');
+      ocean.addColorStop(1.0, '#040e1a');
+      ctx.fillStyle = ocean;
+      ctx.fillRect(0, 0, 2048, 1024);
+
+      // Dark Basalt Crust Continents
+      ctx.fillStyle = '#081422';
+      ctx.shadowColor = '#00f0ff';
+      ctx.shadowBlur = 8;
+
+      function drawCrust(pts) {
+        ctx.beginPath();
+        ctx.moveTo(pts[0][0], pts[0][1]);
+        for (let i = 1; i < pts.length - 1; i++) {
+          const xc = (pts[i][0] + pts[i + 1][0]) / 2;
+          const yc = (pts[i][1] + pts[i + 1][1]) / 2;
+          ctx.quadraticCurveTo(pts[i][0], pts[i][1], xc, yc);
+        }
+        ctx.quadraticCurveTo(pts[pts.length - 1][0], pts[pts.length - 1][1], pts[0][0], pts[0][1]);
+        ctx.closePath();
+        ctx.fill();
+      }
+
+      drawCrust([[1060,180],[1140,155],[1280,140],[1460,150],[1680,180],[1860,230],[1880,320],[1780,370],[1620,430],[1540,490],[1440,430],[1360,530],[1240,450],[1160,350],[1070,310]]);
+      drawCrust([[950,360],[1080,345],[1200,390],[1250,510],[1220,680],[1140,780],[1060,770],[980,610],[930,470],[940,400]]);
+      drawCrust([[190,170],[280,150],[380,140],[540,165],[620,230],[610,310],[520,350],[480,430],[370,470],[330,430],[280,340],[220,260],[170,210]]);
+      drawCrust([[470,490],[540,505],[650,555],[680,630],[620,770],[550,890],[490,880],[460,740],[445,580]]);
+      drawCrust([[1590,660],[1720,640],[1800,705],[1770,830],[1640,850],[1550,760],[1560,700]]);
+
+      ctx.shadowBlur = 0;
+
+      // Nocturnal City Cluster Lights
+      function drawCityHub(x, y, r, alpha = 1.0) {
+        const rad = ctx.createRadialGradient(x, y, 0, x, y, r * 3.0);
+        rad.addColorStop(0, `rgba(255, 255, 255, ${0.95 * alpha})`);
+        rad.addColorStop(0.35, `rgba(180, 235, 255, ${0.8 * alpha})`);
+        rad.addColorStop(0.7, `rgba(0, 160, 255, ${0.35 * alpha})`);
+        rad.addColorStop(1, 'rgba(0, 0, 0, 0)');
+        ctx.fillStyle = rad;
+        ctx.beginPath();
+        ctx.arc(x, y, r * 3.0, 0, Math.PI * 2);
+        ctx.fill();
+      }
+
+      // South Asia & India Belt
+      const southAsia = [
+        [1460, 410], [1435, 430], [1465, 435], [1445, 465], [1485, 455],
+        [1450, 485], [1475, 490], [1460, 520], [1450, 545], [1430, 480],
+        [1410, 440], [1420, 420], [1480, 420], [1500, 440], [1470, 470]
+      ];
+      southAsia.forEach(([cx, cy]) => {
+        drawCityHub(cx, cy, 3.0, 1.0);
+        for (let k = 0; k < 5; k++) {
+          drawCityHub(cx + (Math.random() - 0.5) * 22, cy + (Math.random() - 0.5) * 18, 1.3, 0.85);
+        }
+      });
+
+      // East Asia / Japan
+      const eastAsia = [
+        [1680, 360], [1650, 380], [1660, 420], [1710, 340], [1760, 350],
+        [1780, 330], [1740, 320], [1630, 460], [1650, 490], [1600, 510]
+      ];
+      eastAsia.forEach(([cx, cy]) => {
+        drawCityHub(cx, cy, 3.2, 1.0);
+        for (let k = 0; k < 4; k++) {
+          drawCityHub(cx + (Math.random() - 0.5) * 20, cy + (Math.random() - 0.5) * 16, 1.4, 0.8);
+        }
+      });
+
+      // Middle East, Europe, Americas, Australia
+      [[1120, 230], [1160, 240], [1180, 210], [1210, 220], [1240, 250], [1310, 390], [1340, 400], [1280, 360], [1260, 410], [1720, 760], [1700, 800], [380, 340], [480, 360], [540, 620]].forEach(([cx, cy]) => {
+        drawCityHub(cx, cy, 2.6, 0.85);
+      });
+
+      return new THREE.CanvasTexture(cvs);
+    }
+
+    // 1. Earth Sphere (Even Specular Balance - No Bright Flare Spots)
+    const earthTex = generateCleanNocturnalMap();
+    const earthGeo = new THREE.SphereGeometry(45, 64, 64);
+    const earthMat = new THREE.MeshPhongMaterial({
+      map: earthTex,
+      shininess: 24,
+      specular: 0x1a4568, // Soft, non-blinding oceanic reflection
+      emissive: 0x020a14,
+      emissiveIntensity: 0.65
+    });
+    const earthMesh = new THREE.Mesh(earthGeo, earthMat);
+    earthGroup.add(earthMesh);
+
+    // 2. Faint Telemetry Graticule Grid (Subtle, Non-Distracting)
+    const graticuleGeo = new THREE.SphereGeometry(45.3, 24, 16);
+    const graticuleMat = new THREE.MeshBasicMaterial({
+      color: 0x00f0ff,
+      wireframe: true,
+      transparent: true,
+      opacity: 0.07 // Reduced from 0.14 so continents stay clear
+    });
+    const graticuleMesh = new THREE.Mesh(graticuleGeo, graticuleMat);
+    earthGroup.add(graticuleMesh);
+
+    // 3. Floating Cloud Veils
+    function generateCloudMap() {
+      const cCvs = document.createElement('canvas');
+      cCvs.width = 1024;
+      cCvs.height = 512;
+      const cCtx = cCvs.getContext('2d');
+      cCtx.fillStyle = '#000000';
+      cCtx.fillRect(0, 0, 1024, 512);
+
+      for (let i = 0; i < 50; i++) {
+        const x = Math.random() * 1024;
+        const y = 80 + Math.random() * 360;
+        const rx = 30 + Math.random() * 60;
+        const ry = 8 + Math.random() * 20;
+        const grad = cCtx.createRadialGradient(x, y, 0, x, y, rx);
+        grad.addColorStop(0, 'rgba(255, 255, 255, 0.35)');
+        grad.addColorStop(0.5, 'rgba(255, 255, 255, 0.1)');
+        grad.addColorStop(1, 'rgba(0, 0, 0, 0)');
+        cCtx.fillStyle = grad;
+        cCtx.beginPath();
+        cCtx.ellipse(x, y, rx, ry, (Math.random() - 0.5) * 0.4, 0, Math.PI * 2);
+        cCtx.fill();
+      }
+      return new THREE.CanvasTexture(cCvs);
+    }
+
+    const cloudTex = generateCloudMap();
+    const cloudGeo = new THREE.SphereGeometry(45.7, 48, 48);
+    const cloudMat = new THREE.MeshStandardMaterial({
+      alphaMap: cloudTex,
+      transparent: true,
+      opacity: 0.65,
+      blending: THREE.AdditiveBlending,
+      roughness: 0.9,
+      metalness: 0.0
+    });
+    const cloudMesh = new THREE.Mesh(cloudGeo, cloudMat);
+    earthGroup.add(cloudMesh);
+
+    // 4. Pure Rayleigh Atmospheric Limb (Border Only - Does Not Cover Globe Face)
+    const atmoVertex = `
+      varying vec3 vNormal;
+      varying vec3 vPosition;
+      void main() {
+        vNormal = normalize(normalMatrix * normal);
+        vPosition = (modelViewMatrix * vec4(position, 1.0)).xyz;
+        gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+      }
+    `;
+    const atmoFrag = `
+      varying vec3 vNormal;
+      varying vec3 vPosition;
+      void main() {
+        vec3 viewDir = normalize(-vPosition);
+        float rim = 1.0 - max(dot(viewDir, vNormal), 0.0);
+        float intensity = pow(rim, 3.8); // Sharp edge boundary only
+        gl_FragColor = vec4(0.1, 0.85, 1.0, 1.0) * intensity * 1.6;
+      }
+    `;
+    const atmoMat = new THREE.ShaderMaterial({
+      vertexShader: atmoVertex,
+      fragmentShader: atmoFrag,
+      blending: THREE.AdditiveBlending,
+      side: THREE.BackSide,
+      transparent: true
+    });
+    const atmoMesh = new THREE.Mesh(new THREE.SphereGeometry(49.2, 48, 48), atmoMat);
+    earthGroup.add(atmoMesh);
+
+    // 5. Balanced Lighting (Diffused from Rear/Side so No Front Spot Burn Occurs)
+    const rimSun = new THREE.DirectionalLight(0xdcf4ff, 1.8);
+    rimSun.position.set(-120, 60, -80);
+    scene.add(rimSun);
+
+    const softFill = new THREE.DirectionalLight(0x0a2238, 0.9);
+    softFill.position.set(100, -50, 80);
+    scene.add(softFill);
+
+    scene.add(new THREE.AmbientLight(0x061424, 0.85));
+
+    // Mouse Drag Rotation Controls
+    let isDragging = false;
+    let prevMousePos = { x: 0, y: 0 };
+    const rig = document.getElementById('globe-rig');
+
+    rig.addEventListener('mousedown', (e) => {
+      isDragging = true;
+      prevMousePos = { x: e.clientX, y: e.clientY };
+    });
+
+    window.addEventListener('mouseup', () => isDragging = false);
+
+    window.addEventListener('mousemove', (e) => {
+      if (!isDragging) return;
+      const deltaX = e.clientX - prevMousePos.x;
+      const deltaY = e.clientY - prevMousePos.y;
+
+      earthGroup.rotation.y += deltaX * 0.008;
+      earthGroup.rotation.x += deltaY * 0.008;
+      prevMousePos = { x: e.clientX, y: e.clientY };
+    });
+
+    function animate() {
+      requestAnimationFrame(animate);
+
+      if (!isDragging) {
+        earthMesh.rotation.y += 0.003;
+        graticuleMesh.rotation.y += 0.003;
+        cloudMesh.rotation.y += 0.0044;
+      }
+
+      renderer.render(scene, camera);
+    }
+    animate();
+  </script>
+</body>
+</html>

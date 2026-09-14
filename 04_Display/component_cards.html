@@ -1,0 +1,514 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ULTRON // CINEMATIC CARDS</title>
+    <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;600;700&family=Orbitron:wght@600;700;800;900&family=JetBrains+Mono:wght@500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <style>
+        :root {
+            --bg-void: #020408;
+            --glass-card: rgba(8, 14, 24, 0.65);
+            --glass-border: rgba(140, 210, 255, 0.20);
+            --cyan-accent: #00f0ff;
+            --cyan-dim: rgba(0, 240, 255, 0.35);
+            --text-pure: #ffffff;
+            --text-muted: #8ba0b8;
+            --font-head: 'Orbitron', monospace;
+            --font-ui: 'Chakra Petch', sans-serif;
+            --font-mono: 'JetBrains Mono', monospace;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; }
+
+        body {
+            background-color: var(--bg-void);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            padding-left: 40px;
+            font-family: var(--font-ui);
+            color: var(--text-pure);
+        }
+
+        .left-metrics-deck {
+            width: 375px;
+            height: 92vh;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .glass-panel {
+            background: var(--glass-card);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            backdrop-filter: blur(45px);
+            -webkit-backdrop-filter: blur(45px);
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.9), inset 0 0 1px 1px rgba(255, 255, 255, 0.09);
+            padding: 18px 22px;
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+            padding-bottom: 8px;
+        }
+
+        .card-title {
+            font-family: var(--font-head);
+            font-size: 12px;
+            font-weight: 800;
+            letter-spacing: 3.5px;
+            color: #ffffff;
+            text-transform: uppercase;
+        }
+
+        .dots-btn {
+            font-size: 10px;
+            color: #556882;
+            letter-spacing: 2px;
+            cursor: pointer;
+        }
+
+        /* 1. Global Overview with 3D Holographic Globe */
+        .card-global { flex: 1.18; display: flex; flex-direction: column; }
+        .global-content { display: flex; align-items: center; gap: 18px; flex: 1; }
+
+        .earth-lens-frame {
+            width: 114px;
+            height: 114px;
+            border-radius: 50%;
+            border: 1.5px solid rgba(0, 240, 255, 0.4);
+            background: radial-gradient(circle at 35% 30%, rgba(0, 240, 255, 0.12) 0%, #01040a 78%);
+            box-shadow: 0 0 25px rgba(0, 240, 255, 0.22), inset 0 0 18px rgba(0, 0, 0, 0.95);
+            position: relative;
+            overflow: hidden;
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        #earth-3d-canvas {
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            inset: 0;
+        }
+
+        .reticle-ring {
+            position: absolute;
+            inset: 2px;
+            border-radius: 50%;
+            border: 1px dashed rgba(0, 240, 255, 0.25);
+            pointer-events: none;
+            animation: spinReticle 35s linear infinite;
+        }
+
+        .global-stats-table {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            flex: 1;
+        }
+
+        .stat-line {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .stat-line .lbl {
+            font-family: var(--font-ui);
+            font-size: 11px;
+            font-weight: 600;
+            letter-spacing: 1.8px;
+            color: var(--text-muted);
+            text-transform: uppercase;
+        }
+
+        .stat-line .val {
+            font-family: var(--font-mono);
+            font-size: 13.5px;
+            font-weight: 700;
+            letter-spacing: 0.8px;
+            color: #ffffff;
+        }
+
+        .val-amber { color: #fbbf24 !important; font-weight: 700; text-shadow: 0 0 6px rgba(251, 191, 36, 0.5); }
+        .val-cyan { color: var(--cyan-accent) !important; font-weight: 700; letter-spacing: 1px; text-shadow: 0 0 6px rgba(0, 240, 255, 0.5); }
+
+        /* 2. Active Agents */
+        .card-agents { flex: 1.35; display: flex; flex-direction: column; }
+        .agent-list { display: flex; flex-direction: column; gap: 11px; margin-top: 6px; }
+
+        .agent-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 5px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+        }
+        .agent-row:last-child { border-bottom: none; }
+
+        .agent-id { display: flex; align-items: center; gap: 12px; }
+
+        .radar-ring {
+            width: 15px;
+            height: 15px;
+            border-radius: 50%;
+            border: 1.8px solid var(--cyan-accent);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 0 8px rgba(0, 240, 255, 0.5);
+            flex-shrink: 0;
+        }
+        .radar-ring::after {
+            content: '';
+            width: 4.5px;
+            height: 4.5px;
+            background: var(--cyan-accent);
+            border-radius: 50%;
+        }
+
+        .agent-name {
+            font-family: var(--font-ui);
+            font-size: 13px;
+            font-weight: 600;
+            letter-spacing: 1.6px;
+            color: #ffffff;
+            text-transform: uppercase;
+        }
+
+        .agent-status-badge {
+            font-family: var(--font-mono);
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 1.5px;
+            color: var(--cyan-accent);
+            text-shadow: 0 0 6px rgba(0, 240, 255, 0.4);
+        }
+
+        /* 3. Ultron Core with Fluid Wave */
+        .card-core { flex: 1; display: flex; flex-direction: column; }
+        .core-row { display: flex; align-items: center; gap: 16px; margin-top: 4px; flex: 1; }
+
+        .core-logo-mini svg {
+            width: 32px;
+            height: 32px;
+            filter: drop-shadow(0 0 8px rgba(0, 240, 255, 0.7));
+            flex-shrink: 0;
+        }
+
+        .core-frequency-box {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .audio-wave-monitor {
+            width: 100%;
+            height: 44px;
+            background: rgba(3, 7, 14, 0.75);
+            border: 1px solid rgba(0, 240, 255, 0.28);
+            border-radius: 8px;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            box-shadow: inset 0 0 16px rgba(0, 0, 0, 0.9), 0 0 10px rgba(0, 240, 255, 0.08);
+        }
+
+        #core-wave-canvas {
+            width: 100%;
+            height: 100%;
+            display: block;
+        }
+
+        .core-caption-line {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            margin-top: 3px;
+        }
+
+        .pulse-beacon {
+            width: 5px;
+            height: 5px;
+            border-radius: 50%;
+            background: var(--cyan-accent);
+            box-shadow: 0 0 8px var(--cyan-accent);
+            animation: blinkBeacon 1.2s infinite;
+        }
+
+        .core-caption {
+            font-family: var(--font-mono);
+            font-size: 10px;
+            font-weight: 600;
+            letter-spacing: 2px;
+            color: #8ba0b8;
+            text-transform: uppercase;
+        }
+
+        @keyframes spinReticle { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+        @keyframes blinkBeacon { 0%, 100% { opacity: 0.3; } 50% { opacity: 1; } }
+    </style>
+</head>
+<body>
+    <main class="left-metrics-deck">
+        <!-- 1. GLOBAL OVERVIEW WITH 3D SCI-FI HOLOGRAM GLOBE -->
+        <section class="card-global glass-panel">
+            <div class="card-header">
+                <span class="card-title">GLOBAL OVERVIEW</span>
+                <span class="dots-btn">•••</span>
+            </div>
+            <div class="global-content">
+                <div class="earth-lens-frame">
+                    <div id="earth-3d-canvas"></div>
+                    <div class="reticle-ring"></div>
+                </div>
+
+                <div class="global-stats-table">
+                    <div class="stat-line"><span class="lbl">EARTH</span><span class="val">8.1B</span></div>
+                    <div class="stat-line"><span class="lbl">POPULATION</span><span class="val">8.1B</span></div>
+                    <div class="stat-line"><span class="lbl">THREAT LEVEL</span><span class="val val-amber">MEDIUM</span></div>
+                    <div class="stat-line"><span class="lbl">STATUS</span><span class="val val-cyan">MONITORING</span></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 2. ACTIVE AGENTS -->
+        <section class="card-agents glass-panel">
+            <div class="card-header">
+                <span class="card-title">ACTIVE AGENTS</span>
+                <span class="dots-btn">•••</span>
+            </div>
+            <div class="agent-list">
+                <div class="agent-row">
+                    <div class="agent-id"><span class="radar-ring"></span><span class="agent-name">Strategist</span></div>
+                    <span class="agent-status-badge">ONLINE</span>
+                </div>
+                <div class="agent-row">
+                    <div class="agent-id"><span class="radar-ring"></span><span class="agent-name">Researcher</span></div>
+                    <span class="agent-status-badge">ONLINE</span>
+                </div>
+                <div class="agent-row">
+                    <div class="agent-id"><span class="radar-ring"></span><span class="agent-name">Security</span></div>
+                    <span class="agent-status-badge">ONLINE</span>
+                </div>
+                <div class="agent-row">
+                    <div class="agent-id"><span class="radar-ring"></span><span class="agent-name">Evolution</span></div>
+                    <span class="agent-status-badge">ONLINE</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- 3. ULTRON CORE -->
+        <section class="card-core glass-panel">
+            <div class="card-header">
+                <span class="card-title">ULTRON CORE</span>
+                <span class="dots-btn">•••</span>
+            </div>
+            <div class="core-row">
+                <div class="core-logo-mini">
+                    <svg viewBox="0 0 32 32" fill="none">
+                        <polygon points="16 3 6 10 16 17 26 10" stroke="#00f0ff" stroke-width="2" stroke-linejoin="round"/>
+                        <polyline points="6 22 16 29 26 22" stroke="#00f0ff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <polyline points="6 16 16 23 26 16" stroke="#00f0ff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </div>
+                <div class="core-frequency-box">
+                    <div class="audio-wave-monitor">
+                        <canvas id="core-wave-canvas" width="250" height="44"></canvas>
+                    </div>
+                    <div class="core-caption-line">
+                        <span class="pulse-beacon"></span>
+                        <span class="core-caption">Processing...</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- 1. ADVANCED 3D HOLOGRAPHIC EARTH WITH ARCS & DUAL GYRO -->
+    <script>
+        const container = document.getElementById('earth-3d-canvas');
+        const size = container.clientWidth || 114;
+
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(40, 1, 0.1, 1000);
+        camera.position.z = 120;
+
+        const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
+        renderer.setSize(size, size);
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+        container.appendChild(renderer.domElement);
+
+        const globeGroup = new THREE.Group();
+        globeGroup.rotation.x = 0.35;
+        globeGroup.rotation.z = -0.15;
+        scene.add(globeGroup);
+
+        // 1. Dark Obsidian Planet Core
+        const oceanGeo = new THREE.SphereGeometry(35, 36, 36);
+        const oceanMat = new THREE.MeshBasicMaterial({ color: 0x01050c });
+        globeGroup.add(new THREE.Mesh(oceanGeo, oceanMat));
+
+        // 2. Continents Voxel Landmass
+        function generateHoloLandmass() {
+            const canvas = document.createElement('canvas');
+            canvas.width = 360; canvas.height = 180;
+            const ctx = canvas.getContext('2d');
+            ctx.fillStyle = '#000'; ctx.fillRect(0, 0, canvas.width, canvas.height);
+            ctx.fillStyle = '#fff';
+
+            function drawShape(coords) {
+                ctx.beginPath();
+                ctx.moveTo(coords[0][0], coords[0][1]);
+                for (let i = 1; i < coords.length; i++) ctx.lineTo(coords[i][0], coords[i][1]);
+                ctx.closePath(); ctx.fill();
+            }
+
+            drawShape([[45,25],[75,20],[115,25],[110,50],[95,70],[80,65],[75,50],[55,40],[45,25]]);
+            drawShape([[95,75],[105,85],[115,100],[125,125],[115,155],[100,160],[95,125],[85,85],[95,75]]);
+            drawShape([[170,30],[195,25],[205,40],[190,55],[175,52],[165,40],[170,30]]);
+            drawShape([[165,60],[200,60],[210,88],[195,125],[178,125],[162,88],[165,60]]);
+            drawShape([[205,28],[295,25],[310,52],[290,80],[258,80],[248,62],[210,55],[205,28]]);
+            drawShape([[248,70],[262,70],[255,95],[248,70]]);
+            drawShape([[285,115],[318,115],[322,142],[292,146],[285,115]]);
+
+            const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height).data;
+            const landPoints = [];
+            const radius = 35.8;
+
+            for (let y = 0; y < canvas.height; y += 3) {
+                const lat = 90 - y;
+                const phi = (90 - lat) * (Math.PI / 180);
+                for (let x = 0; x < canvas.width; x += 3) {
+                    const idx = (y * canvas.width + x) * 4;
+                    if (imgData[idx] > 128) {
+                        const lon = x - 180;
+                        const theta = (lon + 180) * (Math.PI / 180);
+                        landPoints.push(
+                            -(radius * Math.sin(phi) * Math.cos(theta)),
+                            radius * Math.cos(phi),
+                            radius * Math.sin(phi) * Math.sin(theta)
+                        );
+                    }
+                }
+            }
+            return landPoints;
+        }
+
+        const landGeo = new THREE.BufferGeometry();
+        landGeo.setAttribute('position', new THREE.Float32BufferAttribute(generateHoloLandmass(), 3));
+        const landMat = new THREE.PointsMaterial({ color: 0x00f0ff, size: 1.6, transparent: true, opacity: 0.95 });
+        globeGroup.add(new THREE.Points(landGeo, landMat));
+
+        // 3. Glowing Inter-Continental Data Arcs
+        function createDataArc(p1, p2) {
+            const v1 = new THREE.Vector3(p1[0], p1[1], p1[2]);
+            const v2 = new THREE.Vector3(p2[0], p2[1], p2[2]);
+            const mid = v1.clone().add(v2).multiplyScalar(0.5);
+            mid.normalize().multiplyScalar(42); // elevated height for 3D trajectory
+
+            const curve = new THREE.QuadraticBezierCurve3(v1, mid, v2);
+            const pts = curve.getPoints(24);
+            const arcGeo = new THREE.BufferGeometry().setFromPoints(pts);
+            const arcMat = new THREE.LineBasicMaterial({ color: 0x38bdf8, transparent: true, opacity: 0.65 });
+            return new THREE.Line(arcGeo, arcMat);
+        }
+
+        globeGroup.add(createDataArc([-25, 20, 20], [10, 25, -20]));
+        globeGroup.add(createDataArc([15, 20, 25], [25, 5, 20]));
+        globeGroup.add(createDataArc([-10, -20, 25], [20, 15, 20]));
+
+        // 4. Dual Counter-Rotating Holographic Gyro Rings
+        const ringGeo1 = new THREE.RingGeometry(41.2, 41.8, 64);
+        const ringMat1 = new THREE.MeshBasicMaterial({ color: 0x00f0ff, side: THREE.DoubleSide, transparent: true, opacity: 0.45 });
+        const gyroRing1 = new THREE.Mesh(ringGeo1, ringMat1);
+        gyroRing1.rotation.x = Math.PI / 2.2;
+        globeGroup.add(gyroRing1);
+
+        const ringGeo2 = new THREE.RingGeometry(43.5, 44.0, 64);
+        const ringMat2 = new THREE.MeshBasicMaterial({ color: 0x38bdf8, side: THREE.DoubleSide, transparent: true, opacity: 0.25 });
+        const gyroRing2 = new THREE.Mesh(ringGeo2, ringMat2);
+        gyroRing2.rotation.y = Math.PI / 3;
+        globeGroup.add(gyroRing2);
+
+        // 5. Atmospheric Rim Light Bloom
+        const atmosGeo = new THREE.SphereGeometry(37.5, 32, 32);
+        const atmosMat = new THREE.MeshBasicMaterial({ color: 0x00f0ff, transparent: true, opacity: 0.08, side: THREE.BackSide });
+        globeGroup.add(new THREE.Mesh(atmosGeo, atmosMat));
+
+        function animateGlobe() {
+            requestAnimationFrame(animateGlobe);
+            globeGroup.rotation.y += 0.007; // Natural continuous Earth rotation
+            gyroRing1.rotation.z -= 0.004;
+            gyroRing2.rotation.z += 0.003;
+            renderer.render(scene, camera);
+        }
+        animateGlobe();
+    </script>
+
+    <!-- 2. REALISTIC FLUID VOICE SPEECH WAVEFORM ENGINE -->
+    <script>
+        const canvas = document.getElementById('core-wave-canvas');
+        const ctx = canvas.getContext('2d');
+        let tick = 0;
+
+        const layers = [
+            { color: 'rgba(0, 240, 255, 0.9)', width: 1.8, speed: 0.045, freq: 0.025, amp: 11, glow: 8 },
+            { color: 'rgba(56, 189, 248, 0.65)', width: 1.4, speed: -0.035, freq: 0.038, amp: 8.5, glow: 4 },
+            { color: 'rgba(14, 165, 233, 0.45)', width: 1.2, speed: 0.055, freq: 0.018, amp: 6.5, glow: 2 },
+            { color: 'rgba(255, 255, 255, 0.85)', width: 1.0, speed: 0.065, freq: 0.052, amp: 5.0, glow: 6 }
+        ];
+
+        function renderVoiceRibbons() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            const w = canvas.width;
+            const h = canvas.height;
+            const midY = h / 2;
+
+            ctx.globalCompositeOperation = 'screen';
+
+            layers.forEach((layer) => {
+                ctx.beginPath();
+                ctx.lineWidth = layer.width;
+                ctx.strokeStyle = layer.color;
+                ctx.shadowColor = '#00f0ff';
+                ctx.shadowBlur = layer.glow;
+
+                for (let x = 0; x <= w; x++) {
+                    const normX = x / w;
+                    const envelope = Math.pow(Math.sin(normX * Math.PI), 2.2);
+
+                    const t = tick * layer.speed;
+                    const primary = Math.sin(x * layer.freq + t);
+                    const secondary = Math.cos(x * (layer.freq * 2.1) - (t * 1.5)) * 0.4;
+                    const jitter = Math.sin((x * 0.15) + (t * 3)) * 0.15;
+
+                    const y = midY + (primary + secondary + jitter) * (layer.amp * envelope);
+
+                    if (x === 0) ctx.moveTo(x, y);
+                    else ctx.lineTo(x, y);
+                }
+                ctx.stroke();
+            });
+
+            ctx.globalCompositeOperation = 'source-over';
+            ctx.shadowBlur = 0;
+            tick += 1;
+            requestAnimationFrame(renderVoiceRibbons);
+        }
+        renderVoiceRibbons();
+    </script>
+</body>
+</html>

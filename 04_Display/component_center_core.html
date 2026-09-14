@@ -1,0 +1,607 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ULTRON // CINEMATIC QUANTUM REACTOR CORE</title>
+    <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;600;700&family=Michroma&family=Orbitron:wght@700;800;900&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <style>
+        :root {
+            --bg-void: #010307;
+            --cyan-glow: #00f0ff;
+            --cyan-dim: rgba(0, 240, 255, 0.25);
+            --text-pure: #ffffff;
+            --text-muted: #8ba0b8;
+            --font-head: 'Orbitron', monospace;
+            --font-title: 'Michroma', sans-serif;
+            --font-tech: 'Chakra Petch', sans-serif;
+            --font-mono: 'Share Tech Mono', monospace;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; }
+
+        body {
+            background-color: var(--bg-void);
+            background-image: 
+                radial-gradient(circle at 50% 50%, rgba(0, 240, 255, 0.12) 0%, rgba(2, 6, 14, 0.95) 60%, #010307 100%),
+                linear-gradient(rgba(0, 240, 255, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 240, 255, 0.03) 1px, transparent 1px);
+            background-size: 100% 100%, 30px 30px, 30px 30px;
+            width: 100vw;
+            height: 100vh;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: var(--font-tech);
+            color: var(--text-pure);
+        }
+
+        .stage-container {
+            position: relative;
+            width: 840px;
+            height: 700px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px 24px;
+        }
+
+        /* Top Header */
+        .core-top-header {
+            text-align: center;
+            z-index: 10;
+        }
+
+        .core-main-title {
+            font-family: var(--font-head);
+            font-size: 26px;
+            font-weight: 900;
+            letter-spacing: 10px;
+            background: linear-gradient(180deg, #ffffff 20%, #a5f3fc 70%, #00f0ff 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            filter: drop-shadow(0 0 18px rgba(0, 240, 255, 0.8));
+            margin-left: 10px;
+        }
+
+        .core-os-sub {
+            font-family: var(--font-title);
+            font-size: 9px;
+            letter-spacing: 4px;
+            color: var(--text-muted);
+            margin-top: 4px;
+        }
+
+        .core-pillars {
+            font-family: var(--font-mono);
+            font-size: 9.5px;
+            letter-spacing: 4.5px;
+            color: var(--cyan-glow);
+            margin-top: 8px;
+            text-shadow: 0 0 10px rgba(0, 240, 255, 0.7);
+        }
+
+        /* Lateral Telemetry Columns */
+        .axiom-column {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            font-family: var(--font-mono);
+            font-size: 9.5px;
+            line-height: 2.3;
+            letter-spacing: 2.2px;
+            color: #7994b2;
+            pointer-events: none;
+            z-index: 5;
+        }
+
+        .axiom-left { left: 10px; text-align: left; }
+        .axiom-right { right: 10px; text-align: right; }
+
+        .telemetry-tag {
+            color: var(--cyan-glow);
+            font-weight: 700;
+            text-shadow: 0 0 8px var(--cyan-glow);
+        }
+
+        /* 3D Master Viewport */
+        .viewport-3d {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 580px;
+            height: 580px;
+            z-index: 2;
+            cursor: grab;
+        }
+        .viewport-3d:active { cursor: grabbing; }
+
+        /* Multi-Ring Holographic Pedestal */
+        .pedestal-stage {
+            position: absolute;
+            bottom: 45px;
+            width: 280px;
+            height: 44px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .pedestal-outer {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            border: 1.5px solid rgba(0, 240, 255, 0.5);
+            box-shadow: 0 0 35px rgba(0, 240, 255, 0.5), inset 0 0 18px rgba(0, 240, 255, 0.3);
+            background: radial-gradient(ellipse at center, rgba(0, 240, 255, 0.28) 0%, transparent 70%);
+        }
+
+        .pedestal-inner {
+            position: absolute;
+            width: 65%;
+            height: 65%;
+            border-radius: 50%;
+            border: 1px dashed rgba(0, 240, 255, 0.7);
+            animation: spinPedestal 20s linear infinite;
+        }
+
+        .core-bottom-footnote {
+            font-family: var(--font-mono);
+            font-size: 10px;
+            letter-spacing: 4px;
+            color: rgba(255, 255, 255, 0.6);
+            text-transform: uppercase;
+            z-index: 10;
+            margin-bottom: 2px;
+            text-shadow: 0 0 10px rgba(0, 240, 255, 0.4);
+        }
+
+        @keyframes spinPedestal { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+    </style>
+</head>
+<body>
+
+    <div class="stage-container">
+        <!-- TOP HEADER -->
+        <header class="core-top-header">
+            <div class="core-main-title">ULTRON</div>
+            <div class="core-os-sub">QUANTUM AI CORE ENGINE // MK-VIII</div>
+            <div class="core-pillars">OBSERVE &nbsp;•&nbsp; REASON &nbsp;•&nbsp; ADAPT &nbsp;•&nbsp; EXECUTE</div>
+        </header>
+
+        <!-- LEFT TELEMETRY -->
+        <div class="axiom-column axiom-left">
+            SINGULARITY: <span class="telemetry-tag">ONLINE</span><br>
+            MAG_CONTAIN: <span class="telemetry-tag">14.8 TESLA</span><br>
+            FIELD_HARMONIC: <span class="telemetry-tag">0.9994</span><br>
+            REACTOR_TEMP: <span class="telemetry-tag">4.2 K</span><br>
+            PHASE_DRIFT: <span class="telemetry-tag">0.00%</span><br>
+            QUANTUM_STATE: <span class="telemetry-tag">COHERENT</span>
+        </div>
+
+        <!-- 3D VIEWPORT -->
+        <div id="quantum-core-viewport" class="viewport-3d"></div>
+        <div class="pedestal-stage">
+            <div class="pedestal-outer"></div>
+            <div class="pedestal-inner"></div>
+        </div>
+
+        <!-- RIGHT TELEMETRY -->
+        <div class="axiom-column axiom-right">
+            NEURAL_LATENCY: <span class="telemetry-tag">0.04ms</span><br>
+            CORE_STABILITY: <span class="telemetry-tag">99.98%</span><br>
+            BANDWIDTH: <span class="telemetry-tag">1.2 TB/s</span><br>
+            THREAT_MATRIX: <span style="color:#fbbf24; font-weight:700; text-shadow:0 0 8px #fbbf24;">NOMINAL</span><br>
+            AI_DIRECTIVE: <span class="telemetry-tag">AUTONOMOUS</span>
+        </div>
+
+        <!-- BOTTOM FOOTNOTE -->
+        <div class="core-bottom-footnote">
+            CONTROL IS A RESPONSIBILITY
+        </div>
+    </div>
+
+    <!-- MODERN HIGH-PRECISION 3D QUANTUM REACTOR ENGINE -->
+    <script>
+        const container = document.getElementById('quantum-core-viewport');
+        const size = 580;
+
+        const scene = new THREE.Scene();
+        scene.fog = new THREE.FogExp2(0x010307, 0.003);
+
+        const camera = new THREE.PerspectiveCamera(40, 1, 0.1, 1000);
+        camera.position.set(70, 42, 175);
+        camera.lookAt(0, 0, 0);
+
+        const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
+        renderer.setSize(size, size);
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+        renderer.toneMapping = THREE.ACESFilmicToneMapping;
+        renderer.toneMappingExposure = 1.7;
+        container.appendChild(renderer.domElement);
+
+        const masterCore = new THREE.Group();
+        scene.add(masterCore);
+
+        // ==========================================
+        // 1. PROCEDURAL HDRI CYBER REFLECTION MAP
+        // ==========================================
+        function createStudioEnvMap() {
+            const canvas = document.createElement('canvas');
+            canvas.width = 512; canvas.height = 256;
+            const ctx = canvas.getContext('2d');
+            ctx.fillStyle = '#02050c';
+            ctx.fillRect(0, 0, 512, 256);
+
+            // Overhead High-Energy Softbox
+            const grad = ctx.createLinearGradient(0, 0, 0, 120);
+            grad.addColorStop(0, '#ffffff');
+            grad.addColorStop(0.4, '#00f0ff');
+            grad.addColorStop(1, 'transparent');
+            ctx.fillStyle = grad;
+            ctx.fillRect(140, 10, 232, 90);
+
+            // Sharp Cyber-Cyan Edge Strips
+            ctx.fillStyle = '#00f0ff';
+            ctx.fillRect(20, 90, 100, 25);
+            ctx.fillRect(392, 90, 100, 25);
+
+            const tex = new THREE.CanvasTexture(canvas);
+            tex.mapping = THREE.EquirectangularReflectionMapping;
+            return tex;
+        }
+        const studioEnv = createStudioEnvMap();
+        scene.environment = studioEnv;
+
+        // ==========================================
+        // 2. INNER QUANTUM CORE & OBSIDIAN CRYSTAL
+        // ==========================================
+        const reactorGroup = new THREE.Group();
+        masterCore.add(reactorGroup);
+
+        // Blinding White-Hot Plasma Heart
+        const plasmaSphere = new THREE.Mesh(
+            new THREE.SphereGeometry(9, 32, 32),
+            new THREE.MeshBasicMaterial({ color: 0xffffff })
+        );
+        reactorGroup.add(plasmaSphere);
+
+        const flareSphere = new THREE.Mesh(
+            new THREE.SphereGeometry(13, 24, 24),
+            new THREE.MeshBasicMaterial({ color: 0x00f0ff, wireframe: true, transparent: true, opacity: 0.5 })
+        );
+        reactorGroup.add(flareSphere);
+
+        const coreLight = new THREE.PointLight(0x00f0ff, 6.5, 170);
+        reactorGroup.add(coreLight);
+
+        // Faceted Obsidian Glass Shard Cage
+        const crystalMat = new THREE.MeshPhysicalMaterial({
+            color: 0x02050b,
+            emissive: 0x00f0ff,
+            emissiveIntensity: 0.45,
+            roughness: 0.03,
+            metalness: 0.98,
+            transmission: 0.3,
+            reflectivity: 1.0,
+            clearcoat: 1.0,
+            clearcoatRoughness: 0.03,
+            envMap: studioEnv
+        });
+
+        const crystalGroup = new THREE.Group();
+        reactorGroup.add(crystalGroup);
+
+        const octBaseGeo = new THREE.OctahedronGeometry(25, 0);
+        const octEdges = new THREE.LineSegments(
+            new THREE.EdgesGeometry(octBaseGeo),
+            new THREE.LineBasicMaterial({ color: 0x00f0ff, linewidth: 2.5 })
+        );
+        crystalGroup.add(octEdges);
+
+        const crystalMesh = new THREE.Mesh(octBaseGeo, crystalMat);
+        crystalGroup.add(crystalMesh);
+
+        // Internal Cyber Lattice
+        const innerLattice = new THREE.Mesh(
+            new THREE.IcosahedronGeometry(17, 1),
+            new THREE.MeshBasicMaterial({ color: 0x38bdf8, wireframe: true, transparent: true, opacity: 0.6 })
+        );
+        crystalGroup.add(innerLattice);
+
+        // ==========================================
+        // 3. MODERN SEGMENTED AEROSPACE GIMBAL RINGS
+        // ==========================================
+        const darkMetalMat = new THREE.MeshStandardMaterial({
+            color: 0x09131e,
+            roughness: 0.12,
+            metalness: 0.95,
+            envMap: studioEnv
+        });
+
+        const chromeBevelMat = new THREE.MeshStandardMaterial({
+            color: 0x1a2e45,
+            roughness: 0.05,
+            metalness: 1.0,
+            envMap: studioEnv
+        });
+
+        const cyanNeonMat = new THREE.MeshBasicMaterial({
+            color: 0x00f0ff,
+            side: THREE.DoubleSide
+        });
+
+        function createModernSciFiRing(radius, thickness, eulerAngle, segmentCount = 12) {
+            const ringMaster = new THREE.Group();
+            ringMaster.rotation.copy(eulerAngle);
+
+            // A. Inner Continuous Laser Conduit (Recessed Optical Core)
+            const laserTorus = new THREE.Mesh(
+                new THREE.TorusGeometry(radius, thickness * 0.28, 16, 96),
+                cyanNeonMat
+            );
+            ringMaster.add(laserTorus);
+
+            // B. Segmented Armor Shells (Aerospace Chamfered Blocks with Air Gaps)
+            const segAngle = (Math.PI * 2) / segmentCount;
+            const gap = segAngle * 0.18; // Clean structural air gap
+            const segLength = segAngle - gap;
+
+            for (let i = 0; i < segmentCount; i++) {
+                const thetaStart = i * segAngle + gap / 2;
+                
+                // Outer Structural Shield segment (Flat ribbon-torus cross-section)
+                const segGeo = new THREE.CylinderGeometry(
+                    radius + thickness * 0.95, 
+                    radius + thickness * 0.95, 
+                    thickness * 1.4, 
+                    8, 1, true, 
+                    thetaStart, segLength
+                );
+                const segMesh = new THREE.Mesh(segGeo, darkMetalMat);
+                segMesh.rotation.x = Math.PI / 2;
+                ringMaster.add(segMesh);
+
+                // Chrome Chamfer Trim on Outer Segment Edges
+                const trimGeo = new THREE.CylinderGeometry(
+                    radius + thickness * 1.05, 
+                    radius + thickness * 1.05, 
+                    thickness * 0.35, 
+                    6, 1, true, 
+                    thetaStart + segLength * 0.15, segLength * 0.7
+                );
+                const trimMesh = new THREE.Mesh(trimGeo, chromeBevelMat);
+                trimMesh.rotation.x = Math.PI / 2;
+                ringMaster.add(trimMesh);
+            }
+
+            // C. Heavy Servo Pod Actuators (Precision Mechanical Hinges at 0 & 180 deg)
+            function addServoPod(x, y, z, rotZ) {
+                const podGroup = new THREE.Group();
+                podGroup.position.set(x, y, z);
+                podGroup.rotation.z = rotZ;
+
+                // Beveled Cylindrical Servo Casing
+                const casing = new THREE.Mesh(
+                    new THREE.CylinderGeometry(thickness * 2.2, thickness * 2.2, thickness * 3.6, 20),
+                    chromeBevelMat
+                );
+                // Optical Core Lens on Pod
+                const lens = new THREE.Mesh(
+                    new THREE.CylinderGeometry(thickness * 1.6, thickness * 1.6, thickness * 3.8, 16),
+                    cyanNeonMat
+                );
+                podGroup.add(casing);
+                podGroup.add(lens);
+                ringMaster.add(podGroup);
+            }
+            addServoPod(radius, 0, 0, Math.PI / 2);
+            addServoPod(-radius, 0, 0, Math.PI / 2);
+
+            // D. Concentric Floating Micro-HUD Track (Fine Holographic Orbit)
+            const hudRingGeo = new THREE.RingGeometry(radius + thickness * 1.4, radius + thickness * 1.55, 64);
+            const hudRingMat = new THREE.MeshBasicMaterial({
+                color: 0x00f0ff,
+                side: THREE.DoubleSide,
+                transparent: true,
+                opacity: 0.55
+            });
+            const hudRing = new THREE.Mesh(hudRingGeo, hudRingMat);
+            ringMaster.add(hudRing);
+
+            masterCore.add(ringMaster);
+            return { group: ringMaster, hud: hudRing };
+        }
+
+        // Three Heavy Modern Gimbal Rings
+        const ringOuter = createModernSciFiRing(58, 2.2, new THREE.Euler(Math.PI / 3, 0.4, 0), 14);
+        const ringMid   = createModernSciFiRing(47, 1.9, new THREE.Euler(-Math.PI / 3.5, Math.PI / 3, 0.6), 10);
+        const ringInner = createModernSciFiRing(36, 1.6, new THREE.Euler(Math.PI / 5, -Math.PI / 3.2, -0.5), 8);
+
+        // ==========================================
+        // 4. HOLOGRAPHIC DEGREE DIALS WITH TELEMETRY
+        // ==========================================
+        function createHoloDataDisc(r, speed) {
+            const canvas = document.createElement('canvas');
+            canvas.width = 1024; canvas.height = 128;
+            const ctx = canvas.getContext('2d');
+            ctx.fillStyle = 'transparent'; ctx.fillRect(0, 0, 1024, 128);
+
+            ctx.strokeStyle = '#00f0ff';
+            ctx.fillStyle = '#00f0ff';
+            ctx.lineWidth = 2;
+
+            for (let i = 0; i < 1024; i += 16) {
+                const h = (i % 64 === 0) ? 42 : 22;
+                ctx.beginPath(); ctx.moveTo(i, 0); ctx.lineTo(i, h); ctx.stroke();
+                if (i % 128 === 0) {
+                    ctx.font = 'bold 20px "Share Tech Mono"';
+                    ctx.fillText(`${Math.floor((i/1024)*360)}°`, i + 4, 65);
+                    ctx.fillText(`SYS_${i}`, i + 4, 95);
+                }
+            }
+
+            const tex = new THREE.CanvasTexture(canvas);
+            tex.wrapS = THREE.RepeatWrapping;
+            tex.repeat.set(2, 1);
+
+            const dialGeo = new THREE.RingGeometry(r, r + 3.8, 80);
+            const dialMat = new THREE.MeshBasicMaterial({
+                map: tex,
+                side: THREE.DoubleSide,
+                transparent: true,
+                opacity: 0.65
+            });
+            const dialMesh = new THREE.Mesh(dialGeo, dialMat);
+            dialMesh.rotation.x = Math.PI / 2;
+            masterCore.add(dialMesh);
+            return { mesh: dialMesh, speed: speed };
+        }
+
+        const dial1 = createHoloDataDisc(65, 0.005);
+        const dial2 = createHoloDataDisc(71, -0.007);
+
+        // ==========================================
+        // 5. SWIRLING QUANTUM VORTEX PARTICLES
+        // ==========================================
+        const pCount = 750;
+        const pGeo = new THREE.BufferGeometry();
+        const pCoords = new Float32Array(pCount * 3);
+
+        for (let i = 0; i < pCount; i++) {
+            const angle = Math.random() * Math.PI * 2;
+            const dist = 18 + Math.random() * 54;
+            const height = (Math.random() - 0.5) * 80;
+
+            pCoords[i * 3]     = Math.cos(angle) * dist;
+            pCoords[i * 3 + 1] = height;
+            pCoords[i * 3 + 2] = Math.sin(angle) * dist;
+        }
+        pGeo.setAttribute('position', new THREE.BufferAttribute(pCoords, 3));
+        const vortex = new THREE.Points(pGeo, new THREE.PointsMaterial({
+            color: 0x00f0ff,
+            size: 1.6,
+            transparent: true,
+            opacity: 0.85
+        }));
+        masterCore.add(vortex);
+
+        // ==========================================
+        // 6. ELECTRIC ARCS (Discharge to Segmented Rings)
+        // ==========================================
+        const arcCount = 4;
+        const arcLines = [];
+        for (let i = 0; i < arcCount; i++) {
+            const lineGeo = new THREE.BufferGeometry();
+            const positions = new Float32Array(16 * 3);
+            lineGeo.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+            const line = new THREE.Line(lineGeo, new THREE.LineBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.9 }));
+            masterCore.add(line);
+            arcLines.push(line);
+        }
+
+        function updateElectricArcs() {
+            arcLines.forEach((line, idx) => {
+                const pos = line.geometry.attributes.position.array;
+                const angle = (idx / arcCount) * Math.PI * 2 + (Date.now() * 0.003);
+                const targetX = Math.cos(angle) * 36;
+                const targetY = Math.sin(angle * 1.5) * 20;
+                const targetZ = Math.sin(angle) * 36;
+
+                for (let j = 0; j < 16; j++) {
+                    const alpha = j / 15;
+                    const jitter = (j > 0 && j < 15) ? (Math.random() - 0.5) * 4.5 : 0;
+                    pos[j * 3]     = targetX * alpha + jitter;
+                    pos[j * 3 + 1] = targetY * alpha + jitter;
+                    pos[j * 3 + 2] = targetZ * alpha + jitter;
+                }
+                line.geometry.attributes.position.needsUpdate = true;
+            });
+        }
+
+        // ==========================================
+        // 7. LIGHTING & PARALLAX
+        // ==========================================
+        const keySun = new THREE.DirectionalLight(0xffffff, 3.5);
+        keySun.position.set(110, 130, 110);
+        scene.add(keySun);
+
+        const cyanFill = new THREE.DirectionalLight(0x00f0ff, 2.8);
+        cyanFill.position.set(-100, -80, -80);
+        scene.add(cyanFill);
+
+        scene.add(new THREE.AmbientLight(0x020814, 2.0));
+
+        let mouseX = 0, mouseY = 0;
+        let isDragging = false, prevMouse = { x: 0, y: 0 };
+
+        window.addEventListener('mousemove', (e) => {
+            mouseX = (e.clientX / window.innerWidth) * 2 - 1;
+            mouseY = -(e.clientY / window.innerHeight) * 2 + 1;
+
+            if (isDragging) {
+                masterCore.rotation.y += (e.clientX - prevMouse.x) * 0.008;
+                masterCore.rotation.x += (e.clientY - prevMouse.y) * 0.008;
+                prevMouse = { x: e.clientX, y: e.clientY };
+            }
+        });
+
+        container.addEventListener('mousedown', (e) => { isDragging = true; prevMouse = { x: e.clientX, y: e.clientY }; });
+        window.addEventListener('mouseup', () => isDragging = false);
+
+        // ==========================================
+        // 8. REAL-TIME RENDER LOOP
+        // ==========================================
+        let tick = 0;
+        function animate() {
+            requestAnimationFrame(animate);
+            tick += 0.018;
+
+            if (!isDragging) {
+                camera.position.x += (mouseX * 35 + 70 - camera.position.x) * 0.05;
+                camera.position.y += (mouseY * 25 + 42 - camera.position.y) * 0.05;
+                camera.lookAt(0, 0, 0);
+            }
+
+            // Crystal Core Respiration
+            crystalGroup.rotation.y += 0.015;
+            crystalGroup.rotation.x = Math.sin(tick * 0.8) * 0.22;
+            innerLattice.rotation.y -= 0.025;
+
+            // Plasma Pulse
+            const pulse = 1 + Math.sin(tick * 3.6) * 0.18;
+            plasmaSphere.scale.set(pulse, pulse, pulse);
+            flareSphere.scale.set(pulse * 1.15, pulse * 1.15, pulse * 1.15);
+            coreLight.intensity = 5.5 + Math.sin(tick * 3.6) * 3.0;
+
+            // Mechanical Gimbal Counter-Rotations
+            ringOuter.group.rotation.z += 0.009;
+            ringOuter.hud.rotation.z -= 0.015;
+
+            ringMid.group.rotation.x   -= 0.013;
+            ringMid.hud.rotation.z   += 0.018;
+
+            ringInner.group.rotation.y += 0.017;
+            ringInner.hud.rotation.z -= 0.022;
+
+            // Telemetry Dials
+            dial1.mesh.rotation.z += dial1.speed;
+            dial2.mesh.rotation.z += dial2.speed;
+
+            vortex.rotation.y += 0.005;
+            updateElectricArcs();
+
+            renderer.render(scene, camera);
+        }
+        animate();
+    </script>
+</body>
+</html>

@@ -1,11 +1,10 @@
 ﻿"""
-Central Brain Dispatcher with Dynamic Memory Cortex Injection.
+Central Brain Dispatcher with Live Connectivity Guard.
 """
 from __future__ import annotations
 import re
 import requests
 import importlib
-from typing import Optional
 
 LM_STUDIO_URL = "http://127.0.0.1:1234/v1/chat/completions"
 MODEL_ID = "qwen2.5-coder-1.5b-instruct"
@@ -17,24 +16,29 @@ class BrainDispatcher:
         except Exception:
             self.memory = None
 
+    def check_connection(self) -> bool:
+        try:
+            r = requests.get("http://127.0.0.1:1234/v1/models", timeout=3)
+            return r.status_code == 200
+        except Exception:
+            return False
+
     def ask(self, system_role: str, instruction: str, max_tokens: int = 1500) -> str:
-        prompt_body = instruction
+        augmented = instruction
         if self.memory:
-            memory_ctx = self.memory.get_prompt_context(instruction)
-            if memory_ctx.strip():
-                prompt_body = f"{memory_ctx}\n\n[DIRECTIVE]:\n{instruction}"
-            self.memory.record_turn("User/Agent", instruction[:250])
+            ctx = self.memory.get_prompt_context(instruction)
+            if ctx.strip():
+                augmented = f"{ctx}\n\n[TASK INSTRUCTION]:\n{instruction}"
 
         payload = {
             "model": MODEL_ID,
             "messages": [
                 {"role": "system", "content": system_role},
-                {"role": "user", "content": prompt_body}
+                {"role": "user", "content": augmented}
             ],
             "temperature": 0.2,
             "max_tokens": max_tokens
         }
-
         try:
             res = requests.post(LM_STUDIO_URL, json=payload, timeout=90)
             if res.status_code == 200:
@@ -43,7 +47,7 @@ class BrainDispatcher:
                     self.memory.record_turn("Assistant", reply[:200])
                 return reply
         except Exception as exc:
-            print(f"[DISPATCHER_ERROR]: {exc}")
+            print(f"\n[DISPATCHER_OFFLINE]: LM Studio port 1234 unreachable. Pehle LM Studio mein Start Server click karo.")
         return ""
 
     @staticmethod

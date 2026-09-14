@@ -1,0 +1,20 @@
+﻿.studio-nav {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 24px 44px; z-index: 2;
+}
+.brand { display: flex; align-items: center; gap: 10px; font-family: 'Space Grotesk', sans-serif; }
+.brand-name { font-size: 16px; font-weight: 700; letter-spacing: 2px; }
+.divider { color: var(--text-sub); }
+.brand-sub { font-size: 11px; letter-spacing: 1.5px; color: var(--text-muted); font-weight: 500; }
+
+.metrics-bar { display: flex; gap: 12px; }
+.metric-pill {
+    background: var(--glass-card); border: 1px solid var(--glass-border);
+    backdrop-filter: blur(24px); padding: 8px 16px; border-radius: 20px;
+    display: flex; align-items: center; gap: 8px; font-size: 11px;
+}
+.metric-pill .label { color: var(--text-sub); font-weight: 600; letter-spacing: 0.5px; }
+.metric-pill .val { font-family: 'Space Grotesk', monospace; font-weight: 600; color: var(--text-pure); }
+
+.dot { width: 6px; height: 6px; border-radius: 50%; background: var(--neon-red); }
+.dot.online { background: var(--neon-green); box-shadow: 0 0 8px var(--neon-green); }

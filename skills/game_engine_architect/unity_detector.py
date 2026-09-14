@@ -1,25 +1,33 @@
 ﻿"""
-skills/game_engine_architect/unity_detector.py
-Locates and verifies the local Unity 6 engine installation.
+Unity 6 and Unity Hub Path Detector.
 """
-import os
 from pathlib import Path
 
-DEFAULT_UNITY_PATHS = [
-    r"C:\Program Files\Unity\Hub\Editor\6000.5.5f1\Editor\Unity.exe",
-    r"C:\Program Files\Unity\Hub\Editor"
+UNITY_HUB_PATHS = [
+    Path(r"C:\Program Files\Unity Hub\Unity Hub.exe"),
+    Path(r"C:\Program Files (x86)\Unity Hub\Unity Hub.exe")
 ]
 
-def get_unity_binary() -> str | None:
-    # Direct exact path verification
-    exact = Path(r"C:\Program Files\Unity\Hub\Editor\6000.5.5f1\Editor\Unity.exe")
-    if exact.exists():
-        return str(exact)
+UNITY_EDITOR_PATHS = [
+    Path(r"C:\Program Files\Unity\Hub\Editor\6000.5.5f1\Editor\Unity.exe"),
+    Path(r"C:\Program Files\Unity\Hub\Editor\6000.0.34f1\Editor\Unity.exe"),
+    Path(r"C:\Program Files\Unity\Hub\Editor\6000.0.0f1\Editor\Unity.exe")
+]
 
-    # Search Hub Editor folders
-    hub_editor = Path(r"C:\Program Files\Unity\Hub\Editor")
-    if hub_editor.exists():
-        for exe in hub_editor.glob("*/Editor/Unity.exe"):
-            if exe.exists():
-                return str(exe)
+def get_unity_hub_binary() -> Path | None:
+    for p in UNITY_HUB_PATHS:
+        if p.exists():
+            return p
+    return None
+
+def get_unity_binary() -> Path | None:
+    # Check editor paths directly
+    for p in UNITY_EDITOR_PATHS:
+        if p.exists():
+            return p
+    # Fallback search inside Unity Hub editor directory
+    hub_editors = Path(r"C:\Program Files\Unity\Hub\Editor")
+    if hub_editors.exists():
+        for ed in hub_editors.glob("*/Editor/Unity.exe"):
+            return ed
     return None

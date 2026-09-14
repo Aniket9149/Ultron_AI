@@ -1,0 +1,163 @@
+﻿* { box-sizing: border-box; margin: 0; padding: 0; user-select: none; }
+
+body {
+    background: #000;
+    width: 100vw;
+    height: 100vh;
+    overflow: hidden;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-family: 'JetBrains Mono', monospace;
+}
+
+.cinema-viewport {
+    position: relative;
+    width: 100vw;
+    height: 100vh;
+    max-width: 1920px;
+    max-height: 1080px;
+    aspect-ratio: 16 / 9;
+    overflow: hidden;
+}
+
+.master-bg {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    z-index: 1;
+}
+
+/* Precise Live Metric Anchors (Percentage coordinates matching UI panels) */
+
+/* Clock: Right Top */
+.live-clock-spot {
+    position: absolute;
+    top: 5.5%;
+    right: 17%;
+    z-index: 10;
+    text-align: left;
+    color: #fff;
+}
+.live-date { font-size: 10px; color: #8fa0b5; letter-spacing: 1px; }
+.live-time { font-size: 18px; font-weight: 700; color: #ffffff; letter-spacing: 1px; margin-top: 2px; }
+.live-day { font-size: 10px; color: #627284; }
+
+/* System Vitals Numbers (CPU, GPU, MEM, TEMP dials) */
+.vitals-overlay {
+    position: absolute;
+    top: 27.2%;
+    right: 8.5%;
+    width: 20%;
+    display: flex;
+    justify-content: space-between;
+    z-index: 10;
+    color: #fff;
+    font-size: 11px;
+    font-weight: 700;
+}
+.vitals-overlay span {
+    width: 44px;
+    text-align: center;
+}
+
+/* Neural Waveform Monitor */
+.neural-canvas-spot {
+    position: absolute;
+    top: 42.6%;
+    right: 8.2%;
+    width: 19.5%;
+    height: 4.8%;
+    z-index: 10;
+}
+.neural-canvas-spot canvas { width: 100%; height: 100%; }
+
+/* Mini Core Wave (Left Panel) */
+.mini-wave-spot {
+    position: absolute;
+    top: 61.2%;
+    left: 17.5%;
+    width: 10%;
+    height: 3%;
+    z-index: 10;
+}
+.mini-wave-spot canvas { width: 100%; height: 100%; }
+
+/* World Feed Map Pulse */
+.feed-pulse-spot {
+    position: absolute;
+    top: 76.5%;
+    right: 21%;
+    width: 6.5%;
+    height: 4.5%;
+    z-index: 10;
+    pointer-events: none;
+}
+.feed-pulse-spot canvas { width: 100%; height: 100%; }
+
+/* 3D Core: Positioned on the Pedestal Ring */
+.core-3d-spot {
+    position: absolute;
+    top: 24%;
+    left: 39%;
+    width: 22%;
+    height: 38%;
+    z-index: 8;
+    pointer-events: none;
+}
+
+/* Sidebar Hotspots */
+.nav-hotspots {
+    position: absolute;
+    top: 22%;
+    left: 2%;
+    width: 9%;
+    height: 48%;
+    z-index: 15;
+    display: flex;
+    flex-direction: column;
+}
+.hotspot {
+    flex: 1;
+    cursor: pointer;
+    border-radius: 6px;
+    transition: background 0.2s;
+}
+.hotspot:hover {
+    background: rgba(0, 240, 255, 0.08);
+}
+
+/* Center Dock Trigger */
+.dock-hotspot {
+    position: absolute;
+    bottom: 3.5%;
+    left: 34%;
+    width: 32%;
+    height: 6%;
+    z-index: 15;
+    cursor: pointer;
+}
+
+/* Voice Link Banner */
+.voice-cue-overlay {
+    position: absolute;
+    top: 15px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 20;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+.voice-cue-overlay.active { opacity: 1; }
+.cue-pill {
+    background: rgba(0, 240, 255, 0.15);
+    border: 1px solid #00f0ff;
+    color: #00f0ff;
+    padding: 6px 18px;
+    border-radius: 20px;
+    font-size: 11px;
+    letter-spacing: 2px;
+    backdrop-filter: blur(10px);
+}

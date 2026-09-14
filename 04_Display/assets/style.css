@@ -1,0 +1,225 @@
+﻿:root {
+    --bg-abyss: #020408;
+    --neon-cyan: #00f0ff;
+    --neon-blue: #0066ff;
+    --neon-amber: #ffaa00;
+    --neon-emerald: #00ff88;
+    --neon-crimson: #ff0055;
+    --glass-plate: rgba(6, 12, 24, 0.72);
+    --glass-border: rgba(0, 240, 255, 0.22);
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; user-select: none; }
+
+body {
+    background-color: var(--bg-abyss);
+    background-image: 
+        radial-gradient(circle at 50% 50%, rgba(0, 240, 255, 0.04) 0%, transparent 70%),
+        linear-gradient(rgba(0, 240, 255, 0.02) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0, 240, 255, 0.02) 1px, transparent 1px);
+    background-size: 100% 100%, 35px 35px, 35px 35px;
+    color: #e2e8f0;
+    font-family: 'Rajdhani', sans-serif;
+    height: 100vh;
+    overflow: hidden;
+}
+
+.hud-scanline {
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    background: repeating-linear-gradient(0deg, rgba(0,0,0,0) 0px, rgba(0,0,0,0) 2px, rgba(0, 240, 255, 0.02) 3px);
+    pointer-events: none; z-index: 99;
+}
+.hud-vignette {
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    background: radial-gradient(circle at 50% 50%, transparent 65%, rgba(0,0,0,0.8) 100%);
+    pointer-events: none; z-index: 98;
+}
+
+.corner-bracket {
+    position: fixed; width: 22px; height: 22px;
+    border-color: var(--neon-cyan); border-style: solid;
+    pointer-events: none; z-index: 100; opacity: 0.7;
+}
+.top-left { top: 12px; left: 12px; border-width: 2px 0 0 2px; }
+.top-right { top: 12px; right: 12px; border-width: 2px 2px 0 0; }
+.bottom-left { bottom: 12px; left: 12px; border-width: 0 0 2px 2px; }
+.bottom-right { bottom: 12px; right: 12px; border-width: 0 2px 2px 0; }
+
+.stage-view { display: none; height: 100vh; width: 100vw; flex-direction: column; }
+.stage-view.active { display: flex; }
+
+/* Navigation */
+.cockpit-nav {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 16px 36px; border-bottom: 1px solid var(--glass-border);
+    background: rgba(3, 7, 18, 0.85); backdrop-filter: blur(14px);
+}
+.nav-brand { display: flex; align-items: center; gap: 14px; }
+.reactor-spark {
+    width: 14px; height: 14px; background: var(--neon-cyan); border-radius: 50%;
+    box-shadow: 0 0 20px var(--neon-cyan), 0 0 40px var(--neon-cyan); animation: pulse 2s infinite ease-in-out;
+}
+.brand-title {
+    font-family: 'Orbitron', sans-serif; font-size: 20px; font-weight: 900;
+    letter-spacing: 3px; color: #fff; text-shadow: 0 0 15px rgba(0, 240, 255, 0.6);
+}
+.core-tag { font-size: 11px; color: var(--neon-cyan); }
+.brand-sub { font-size: 10px; color: #64748b; letter-spacing: 1.5px; }
+
+.hud-gauges { display: flex; gap: 14px; }
+.gauge-card {
+    background: rgba(10, 18, 36, 0.7); border: 1px solid rgba(0, 240, 255, 0.15);
+    padding: 6px 14px; border-radius: 4px; display: flex; flex-direction: column; align-items: flex-end;
+}
+.gauge-title { font-size: 9px; color: #64748b; letter-spacing: 1px; }
+.gauge-val { font-family: 'Orbitron', monospace; font-size: 13px; font-weight: 700; color: var(--neon-cyan); }
+.gauge-val.blink-warn { color: var(--neon-crimson); animation: blink 1.5s infinite; }
+
+/* Stage 1 Layout */
+.cockpit-layout {
+    flex: 1; display: grid; grid-template-columns: 320px 1fr;
+    gap: 24px; padding: 24px 36px; overflow: hidden;
+}
+
+.hud-panel {
+    background: var(--glass-plate); backdrop-filter: blur(20px);
+    border: 1px solid var(--glass-border); border-radius: 10px;
+    display: flex; flex-direction: column; overflow: hidden;
+}
+.panel-tag {
+    padding: 12px 18px; font-family: 'Orbitron', monospace; font-size: 11px;
+    letter-spacing: 1.5px; color: var(--neon-cyan); border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    display: flex; justify-content: space-between; align-items: center;
+}
+.live-dot {
+    width: 6px; height: 6px; background: var(--neon-emerald); border-radius: 50%;
+    box-shadow: 0 0 8px var(--neon-emerald); animation: blink 1.2s infinite;
+}
+
+.agent-deck { padding: 14px; display: flex; flex-direction: column; gap: 10px; flex: 1; overflow-y: auto; }
+.agent-cell {
+    background: rgba(2, 6, 23, 0.6); border: 1px solid rgba(255, 255, 255, 0.06);
+    padding: 10px 14px; border-radius: 6px; transition: all 0.3s ease;
+}
+.agent-cell:hover { border-color: var(--neon-cyan); box-shadow: 0 0 12px rgba(0, 240, 255, 0.15); }
+.cell-head { display: flex; justify-content: space-between; font-family: 'Orbitron', monospace; font-size: 11px; font-weight: 700; }
+.tag-status { font-size: 9px; color: var(--neon-emerald); letter-spacing: 1px; }
+.cell-desc { font-size: 11px; color: #94a3b8; margin: 4px 0 6px 0; }
+.meter-bar { width: 100%; height: 3px; background: rgba(255, 255, 255, 0.06); border-radius: 2px; overflow: hidden; }
+.meter-bar .fill { height: 100%; width: 50%; }
+.f-cyan { background: var(--neon-cyan); box-shadow: 0 0 8px var(--neon-cyan); }
+.f-blue { background: var(--neon-blue); }
+.f-amber { background: var(--neon-amber); }
+.f-green { background: var(--neon-emerald); }
+
+.audio-scope-wrapper { padding: 14px 18px; border-top: 1px solid rgba(255, 255, 255, 0.05); }
+.scope-label { font-size: 9px; color: #64748b; letter-spacing: 1px; margin-bottom: 8px; }
+
+/* Stage 1 Center & Start Button */
+.hologram-stage {
+    position: relative; display: flex; flex-direction: column;
+    justify-content: center; align-items: center; overflow: hidden;
+}
+.sphere-anchor { width: 100%; height: 75%; }
+.holo-target-ring {
+    position: absolute; width: 440px; height: 440px; border-radius: 50%;
+    border: 1px dashed rgba(0, 240, 255, 0.2); pointer-events: none;
+    animation: rotateRing 35s linear infinite;
+}
+
+.deck-action-footer {
+    display: flex; flex-direction: column; align-items: center; gap: 10px; margin-bottom: 20px;
+}
+.ignite-button {
+    position: relative; padding: 16px 48px; background: transparent;
+    border: 1px solid var(--neon-cyan); border-radius: 6px; cursor: pointer;
+    overflow: hidden; outline: none; transition: all 0.3s ease;
+}
+.ignite-button .btn-label {
+    font-family: 'Orbitron', monospace; font-size: 13px; font-weight: 900;
+    letter-spacing: 3px; color: #fff; text-shadow: 0 0 10px var(--neon-cyan); position: relative; z-index: 2;
+}
+.ignite-button:hover {
+    background: rgba(0, 240, 255, 0.15); box-shadow: 0 0 35px rgba(0, 240, 255, 0.45);
+    transform: scale(1.03);
+}
+.status-legend { font-size: 11px; letter-spacing: 2px; color: #64748b; font-family: 'Orbitron', monospace; }
+
+/* STAGE 2: Presence View */
+.presence-nav {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 18px 36px; border-bottom: 1px solid var(--glass-border);
+    background: rgba(3, 7, 18, 0.9);
+}
+.back-btn {
+    background: transparent; border: 1px solid rgba(255, 255, 255, 0.15);
+    color: #94a3b8; font-family: 'Orbitron', monospace; font-size: 11px;
+    padding: 8px 16px; border-radius: 4px; cursor: pointer; transition: all 0.2s;
+}
+.back-btn:hover { border-color: var(--neon-cyan); color: var(--neon-cyan); }
+
+.comms-toggle {
+    display: flex; background: rgba(10, 18, 36, 0.8); border: 1px solid var(--glass-border);
+    padding: 4px; border-radius: 6px;
+}
+.toggle-opt {
+    background: transparent; border: none; outline: none; color: #64748b;
+    font-family: 'Orbitron', monospace; font-size: 11px; padding: 6px 18px;
+    border-radius: 4px; cursor: pointer; display: flex; align-items: center; gap: 8px;
+    transition: all 0.2s;
+}
+.toggle-opt.active {
+    background: var(--neon-cyan); color: #020408; font-weight: 800;
+    box-shadow: 0 0 15px rgba(0, 240, 255, 0.4);
+}
+.pulse-mic {
+    width: 6px; height: 6px; background: #020408; border-radius: 50%;
+    animation: blink 0.8s infinite;
+}
+.neural-frequency-pill { font-size: 11px; color: var(--neon-emerald); letter-spacing: 1.5px; font-family: 'Orbitron', monospace; }
+
+.presence-core-arena {
+    flex: 1; position: relative; display: flex; flex-direction: column;
+    justify-content: center; align-items: center;
+}
+#presence-sphere-container { width: 100%; height: 100%; }
+
+.voice-state-hud {
+    position: absolute; bottom: 40px; display: flex; flex-direction: column;
+    align-items: center; gap: 12px; pointer-events: none;
+}
+.voice-cue {
+    font-family: 'Orbitron', monospace; font-size: 13px; letter-spacing: 3px;
+    color: var(--neon-cyan); text-shadow: 0 0 10px var(--neon-cyan);
+}
+
+/* Slide-out Floating Chat */
+.floating-chat-deck {
+    position: absolute; right: 40px; bottom: 40px; width: 420px; height: 380px;
+    background: var(--glass-plate); border: 1px solid var(--glass-border);
+    border-radius: 8px; backdrop-filter: blur(25px); display: flex; flex-direction: column;
+    box-shadow: 0 0 30px rgba(0,0,0,0.6); transition: all 0.3s ease;
+}
+.floating-chat-deck.hidden { opacity: 0; transform: translateY(20px); pointer-events: none; }
+.chat-logs {
+    flex: 1; padding: 14px; overflow-y: auto; font-family: 'Consolas', monospace;
+    font-size: 12px; display: flex; flex-direction: column; gap: 8px;
+}
+.chat-line.sys { color: var(--neon-cyan); }
+.chat-line.user { color: #fff; }
+.chat-line.ai { color: var(--neon-amber); }
+.chat-input-bar {
+    display: flex; padding: 10px; border-top: 1px solid rgba(255, 255, 255, 0.08); gap: 8px;
+}
+.chat-input-bar input {
+    flex: 1; background: rgba(0,0,0,0.4); border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 4px; padding: 8px; color: #fff; font-family: 'Consolas', monospace; font-size: 12px; outline: none;
+}
+.chat-input-bar button {
+    background: var(--neon-cyan); border: none; font-family: 'Orbitron', monospace;
+    font-size: 10px; font-weight: 800; padding: 0 16px; border-radius: 4px; cursor: pointer;
+}
+
+@keyframes pulse { 0%, 100% { opacity: 0.8; } 50% { opacity: 1; } }
+@keyframes rotateRing { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+@keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }

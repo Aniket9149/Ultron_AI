@@ -1,0 +1,223 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ultron OS - Neural Activity</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@600;700&family=Orbitron:wght@700;800;900&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-dark: #010408;
+      --card-bg: rgba(6, 12, 22, 0.72);
+      --card-border: rgba(0, 240, 255, 0.22);
+      --border-specular: rgba(255, 255, 255, 0.35);
+      --cyan: #00f0ff;
+      --font-head: 'Orbitron', sans-serif;
+      --font-mono: 'Share Tech Mono', monospace;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; }
+
+    body, html {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background: transparent;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: var(--font-mono);
+    }
+
+    .card {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      padding: 15px 20px;
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-top: 1.5px solid var(--border-specular);
+      border-radius: 20px;
+      backdrop-filter: blur(28px);
+      -webkit-backdrop-filter: blur(28px);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      overflow: hidden;
+      transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    /* Top Optical Specular Arc */
+    .card::before {
+      content: "";
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 40%;
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0.08) 0%, transparent 100%);
+      border-radius: 20px 20px 0 0;
+      pointer-events: none;
+    }
+
+    .header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      width: 100%;
+      position: relative;
+      z-index: 2;
+    }
+
+    .title {
+      font-family: var(--font-head);
+      font-size: 11.5px;
+      font-weight: 800;
+      letter-spacing: 2.5px;
+      color: #ffffff;
+      text-transform: uppercase;
+      display: flex;
+      align-items: center;
+      gap: 7px;
+    }
+
+    .title::before {
+      content: "";
+      width: 4px;
+      height: 4px;
+      background: var(--cyan);
+      box-shadow: 0 0 8px var(--cyan);
+      border-radius: 1px;
+    }
+
+    .menu-dots {
+      color: #486582;
+      font-size: 14px;
+      letter-spacing: 2px;
+      cursor: pointer;
+    }
+
+    /* Waveform Visual Area */
+    .visual-well {
+      flex: 1;
+      width: 100%;
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 5px 0;
+    }
+
+    #waveCanvas {
+      width: 100%;
+      height: 100%;
+      display: block;
+      filter: drop-shadow(0 0 8px rgba(0, 240, 255, 0.5));
+    }
+
+    /* Footer Telemetry */
+    .footer {
+      font-family: var(--font-mono);
+      font-size: 9px;
+      letter-spacing: 2px;
+      color: #7d93a8;
+      text-transform: uppercase;
+      padding-top: 5px;
+      position: relative;
+      z-index: 2;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="card" id="card">
+    <div class="header">
+      <div class="title">NEURAL ACTIVITY</div>
+      <div class="menu-dots">···</div>
+    </div>
+
+    <div class="visual-well">
+      <canvas id="waveCanvas" width="460" height="90"></canvas>
+    </div>
+
+    <div class="footer">
+      <span>PROCESSING SYNAPSE HARMONICS...</span>
+    </div>
+  </div>
+
+  <script>
+    // =========================================================================
+    // RESTORED: MULTI-LAYER SINE WAVE (EXACT AS ULTRON CORE)
+    // =========================================================================
+    const canvas = document.getElementById('waveCanvas');
+    const ctx = canvas.getContext('2d');
+    const W = canvas.width;
+    const H = canvas.height;
+    const centerY = H / 2;
+    let t = 0;
+
+    function render() {
+      requestAnimationFrame(render);
+      t += 0.02;
+      ctx.clearRect(0, 0, W, H);
+
+      // --- Baseline Reference Lines (subtle) ---
+      ctx.strokeStyle = 'rgba(0, 240, 255, 0.08)';
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.moveTo(0, centerY); ctx.lineTo(W, centerY);
+      ctx.stroke();
+
+      ctx.strokeStyle = 'rgba(0, 240, 255, 0.04)';
+      ctx.beginPath();
+      ctx.moveTo(0, centerY - 25); ctx.lineTo(W, centerY - 25);
+      ctx.moveTo(0, centerY + 25); ctx.lineTo(W, centerY + 25);
+      ctx.stroke();
+
+      // --- Multi-Layer Harmonic Sine Wave ---
+      // Layer 1: Strong, Ambient Cyan Wave
+      ctx.strokeStyle = 'rgba(0, 240, 255, 0.45)';
+      ctx.lineWidth = 1.8;
+      ctx.beginPath();
+      for (let x = 0; x < W; x += 2) {
+        // Complex interference pattern for realistic brain wave feel
+        const y = centerY + Math.sin(x * 0.03 + t * 2) * Math.cos(x * 0.015 - t) * 20;
+        if (x === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+      }
+      ctx.stroke();
+
+      // Layer 2: Faster, Bright Core Filament
+      ctx.strokeStyle = '#00f0ff';
+      ctx.lineWidth = 1.5;
+      ctx.beginPath();
+      for (let x = 0; x < W; x += 2) {
+        const y = centerY + Math.sin(x * 0.05 - t * 3) * Math.sin(t * 0.8 + x * 0.005) * 12;
+        if (x === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+      }
+      ctx.stroke();
+
+      // Layer 3: Rapid Secondary Ribbon
+      ctx.strokeStyle = 'rgba(56, 189, 248, 0.6)';
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      for (let x = 0; x < W; x += 2) {
+        const y = centerY + Math.cos(x * 0.06 + t * 3.5) * 6;
+        if (x === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+      }
+      ctx.stroke();
+    }
+    render();
+
+    // Subtle 3D Parallax Tilt
+    const card = document.getElementById('card');
+    window.addEventListener('mousemove', (e) => {
+      const xAxis = (window.innerWidth / 2 - e.clientX) / 45;
+      const yAxis = (e.clientY - window.innerHeight / 2) / 32;
+      card.style.transform = `rotateY(${xAxis}deg) rotateX(${yAxis}deg)`;
+    });
+    window.addEventListener('mouseleave', () => {
+      card.style.transform = `rotateY(0deg) rotateX(0deg)`;
+    });
+  </script>
+</body>
+</html>

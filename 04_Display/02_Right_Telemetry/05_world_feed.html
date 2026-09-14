@@ -1,0 +1,471 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ultron OS - World Feed</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@600;700&family=Michroma&family=Orbitron:wght@700;800;900&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-dark: #010408;
+      --card-bg: rgba(6, 12, 22, 0.82);
+      --card-border: rgba(0, 240, 255, 0.22);
+      --border-specular: rgba(255, 255, 255, 0.35);
+      --cyan: #00f0ff;
+      --font-head: 'Orbitron', sans-serif;
+      --font-label: 'Michroma', sans-serif;
+      --font-val: 'Chakra Petch', sans-serif;
+      --font-mono: 'Share Tech Mono', monospace;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      user-select: none;
+    }
+
+    body, html {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background-color: var(--bg-dark);
+      background-image: radial-gradient(circle at 50% 50%, rgba(0, 240, 255, 0.05) 0%, #000206 85%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      perspective: 1200px;
+    }
+
+    /* Master Glass Chassis */
+    .card {
+      position: relative;
+      width: 490px;
+      height: 180px;
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-top: 1.5px solid var(--border-specular);
+      border-radius: 20px;
+      padding: 16px 20px 14px 20px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      backdrop-filter: blur(28px);
+      -webkit-backdrop-filter: blur(28px);
+      box-shadow: 
+        0 20px 50px rgba(0, 0, 0, 0.9),
+        inset 0 1px 0 rgba(255, 255, 255, 0.1),
+        0 0 24px rgba(0, 240, 255, 0.08);
+      transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    /* Specular Top Arc */
+    .card::before {
+      content: "";
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 40%;
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0.12) 0%, transparent 100%);
+      border-radius: 20px 20px 0 0;
+      pointer-events: none;
+    }
+
+    /* Header */
+    .header {
+      position: relative;
+      z-index: 2;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      width: 100%;
+    }
+
+    .title {
+      font-family: var(--font-head);
+      font-size: 11.5px;
+      font-weight: 800;
+      letter-spacing: 2.5px;
+      color: #ffffff;
+      text-transform: uppercase;
+      text-shadow: 0 0 10px rgba(0, 240, 255, 0.6);
+      display: flex;
+      align-items: center;
+      gap: 7px;
+    }
+
+    .title::before {
+      content: "";
+      width: 4px;
+      height: 4px;
+      background: var(--cyan);
+      box-shadow: 0 0 8px var(--cyan);
+      border-radius: 1px;
+    }
+
+    .dots {
+      color: #486582;
+      font-size: 14px;
+      letter-spacing: 2px;
+      cursor: pointer;
+      transition: color 0.2s ease;
+    }
+    .dots:hover {
+      color: var(--cyan);
+      text-shadow: 0 0 8px var(--cyan);
+    }
+
+    /* Content Stage: Left Cyber Map + Right Telemetry */
+    .content {
+      position: relative;
+      z-index: 2;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      width: 100%;
+      height: 116px;
+      gap: 16px;
+    }
+
+    /* Dedicated Map Container Slot */
+    .map-slot {
+      width: 228px;
+      height: 112px;
+      border-radius: 12px;
+      background: radial-gradient(ellipse at 50% 50%, rgba(3, 21, 39, 0.45) 0%, rgba(0, 3, 8, 0.95) 90%);
+      border: 1px solid rgba(0, 240, 255, 0.25);
+      box-shadow: inset 0 2px 10px rgba(0, 0, 0, 0.9), 0 0 12px rgba(0, 240, 255, 0.05);
+      position: relative;
+      overflow: hidden;
+      flex-shrink: 0;
+    }
+
+    #embeddedMap {
+      width: 100%;
+      height: 100%;
+      display: block;
+      filter: drop-shadow(0 0 5px rgba(0, 240, 255, 0.35));
+    }
+
+    /* Right Telemetry Column */
+    .telemetry-list {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      gap: 6px;
+    }
+
+    .telemetry-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 4px 10px;
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px solid rgba(255, 255, 255, 0.04);
+      border-radius: 6px;
+      transition: all 0.2s ease;
+    }
+
+    .telemetry-row:hover {
+      background: rgba(0, 240, 255, 0.06);
+      border-color: rgba(0, 240, 255, 0.28);
+      transform: translateX(2px);
+    }
+
+    .label {
+      font-family: var(--font-label);
+      font-size: 8.5px;
+      letter-spacing: 1.5px;
+      color: #8da2b8;
+      text-transform: uppercase;
+    }
+
+    .value {
+      font-family: var(--font-val);
+      font-size: 11.5px;
+      font-weight: 700;
+      letter-spacing: 1.2px;
+      text-transform: uppercase;
+    }
+
+    .val-unstable {
+      color: #f43f5e;
+      text-shadow: 0 0 8px rgba(244, 63, 94, 0.55);
+    }
+
+    .val-volatile {
+      color: #f59e0b;
+      text-shadow: 0 0 8px rgba(245, 158, 11, 0.45);
+    }
+
+    .val-elevated {
+      color: #38bdf8;
+      text-shadow: 0 0 8px rgba(56, 189, 248, 0.55);
+    }
+
+    .val-increased {
+      color: #f1f5f9;
+      text-shadow: 0 0 8px rgba(255, 255, 255, 0.4);
+    }
+  </style>
+</head>
+<body>
+
+  <div class="card" id="card">
+    <!-- Header -->
+    <div class="header">
+      <div class="title">WORLD FEED</div>
+      <div class="dots">···</div>
+    </div>
+
+    <!-- Content Area -->
+    <div class="content">
+      
+      <!-- Embedded Live Tactical Cyber World Map Slot -->
+      <div class="map-slot">
+        <canvas id="embeddedMap" width="912" height="448"></canvas>
+      </div>
+
+      <!-- Right Telemetry Text from Reference UI -->
+      <div class="telemetry-list">
+        <div class="telemetry-row">
+          <span class="label">Geopolitics</span>
+          <span class="value val-unstable">Unstable</span>
+        </div>
+        <div class="telemetry-row">
+          <span class="label">Markets</span>
+          <span class="value val-volatile">Volatile</span>
+        </div>
+        <div class="telemetry-row">
+          <span class="label">Cyber Threats</span>
+          <span class="value val-elevated">Elevated</span>
+        </div>
+        <div class="telemetry-row">
+          <span class="label">Space Activity</span>
+          <span class="value val-increased">Increased</span>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <script>
+    // =========================================================================
+    // EMBEDDED TACTICAL CYBER WORLD MAP ENGINE
+    // =========================================================================
+    const canvas = document.getElementById('embeddedMap');
+    const ctx = canvas.getContext('2d');
+    const W = canvas.width;
+    const H = canvas.height;
+
+    // Accurate Equirectangular Continental Shoreline Coordinates
+    const GEOMETRIES = [
+      // North America & Arctic
+      [[0.06,0.22],[0.09,0.16],[0.14,0.14],[0.18,0.12],[0.26,0.14],[0.28,0.22],[0.25,0.29],[0.24,0.37],[0.21,0.44],[0.19,0.49],[0.22,0.48],[0.24,0.50],[0.22,0.56],[0.18,0.57],[0.16,0.51],[0.13,0.43],[0.10,0.38],[0.07,0.32],[0.04,0.26],[0.06,0.22]],
+      // Greenland
+      [[0.30,0.08],[0.36,0.07],[0.38,0.12],[0.35,0.20],[0.30,0.16],[0.30,0.08]],
+      // South America
+      [[0.22,0.57],[0.26,0.54],[0.32,0.57],[0.36,0.61],[0.35,0.70],[0.31,0.80],[0.27,0.89],[0.24,0.88],[0.24,0.78],[0.21,0.67],[0.22,0.57]],
+      // Europe & Scandinavia
+      [[0.44,0.28],[0.48,0.18],[0.53,0.15],[0.54,0.24],[0.58,0.26],[0.58,0.33],[0.53,0.36],[0.49,0.34],[0.46,0.38],[0.44,0.32],[0.44,0.28]],
+      // British Isles
+      [[0.44,0.24],[0.46,0.22],[0.46,0.27],[0.44,0.28],[0.44,0.24]],
+      // Africa & Horn
+      [[0.44,0.38],[0.53,0.36],[0.59,0.44],[0.61,0.52],[0.58,0.63],[0.53,0.74],[0.49,0.73],[0.46,0.61],[0.43,0.48],[0.44,0.38]],
+      // Madagascar
+      [[0.58,0.62],[0.60,0.62],[0.59,0.70],[0.57,0.69],[0.58,0.62]],
+      // Asia & India
+      [[0.58,0.26],[0.66,0.18],[0.78,0.17],[0.87,0.21],[0.89,0.31],[0.84,0.36],[0.82,0.42],[0.77,0.42],[0.74,0.50],[0.71,0.56],[0.69,0.49],[0.67,0.42],[0.60,0.44],[0.57,0.33],[0.58,0.26]],
+      // Japan
+      [[0.85,0.31],[0.87,0.30],[0.86,0.38],[0.84,0.38],[0.85,0.31]],
+      // Southeast Asia
+      [[0.75,0.56],[0.82,0.55],[0.85,0.62],[0.77,0.62],[0.75,0.56]],
+      // Australia
+      [[0.77,0.68],[0.85,0.67],[0.88,0.75],[0.86,0.84],[0.79,0.84],[0.75,0.76],[0.77,0.68]],
+      // New Zealand
+      [[0.89,0.80],[0.91,0.80],[0.90,0.87],[0.88,0.86],[0.89,0.80]]
+    ];
+
+    function pointInPoly(pt, poly) {
+      let inside = false;
+      for (let i = 0, j = poly.length - 1; i < poly.length; j = i++) {
+        const xi = poly[i][0] * W, yi = poly[i][1] * H;
+        const xj = poly[j][0] * W, yj = poly[j][1] * H;
+        const intersect = ((yi > pt[1]) !== (yj > pt[1])) &&
+            (pt[0] < (xj - xi) * (pt[1] - yi) / (yj - yi) + xi);
+        if (intersect) inside = !inside;
+      }
+      return inside;
+    }
+
+    // High-Density Micro Dot-Matrix Raster
+    const dots = [];
+    const step = 6;
+    for (let x = 16; x < W - 16; x += step) {
+      for (let y = 16; y < H - 16; y += step) {
+        for (let p = 0; p < GEOMETRIES.length; p++) {
+          if (pointInPoly([x, y], GEOMETRIES[p])) {
+            dots.push({ x, y, alpha: 0.35 + Math.random() * 0.65 });
+            break;
+          }
+        }
+      }
+    }
+
+    // Strategic Telemetry Hubs
+    const NODES = [
+      { id: "NYC", x: 0.22 * W, y: 0.34 * H },
+      { id: "SFO", x: 0.12 * W, y: 0.36 * H },
+      { id: "SAO", x: 0.31 * W, y: 0.70 * H },
+      { id: "LON", x: 0.46 * W, y: 0.27 * H },
+      { id: "FRA", x: 0.50 * W, y: 0.28 * H },
+      { id: "DXB", x: 0.60 * W, y: 0.43 * H },
+      { id: "DEL", x: 0.69 * W, y: 0.44 * H },
+      { id: "SIN", x: 0.76 * W, y: 0.54 * H },
+      { id: "TYO", x: 0.85 * W, y: 0.35 * H },
+      { id: "SYD", x: 0.84 * W, y: 0.78 * H }
+    ];
+
+    // Terrestrial Defense Mesh Links
+    const MESH_LINKS = [
+      [0, 1], [0, 2], [3, 4], [4, 5], [5, 6], [6, 7], [7, 8], [7, 9]
+    ];
+
+    // Geodesic Flight Arcs
+    function generateArc(p1, p2, elevation = 20, segments = 32) {
+      const pts = [];
+      const dx = p2.x - p1.x;
+      const dy = p2.y - p1.y;
+      for (let i = 0; i <= segments; i++) {
+        const t = i / segments;
+        const x = p1.x + dx * t;
+        const baseY = p1.y + dy * t;
+        const arcY = Math.sin(t * Math.PI) * elevation;
+        pts.push({ x, y: baseY - arcY });
+      }
+      return pts;
+    }
+
+    const FLIGHT_ARCS = [
+      { pts: generateArc(NODES[0], NODES[3], 24), phase: 0.1 },
+      { pts: generateArc(NODES[3], NODES[6], 18), phase: 0.4 },
+      { pts: generateArc(NODES[5], NODES[7], 15), phase: 0.7 },
+      { pts: generateArc(NODES[8], NODES[1], 32), phase: 0.2 }
+    ];
+
+    let t = 0;
+    function render() {
+      requestAnimationFrame(render);
+      t += 0.018;
+
+      ctx.clearRect(0, 0, W, H);
+
+      // 1. Aerospace Lat/Long Graticule Grid
+      ctx.strokeStyle = 'rgba(0, 240, 255, 0.04)';
+      ctx.lineWidth = 0.9;
+      for (let x = 32; x < W; x += 48) {
+        ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, H); ctx.stroke();
+      }
+      for (let y = 32; y < H; y += 48) {
+        ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(W, y); ctx.stroke();
+      }
+
+      // 2. Continents Boundary Vector Outlines
+      ctx.strokeStyle = 'rgba(0, 240, 255, 0.35)';
+      ctx.lineWidth = 1.1;
+      GEOMETRIES.forEach(poly => {
+        ctx.beginPath();
+        poly.forEach((pt, idx) => {
+          const px = pt[0] * W, py = pt[1] * H;
+          if (idx === 0) ctx.moveTo(px, py);
+          else ctx.lineTo(px, py);
+        });
+        ctx.closePath();
+        ctx.stroke();
+      });
+
+      // 3. Dense Digital Micro Dot-Matrix Raster
+      dots.forEach(d => {
+        ctx.fillStyle = `rgba(0, 240, 255, ${d.alpha * 0.75})`;
+        ctx.fillRect(d.x, d.y, 1.8, 1.8);
+      });
+
+      // 4. Ground Telemetry Defense Mesh
+      ctx.strokeStyle = 'rgba(0, 240, 255, 0.3)';
+      ctx.lineWidth = 1;
+      MESH_LINKS.forEach(([i, j]) => {
+        const n1 = NODES[i], n2 = NODES[j];
+        ctx.beginPath();
+        ctx.moveTo(n1.x, n1.y);
+        ctx.lineTo(n2.x, n2.y);
+        ctx.stroke();
+      });
+
+      // 5. Curved Suborbital Flight Arcs & Photon Packets
+      FLIGHT_ARCS.forEach(arc => {
+        ctx.strokeStyle = 'rgba(56, 189, 248, 0.6)';
+        ctx.lineWidth = 1;
+        ctx.setLineDash([2, 3]);
+        ctx.beginPath();
+        arc.pts.forEach((p, idx) => {
+          if (idx === 0) ctx.moveTo(p.x, p.y);
+          else ctx.lineTo(p.x, p.y);
+        });
+        ctx.stroke();
+        ctx.setLineDash([]);
+
+        // Photon Packet Pulse
+        const progress = (t * 0.75 + arc.phase) % 1;
+        const idxTarget = progress * (arc.pts.length - 1);
+        const bIdx = Math.floor(idxTarget);
+        const subP = idxTarget - bIdx;
+        const nIdx = Math.min(arc.pts.length - 1, bIdx + 1);
+
+        const px = arc.pts[bIdx].x + (arc.pts[nIdx].x - arc.pts[bIdx].x) * subP;
+        const py = arc.pts[bIdx].y + (arc.pts[nIdx].y - arc.pts[bIdx].y) * subP;
+
+        ctx.fillStyle = '#ffffff';
+        ctx.beginPath();
+        ctx.arc(px, py, 1.8, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.strokeStyle = '#00f0ff';
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.arc(px, py, 3.8, 0, Math.PI * 2);
+        ctx.stroke();
+      });
+
+      // 6. Tactical Telemetry Hub Markers with Radar Pings
+      NODES.forEach((node, idx) => {
+        ctx.fillStyle = '#00f0ff';
+        ctx.beginPath();
+        ctx.arc(node.x, node.y, 2.2, 0, Math.PI * 2);
+        ctx.fill();
+
+        const ping = ((t * 1.5 + idx * 0.3) % 2);
+        ctx.strokeStyle = `rgba(0, 240, 255, ${Math.max(0, 0.6 - ping * 0.3)})`;
+        ctx.lineWidth = 0.9;
+        ctx.beginPath();
+        ctx.arc(node.x, node.y, 2.2 + ping * 5.5, 0, Math.PI * 2);
+        ctx.stroke();
+      });
+    }
+
+    render();
+
+    // 3D Gyroscopic Parallax Tilt on Mouse Move
+    const card = document.getElementById('card');
+    window.addEventListener('mousemove', (e) => {
+      const xAxis = (window.innerWidth / 2 - e.clientX) / 45;
+      const yAxis = (e.clientY - window.innerHeight / 2) / 32;
+      card.style.transform = `rotateY(${xAxis}deg) rotateX(${yAxis}deg)`;
+    });
+    window.addEventListener('mouseleave', () => {
+      card.style.transform = `rotateY(0deg) rotateX(0deg)`;
+    });
+  </script>
+</body>
+</html>

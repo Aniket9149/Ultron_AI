@@ -1,0 +1,316 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ultron OS - System Vitals</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700;900&family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet">
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      user-select: none;
+    }
+
+    body, html {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background: radial-gradient(circle at center, #051428 0%, #020710 65%, #000103 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Rajdhani', sans-serif;
+    }
+
+    .viewport-rig {
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .viewport-rig::before {
+      content: "";
+      position: absolute;
+      width: 90%;
+      height: 80px;
+      bottom: -28px;
+      background: radial-gradient(ellipse at center, rgba(0, 240, 255, 0.3) 0%, rgba(0, 80, 160, 0.1) 50%, transparent 75%);
+      filter: blur(34px);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* Master Pod Chassis matching Time Deck */
+    .vitals-pod {
+      position: relative;
+      z-index: 1;
+      width: 530px;
+      height: 160px;
+      padding: 16px 28px 20px 28px;
+      background: linear-gradient(135deg, rgba(16, 34, 62, 0.65) 0%, rgba(4, 9, 20, 0.95) 100%);
+      border-radius: 26px;
+      border: 1px solid rgba(0, 240, 255, 0.28);
+      border-top: 1.8px solid rgba(255, 255, 255, 0.75);
+      border-bottom: 1.5px solid rgba(0, 4, 12, 0.98);
+      box-shadow: 
+        0 30px 70px rgba(0, 0, 0, 0.95),
+        0 10px 25px rgba(0, 0, 0, 0.8),
+        inset 0 1px 3px rgba(255, 255, 255, 0.45),
+        inset 0 -2px 10px rgba(0, 0, 0, 0.9),
+        0 0 35px rgba(0, 210, 255, 0.14);
+      backdrop-filter: blur(40px) saturate(220%);
+      -webkit-backdrop-filter: blur(40px) saturate(220%);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      overflow: hidden;
+    }
+
+    .vitals-pod::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 44%;
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0.2) 0%, transparent 100%);
+      border-radius: 26px 26px 0 0;
+      pointer-events: none;
+      z-index: 2;
+    }
+
+    /* Deck Header */
+    .vitals-header {
+      position: relative;
+      z-index: 3;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      width: 100%;
+      padding-bottom: 4px;
+    }
+
+    .vitals-title {
+      font-family: 'Orbitron', monospace;
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 2.5px;
+      color: #ffffff;
+      text-transform: uppercase;
+      text-shadow: 0 0 12px rgba(0, 240, 255, 0.6);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .vitals-title::before {
+      content: "";
+      width: 5px;
+      height: 5px;
+      border-radius: 50%;
+      background: #00f0ff;
+      box-shadow: 0 0 8px #00f0ff;
+    }
+
+    .menu-dots {
+      color: #5587ae;
+      font-size: 16px;
+      letter-spacing: 2px;
+      cursor: pointer;
+      transition: color 0.2s ease;
+    }
+
+    .menu-dots:hover {
+      color: #00f0ff;
+    }
+
+    /* Gauges Grid Container */
+    .gauges-container {
+      position: relative;
+      z-index: 3;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      width: 100%;
+      gap: 12px;
+      padding: 0 6px;
+    }
+
+    .gauge-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+      flex: 1;
+    }
+
+    .dial-wrapper {
+      position: relative;
+      width: 72px;
+      height: 72px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .dial-svg {
+      width: 100%;
+      height: 100%;
+      transform: rotate(-90deg);
+    }
+
+    .dial-track {
+      fill: none;
+      stroke: rgba(0, 240, 255, 0.12);
+      stroke-width: 4.5;
+    }
+
+    .dial-ticks {
+      fill: none;
+      stroke: rgba(0, 240, 255, 0.25);
+      stroke-width: 1;
+      stroke-dasharray: 2 4;
+    }
+
+    .dial-progress {
+      fill: none;
+      stroke: #00f0ff;
+      stroke-width: 4.5;
+      stroke-linecap: round;
+      filter: drop-shadow(0 0 6px rgba(0, 240, 255, 0.85));
+      transition: stroke-dashoffset 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .dial-inner-glow {
+      position: absolute;
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      background: radial-gradient(circle at center, rgba(0, 240, 255, 0.1) 0%, transparent 70%);
+      pointer-events: none;
+    }
+
+    .gauge-value {
+      position: absolute;
+      font-family: 'Orbitron', monospace;
+      font-size: 15px;
+      font-weight: 700;
+      color: #ffffff;
+      text-shadow: 0 0 10px rgba(0, 240, 255, 0.7);
+      letter-spacing: -0.5px;
+    }
+
+    .gauge-label {
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 2px;
+      color: #6193b9;
+      text-transform: uppercase;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="viewport-rig">
+    <div class="vitals-pod">
+
+      <!-- Header Bar -->
+      <div class="vitals-header">
+        <div class="vitals-title">SYSTEM VITALS</div>
+        <div class="menu-dots">···</div>
+      </div>
+
+      <!-- 4 Radial Telemetry Gauges -->
+      <div class="gauges-container">
+
+        <!-- CPU -->
+        <div class="gauge-item">
+          <div class="dial-wrapper">
+            <svg class="dial-svg" viewBox="0 0 72 72">
+              <circle class="dial-ticks" cx="36" cy="36" r="32"/>
+              <circle class="dial-track" cx="36" cy="36" r="28"/>
+              <circle class="dial-progress" id="cpu-progress" cx="36" cy="36" r="28" stroke-dasharray="175.93" stroke-dashoffset="3.5"/>
+            </svg>
+            <div class="dial-inner-glow"></div>
+            <div class="gauge-value" id="cpu-val">98%</div>
+          </div>
+          <div class="gauge-label">CPU</div>
+        </div>
+
+        <!-- GPU -->
+        <div class="gauge-item">
+          <div class="dial-wrapper">
+            <svg class="dial-svg" viewBox="0 0 72 72">
+              <circle class="dial-ticks" cx="36" cy="36" r="32"/>
+              <circle class="dial-track" cx="36" cy="36" r="28"/>
+              <circle class="dial-progress" id="gpu-progress" cx="36" cy="36" r="28" stroke-dasharray="175.93" stroke-dashoffset="22.8"/>
+            </svg>
+            <div class="dial-inner-glow"></div>
+            <div class="gauge-value" id="gpu-val">87%</div>
+          </div>
+          <div class="gauge-label">GPU</div>
+        </div>
+
+        <!-- MEM -->
+        <div class="gauge-item">
+          <div class="dial-wrapper">
+            <svg class="dial-svg" viewBox="0 0 72 72">
+              <circle class="dial-ticks" cx="36" cy="36" r="32"/>
+              <circle class="dial-track" cx="36" cy="36" r="28"/>
+              <circle class="dial-progress" id="mem-progress" cx="36" cy="36" r="28" stroke-dasharray="175.93" stroke-dashoffset="49.2"/>
+            </svg>
+            <div class="dial-inner-glow"></div>
+            <div class="gauge-value" id="mem-val">72%</div>
+          </div>
+          <div class="gauge-label">MEM</div>
+        </div>
+
+        <!-- TEMP -->
+        <div class="gauge-item">
+          <div class="dial-wrapper">
+            <svg class="dial-svg" viewBox="0 0 72 72">
+              <circle class="dial-ticks" cx="36" cy="36" r="32"/>
+              <circle class="dial-track" cx="36" cy="36" r="28"/>
+              <circle class="dial-progress" id="temp-progress" cx="36" cy="36" r="28" stroke-dasharray="175.93" stroke-dashoffset="103.8"/>
+            </svg>
+            <div class="dial-inner-glow"></div>
+            <div class="gauge-value" id="temp-val">41%</div>
+          </div>
+          <div class="gauge-label">TEMP</div>
+        </div>
+
+      </div>
+
+    </div>
+  </div>
+
+  <script>
+    const circumference = 2 * Math.PI * 28; // ~175.93
+
+    function setGauge(idProgress, idVal, percent, suffix = "%") {
+      const offset = circumference - (percent / 100) * circumference;
+      document.getElementById(idProgress).style.strokeDashoffset = offset;
+      document.getElementById(idVal).innerText = `${Math.round(percent)}${suffix}`;
+    }
+
+    // Telemetry Telemetry Micro-Fluctuations (Real OS heartbeat simulation)
+    setInterval(() => {
+      const cpu = 95 + Math.random() * 4;     // ~98%
+      const gpu = 85 + Math.random() * 4;     // ~87%
+      const mem = 71 + Math.random() * 2;     // ~72%
+      const temp = 40 + Math.random() * 2;    // ~41%
+
+      setGauge('cpu-progress', 'cpu-val', cpu);
+      setGauge('gpu-progress', 'gpu-val', gpu);
+      setGauge('mem-progress', 'mem-val', mem);
+      setGauge('temp-progress', 'temp-val', temp);
+    }, 2000);
+  </script>
+</body>
+</html>

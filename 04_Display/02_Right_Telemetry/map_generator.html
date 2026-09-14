@@ -1,0 +1,329 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ultron OS - Cyber Tactical Map Generator</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;800&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; }
+
+    body, html {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background-color: #000000;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Share Tech Mono', monospace;
+    }
+
+    /* Action Control Bar */
+    .toolbar {
+      position: absolute;
+      top: 14px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      z-index: 100;
+      background: rgba(8, 16, 28, 0.7);
+      border: 1px solid rgba(0, 240, 255, 0.25);
+      border-radius: 10px;
+      padding: 6px 14px;
+      backdrop-filter: blur(12px);
+    }
+
+    .toolbar-title {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 11px;
+      letter-spacing: 2px;
+      color: #00f0ff;
+    }
+
+    .btn-export {
+      background: rgba(0, 240, 255, 0.1);
+      border: 1px solid rgba(0, 240, 255, 0.5);
+      color: #ffffff;
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 11px;
+      letter-spacing: 1.5px;
+      padding: 4px 12px;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    .btn-export:hover {
+      background: rgba(0, 240, 255, 0.3);
+      box-shadow: 0 0 10px rgba(0, 240, 255, 0.5);
+    }
+
+    /* Primary Canvas Frame */
+    .viewport {
+      width: 100vw;
+      height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #000000;
+    }
+
+    #mapCanvas {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="toolbar">
+    <span class="toolbar-title">ULTRON // TACTICAL CYBER MAP</span>
+    <button class="btn-export" onclick="exportPNG()">EXPORT ULTRA-HD PNG</button>
+  </div>
+
+  <div class="viewport">
+    <canvas id="mapCanvas" width="3840" height="2160"></canvas>
+  </div>
+
+  <script>
+    const canvas = document.getElementById('mapCanvas');
+    const ctx = canvas.getContext('2d');
+    const W = 3840;
+    const H = 2160;
+
+    // High-Precision Shoreline Polygon Coordinates (Equirectangular normalized [0..1])
+    const GEOMETRIES = [
+      // North America & Arctic Archipelagos
+      [[0.06,0.22],[0.09,0.16],[0.14,0.14],[0.18,0.12],[0.26,0.14],[0.28,0.22],[0.25,0.29],[0.24,0.37],[0.21,0.44],[0.19,0.49],[0.22,0.48],[0.24,0.50],[0.22,0.56],[0.18,0.57],[0.16,0.51],[0.13,0.43],[0.10,0.38],[0.07,0.32],[0.04,0.26],[0.06,0.22]],
+      // Greenland
+      [[0.30,0.08],[0.36,0.07],[0.38,0.12],[0.35,0.20],[0.30,0.16],[0.30,0.08]],
+      // South America
+      [[0.22,0.57],[0.26,0.54],[0.32,0.57],[0.36,0.61],[0.35,0.70],[0.31,0.80],[0.27,0.89],[0.24,0.88],[0.24,0.78],[0.21,0.67],[0.22,0.57]],
+      // Europe & Baltic Sea Rim
+      [[0.44,0.28],[0.48,0.18],[0.53,0.15],[0.54,0.24],[0.58,0.26],[0.58,0.33],[0.53,0.36],[0.49,0.34],[0.46,0.38],[0.44,0.32],[0.44,0.28]],
+      // British Isles
+      [[0.44,0.24],[0.46,0.22],[0.46,0.27],[0.44,0.28],[0.44,0.24]],
+      // Africa & Horn of Africa
+      [[0.44,0.38],[0.53,0.36],[0.59,0.44],[0.61,0.52],[0.58,0.63],[0.53,0.74],[0.49,0.73],[0.46,0.61],[0.43,0.48],[0.44,0.38]],
+      // Madagascar
+      [[0.58,0.62],[0.60,0.62],[0.59,0.70],[0.57,0.69],[0.58,0.62]],
+      // Continental Asia + Subcontinent
+      [[0.58,0.26],[0.66,0.18],[0.78,0.17],[0.87,0.21],[0.89,0.31],[0.84,0.36],[0.82,0.42],[0.77,0.42],[0.74,0.50],[0.71,0.56],[0.69,0.49],[0.67,0.42],[0.60,0.44],[0.57,0.33],[0.58,0.26]],
+      // Japan
+      [[0.85,0.31],[0.87,0.30],[0.86,0.38],[0.84,0.38],[0.85,0.31]],
+      // Maritime Southeast Asia
+      [[0.75,0.56],[0.82,0.55],[0.85,0.62],[0.77,0.62],[0.75,0.56]],
+      // Australia
+      [[0.77,0.68],[0.85,0.67],[0.88,0.75],[0.86,0.84],[0.79,0.84],[0.75,0.76],[0.77,0.68]],
+      // New Zealand
+      [[0.89,0.80],[0.91,0.80],[0.90,0.87],[0.88,0.86],[0.89,0.80]]
+    ];
+
+    function pointInPoly(pt, poly) {
+      let inside = false;
+      for (let i = 0, j = poly.length - 1; i < poly.length; j = i++) {
+        const xi = poly[i][0] * W, yi = poly[i][1] * H;
+        const xj = poly[j][0] * W, yj = poly[j][1] * H;
+        const intersect = ((yi > pt[1]) !== (yj > pt[1])) &&
+            (pt[0] < (xj - xi) * (pt[1] - yi) / (yj - yi) + xi);
+        if (intersect) inside = !inside;
+      }
+      return inside;
+    }
+
+    // Generate Ultra-Dense Digital Dot Matrix
+    const dots = [];
+    const step = 9;
+    for (let x = 60; x < W - 60; x += step) {
+      for (let y = 60; y < H - 60; y += step) {
+        for (let p = 0; p < GEOMETRIES.length; p++) {
+          if (pointInPoly([x, y], GEOMETRIES[p])) {
+            dots.push({ x, y, alpha: 0.35 + Math.random() * 0.65 });
+            break;
+          }
+        }
+      }
+    }
+
+    // Aerospace Command Telemetry Nodes
+    const NODES = [
+      { id: "SFO", x: 0.12 * W, y: 0.36 * H },
+      { id: "NYC", x: 0.22 * W, y: 0.34 * H },
+      { id: "SAO", x: 0.31 * W, y: 0.70 * H },
+      { id: "LON", x: 0.46 * W, y: 0.27 * H },
+      { id: "FRA", x: 0.50 * W, y: 0.28 * H },
+      { id: "DXB", x: 0.60 * W, y: 0.43 * H },
+      { id: "DEL", x: 0.69 * W, y: 0.44 * H },
+      { id: "SIN", x: 0.76 * W, y: 0.54 * H },
+      { id: "TYO", x: 0.85 * W, y: 0.35 * H },
+      { id: "SYD", x: 0.84 * W, y: 0.78 * H }
+    ];
+
+    // Terrestrial Cyber Defense Mesh
+    const MESH_LINKS = [
+      [0, 1], [1, 2], [3, 4], [4, 5], [5, 6], [6, 7], [7, 8], [7, 9]
+    ];
+
+    // True Suborbital Great-Circle Arcs
+    function generateArc(p1, p2, elevation = 42, segments = 40) {
+      const pts = [];
+      const dx = p2.x - p1.x;
+      const dy = p2.y - p1.y;
+      for (let i = 0; i <= segments; i++) {
+        const t = i / segments;
+        const x = p1.x + dx * t;
+        const baseY = p1.y + dy * t;
+        const arcY = Math.sin(t * Math.PI) * elevation;
+        pts.push({ x, y: baseY - arcY });
+      }
+      return pts;
+    }
+
+    const FLIGHT_ARCS = [
+      { pts: generateArc(NODES[1], NODES[3], 55), phase: 0.1 },
+      { pts: generateArc(NODES[3], NODES[6], 45), phase: 0.4 },
+      { pts: generateArc(NODES[5], NODES[7], 35), phase: 0.7 },
+      { pts: generateArc(NODES[8], NODES[0], 70), phase: 0.2 }
+    ];
+
+    let t = 0;
+    function render() {
+      requestAnimationFrame(render);
+      t += 0.015;
+
+      // Pure solid pitch black background
+      ctx.fillStyle = '#000000';
+      ctx.fillRect(0, 0, W, H);
+
+      // 1. Technical Lat/Long Aerospace Graticule Grid
+      ctx.strokeStyle = 'rgba(0, 240, 255, 0.04)';
+      ctx.lineWidth = 1.2;
+      for (let x = 120; x < W; x += 180) {
+        ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, H); ctx.stroke();
+      }
+      for (let y = 120; y < H; y += 180) {
+        ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(W, y); ctx.stroke();
+      }
+
+      // Coordinate Crosshairs
+      ctx.strokeStyle = 'rgba(0, 240, 255, 0.18)';
+      ctx.lineWidth = 1;
+      for (let x = 360; x < W; x += 720) {
+        for (let y = 360; y < H; y += 720) {
+          ctx.beginPath();
+          ctx.moveTo(x - 12, y); ctx.lineTo(x + 12, y);
+          ctx.moveTo(x, y - 12); ctx.lineTo(x, y + 12);
+          ctx.stroke();
+        }
+      }
+
+      // 2. Continents Boundary Vector Outlines
+      ctx.strokeStyle = 'rgba(0, 240, 255, 0.38)';
+      ctx.lineWidth = 1.6;
+      GEOMETRIES.forEach(poly => {
+        ctx.beginPath();
+        poly.forEach((pt, idx) => {
+          const px = pt[0] * W, py = pt[1] * H;
+          if (idx === 0) ctx.moveTo(px, py);
+          else ctx.lineTo(px, py);
+        });
+        ctx.closePath();
+        ctx.stroke();
+      });
+
+      // 3. Dense Digital Micro Dot-Matrix Raster
+      dots.forEach(d => {
+        ctx.fillStyle = `rgba(0, 240, 255, ${d.alpha * 0.75})`;
+        ctx.fillRect(d.x, d.y, 2.4, 2.4);
+      });
+
+      // 4. Ground Telemetry Defense Mesh
+      ctx.strokeStyle = 'rgba(0, 240, 255, 0.32)';
+      ctx.lineWidth = 1.4;
+      MESH_LINKS.forEach(([i, j]) => {
+        const n1 = NODES[i], n2 = NODES[j];
+        ctx.beginPath();
+        ctx.moveTo(n1.x, n1.y);
+        ctx.lineTo(n2.x, n2.y);
+        ctx.stroke();
+      });
+
+      // 5. Curved Suborbital Flight Arcs & Photon Laser Pulses
+      FLIGHT_ARCS.forEach(arc => {
+        ctx.strokeStyle = 'rgba(56, 189, 248, 0.65)';
+        ctx.lineWidth = 1.4;
+        ctx.setLineDash([4, 6]);
+        ctx.beginPath();
+        arc.pts.forEach((p, idx) => {
+          if (idx === 0) ctx.moveTo(p.x, p.y);
+          else ctx.lineTo(p.x, p.y);
+        });
+        ctx.stroke();
+        ctx.setLineDash([]);
+
+        // High-Speed Data Packet Pulse
+        const progress = (t * 0.7 + arc.phase) % 1;
+        const idxTarget = progress * (arc.pts.length - 1);
+        const bIdx = Math.floor(idxTarget);
+        const subP = idxTarget - bIdx;
+        const nIdx = Math.min(arc.pts.length - 1, bIdx + 1);
+
+        const px = arc.pts[bIdx].x + (arc.pts[nIdx].x - arc.pts[bIdx].x) * subP;
+        const py = arc.pts[bIdx].y + (arc.pts[nIdx].y - arc.pts[bIdx].y) * subP;
+
+        ctx.fillStyle = '#ffffff';
+        ctx.beginPath();
+        ctx.arc(px, py, 2.8, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.strokeStyle = '#00f0ff';
+        ctx.lineWidth = 1.5;
+        ctx.beginPath();
+        ctx.arc(px, py, 6, 0, Math.PI * 2);
+        ctx.stroke();
+      });
+
+      // 6. Tactical Telemetry Hub Markers with Radar Pings
+      NODES.forEach((node, idx) => {
+        // Node Core
+        ctx.fillStyle = '#00f0ff';
+        ctx.beginPath();
+        ctx.arc(node.x, node.y, 4, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Technical Box Frame
+        ctx.strokeStyle = 'rgba(0, 240, 255, 0.7)';
+        ctx.lineWidth = 1.2;
+        ctx.strokeRect(node.x - 7, node.y - 7, 14, 14);
+
+        // Ping Ring
+        const ping = ((t * 1.5 + idx * 0.3) % 2);
+        ctx.strokeStyle = `rgba(0, 240, 255, ${Math.max(0, 0.6 - ping * 0.3)})`;
+        ctx.lineWidth = 1.2;
+        ctx.beginPath();
+        ctx.arc(node.x, node.y, 6 + ping * 12, 0, Math.PI * 2);
+        ctx.stroke();
+
+        // Label Callout
+        ctx.fillStyle = '#8da2b8';
+        ctx.font = '16px "Share Tech Mono"';
+        ctx.fillText(node.id, node.x + 12, node.y + 5);
+      });
+    }
+
+    render();
+
+    // Export Function to save exact PNG
+    function exportPNG() {
+      const link = document.createElement('a');
+      link.download = 'ultron_cyber_world_map.png';
+      link.href = canvas.toDataURL('image/png');
+      link.click();
+    }
+  </script>
+</body>
+</html>
