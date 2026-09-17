@@ -1,0 +1,111 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ultron OS - Precision HUD Spatial Studio</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; }
+    html, body { width: 100vw; height: 100vh; overflow: hidden; background-color: #010307; font-family: 'Segoe UI', monospace; }
+    #master-hologram-slab { position: absolute; inset: 4px; border-radius: 6px; background: #02050d; border: 1px solid rgba(0, 229, 255, 0.3); box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.25), 0 25px 80px rgba(0, 0, 0, 0.98); overflow: hidden; }
+    #vfx-canvas { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 1; }
+    .cinema-matrix-grid { position: absolute; inset: 0; pointer-events: none; background-image: linear-gradient(rgba(0, 229, 255, 0.035) 1px, transparent 1px), linear-gradient(90deg, rgba(0, 229, 255, 0.035) 1px, transparent 1px); background-size: 32px 32px; z-index: 2; }
+    .optical-flare-core { position: absolute; left: 5%; right: 5%; top: 43%; height: 2px; background: linear-gradient(90deg, transparent 0%, rgba(0, 229, 255, 0.45) 50%, transparent 100%); pointer-events: none; z-index: 2; opacity: 0.85; }
+    .cinematic-vignette { position: absolute; inset: 0; pointer-events: none; z-index: 40; box-shadow: inset 0 0 140px rgba(0, 0, 0, 0.95); }
+    .slab-etched-layout { position: absolute; inset: 0; pointer-events: none; z-index: 3; }
+    .hud-element { position: absolute; background: transparent !important; }
+    .viewport-scaler { position: absolute; left: 0; top: 0; transform-origin: 0 0; }
+    iframe { border: none; background: transparent !important; display: block; overflow: hidden; }
+  </style>
+</head>
+<body>
+  <div id="master-hologram-slab">
+    <canvas id="vfx-canvas"></canvas>
+    <div class="optical-flare-core"></div>
+    <div class="cinema-matrix-grid"></div>
+    <svg class="slab-etched-layout" width="100%" height="100%">
+      <rect x="14" y="14" width="490" height="970" rx="4" fill="none" stroke="rgba(0, 229, 255, 0.35)" stroke-width="1" />
+      <line x1="210" y1="14" x2="210" y2="984" stroke="rgba(0, 229, 255, 0.08)" stroke-width="1" />
+      <rect x="calc(100% - 315px)" y="14" width="300" height="840" rx="4" fill="none" stroke="rgba(0, 229, 255, 0.35)" stroke-width="1" />
+      <circle cx="50%" cy="43%" r="395" fill="none" stroke="rgba(0, 229, 255, 0.09)" stroke-width="1" stroke-dasharray="8 8" />
+    </svg>
+    <div class="cinematic-vignette"></div>
+  </div>
+
+  <script>
+    const canvas = document.getElementById('vfx-canvas');
+    const ctx = canvas.getContext('2d');
+    function resizeCanvas() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
+    window.addEventListener('resize', resizeCanvas);
+    resizeCanvas();
+
+    window.addEventListener('message', (e) => {
+      if (e.data && e.data.type === 'NAV_CLICK') {
+        const deckIframe = document.getElementById('deck-target-iframe');
+        if (!deckIframe) return;
+        const target = (e.data.target || '').toUpperCase();
+        if (target === 'INTELLIGENCE') {
+          deckIframe.src = 'nav_modules/module_intelligence.html';
+        } else {
+          deckIframe.contentWindow.postMessage(e.data, '*');
+        }
+      }
+    });
+
+    // Clean, exact non-overlapping positions
+    const SEAMLESS_MODULES = [
+      { id: "component_sidebar.html",          w: 240, h: 1020, scale: 0.85, x: 14,  y: 14,  z: 20, useRight: false },
+      { id: "component_globe_3d.html",         w: 480, h: 600,  scale: 0.48, x: 215, y: 14,  z: 12, useRight: false },
+      { id: "component_cards_review.html",            w: 440, h: 820,  scale: 0.65, x: 215, y: 305, z: 12, useRight: false, iframeId: "deck-target-iframe" },
+      { id: "component_center_core.html",      w: 900, h: 800,  scale: 0.94, x: 475, y: 15,  z: 5,  useRight: false },
+      { id: "component_center_dock.html",      w: 900, h: 160,  scale: 0.78, x: 575, y: 730, z: 25, useRight: false },
+      { id: "01_time_deck.html",               w: 400, h: 170,  scale: 0.71, right: 18, y: 16,  z: 10, useRight: true },
+      { id: "02_system_vitals.html",           w: 400, h: 210,  scale: 0.71, right: 18, y: 146, z: 10, useRight: true },
+      { id: "03_neural_activity.html",         w: 400, h: 220,  scale: 0.71, right: 18, y: 304, z: 10, useRight: true },
+      { id: "04_mission_log.html",             w: 400, h: 210,  scale: 0.71, right: 18, y: 468, z: 10, useRight: true },
+      { id: "05_world_feed.html",              w: 400, h: 170,  scale: 0.71, right: 18, y: 624, z: 10, useRight: true }
+    ];
+
+    const slab = document.getElementById('master-hologram-slab');
+    SEAMLESS_MODULES.forEach(mod => {
+      const el = document.createElement('div');
+      el.className = 'hud-element';
+      el.style.zIndex = mod.z;
+
+      const sW = Math.round(mod.w * mod.scale);
+      const sH = Math.round(mod.h * mod.scale);
+      el.style.width = sW + 'px';
+      el.style.height = sH + 'px';
+      el.style.top = mod.y + 'px';
+
+      if (mod.useRight) el.style.right = mod.right + 'px';
+      else el.style.left = mod.x + 'px';
+
+      const scaler = document.createElement('div');
+      scaler.className = 'viewport-scaler';
+      scaler.style.transform = `scale(${mod.scale})`;
+
+      const ifr = document.createElement('iframe');
+      ifr.src = mod.id;
+      if (mod.iframeId) ifr.id = mod.iframeId;
+      ifr.scrolling = 'no';
+      ifr.style.width = mod.w + 'px';
+      ifr.style.height = mod.h + 'px';
+
+      scaler.appendChild(ifr);
+      el.appendChild(scaler);
+      slab.appendChild(el);
+    });
+      // Event router for Home & Agents
+    window.addEventListener('message', (e) => {
+      if (e.data && e.data.type === 'NAV_CLICK') {
+        const deck = document.getElementById('deck-target-iframe');
+        if (deck && deck.contentWindow) {
+          deck.contentWindow.postMessage(e.data, '*');
+        }
+      }
+    });
+</script>
+</body>
+</html>
+

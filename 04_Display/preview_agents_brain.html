@@ -1,0 +1,209 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ULTRON // AGENTS BRAIN PREVIEW</title>
+    <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;600;700&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-void: #020408;
+            --silver-bright: #f8fafc;
+            --silver-mid: #cbd5e1;
+            --silver-dim: #64748b;
+            --silver-border: rgba(226, 232, 240, 0.18);
+            --font-ui: 'Chakra Petch', sans-serif;
+            --font-mono: 'JetBrains Mono', monospace;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; }
+
+        body {
+            background-color: var(--bg-void);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: var(--font-ui);
+            color: var(--silver-bright);
+            padding: 24px;
+        }
+
+        .preview-wrapper {
+            width: 420px;
+            background: rgba(10, 16, 26, 0.85);
+            border: 1px solid var(--silver-border);
+            border-radius: 16px;
+            padding: 20px;
+            box-shadow: 0 16px 40px rgba(0, 0, 0, 0.9), inset 0 0 1px 1px rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(20px);
+        }
+
+        .header-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--silver-border);
+            padding-bottom: 10px;
+            margin-bottom: 16px;
+        }
+
+        .title {
+            font-size: 13px;
+            font-weight: 700;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: var(--silver-bright);
+        }
+
+        .mode-badge {
+            font-family: var(--font-mono);
+            font-size: 10px;
+            color: var(--silver-dim);
+            letter-spacing: 1px;
+        }
+
+        .brain-display-stage {
+            position: relative;
+            width: 100%;
+            height: 280px;
+            background: radial-gradient(circle at center, rgba(226, 232, 240, 0.04) 0%, transparent 70%);
+            border: 1px solid rgba(226, 232, 240, 0.08);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+
+        svg.anatomical-brain {
+            width: 90%;
+            height: 90%;
+            filter: drop-shadow(0 0 2px rgba(255, 255, 255, 0.2));
+        }
+
+        .sulci-line {
+            fill: none;
+            stroke: var(--silver-mid);
+            stroke-width: 1.2;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+            opacity: 0.85;
+            transition: stroke 0.2s, opacity 0.2s;
+        }
+
+        .sulci-fine {
+            fill: none;
+            stroke: var(--silver-dim);
+            stroke-width: 0.8;
+            opacity: 0.6;
+        }
+
+        .lobe-region {
+            cursor: pointer;
+        }
+
+        .lobe-region:hover .sulci-line {
+            stroke: #ffffff;
+            opacity: 1;
+            filter: drop-shadow(0 0 4px rgba(255, 255, 255, 0.6));
+        }
+
+        .telemetry-tray {
+            margin-top: 14px;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            font-family: var(--font-mono);
+            font-size: 11px;
+            background: rgba(2, 6, 12, 0.6);
+            border: 1px solid rgba(226, 232, 240, 0.08);
+            border-radius: 8px;
+            padding: 10px 12px;
+        }
+
+        .telemetry-row {
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .lbl { color: var(--silver-dim); text-transform: uppercase; }
+        .val { color: var(--silver-bright); font-weight: 700; }
+    </style>
+</head>
+<body>
+    <div class="preview-wrapper">
+        <div class="header-bar">
+            <span class="title">NEURAL AGENT TOPOLOGY</span>
+            <span class="mode-badge">MONOCHROME // 2D ANATOMICAL</span>
+        </div>
+
+        <div class="brain-display-stage">
+            <svg class="anatomical-brain" viewBox="0 0 320 240">
+                <!-- Frontal Lobe (Strategist / Executive) -->
+                <g class="lobe-region" data-agent="STRATEGIST" data-role="Executive Decisions / Planning">
+                    <path class="sulci-line" d="M 120 40 C 90 40 50 70 45 110 C 42 135 60 155 85 160 C 105 165 115 150 125 140" />
+                    <path class="sulci-fine" d="M 60 90 C 75 85 95 95 110 85 M 55 115 C 75 110 95 125 115 115 M 70 140 C 85 135 100 145 115 135" />
+                    <path class="sulci-fine" d="M 80 60 C 95 65 105 55 118 60" />
+                </g>
+
+                <!-- Parietal Lobe (Researcher / Sensory Integration) -->
+                <g class="lobe-region" data-agent="RESEARCHER" data-role="Sensory & Data Correlation">
+                    <path class="sulci-line" d="M 120 40 C 160 38 210 50 230 85 C 240 105 235 125 220 135 C 205 145 190 140 180 135" />
+                    <path class="sulci-fine" d="M 135 55 C 150 70 175 60 195 75 M 145 85 C 165 95 185 85 210 100 M 150 115 C 170 110 190 125 210 120" />
+                </g>
+
+                <!-- Occipital Lobe (Security / Threat Vision) -->
+                <g class="lobe-region" data-agent="SECURITY" data-role="Visual Telemetry & Threat Recognition">
+                    <path class="sulci-line" d="M 230 85 C 255 110 260 140 245 165 C 235 180 215 185 195 180" />
+                    <path class="sulci-fine" d="M 230 115 C 245 130 240 145 230 155 M 220 135 C 235 145 230 160 215 170" />
+                </g>
+
+                <!-- Temporal Lobe (Memory / Context Retrieval) -->
+                <g class="lobe-region" data-agent="MEMORY_CORE" data-role="Chronological & Contextual Indices">
+                    <path class="sulci-line" d="M 125 140 C 135 145 155 145 170 150 C 180 155 180 170 165 175 C 140 185 115 180 100 170 C 90 165 95 155 110 150" />
+                    <path class="sulci-fine" d="M 115 160 C 130 155 150 165 165 160 M 125 170 C 140 165 155 172 165 170" />
+                </g>
+
+                <!-- Cerebellum (Evolution / Motor & Optimization) -->
+                <g class="lobe-region" data-agent="EVOLUTION" data-role="Fine Coordination & Self-Tuning">
+                    <path class="sulci-line" d="M 195 180 C 215 185 225 200 215 215 C 205 225 180 225 165 215 C 155 205 165 190 180 185" />
+                    <!-- Characteristic horizontal cerebellar folia -->
+                    <path class="sulci-fine" d="M 175 195 C 190 192 205 195 215 200 M 170 205 C 185 202 200 205 212 210 M 175 215 C 188 212 198 215 205 218" />
+                </g>
+
+                <!-- Brainstem (Core Kernel / Basic Life Signals) -->
+                <g class="lobe-region" data-agent="CORE_KERNEL" data-role="Hardware Bridge & Subsystems">
+                    <path class="sulci-line" d="M 155 180 L 150 230 C 145 235 135 235 132 230 L 138 180" />
+                    <line class="sulci-fine" x1="140" y1="195" x2="152" y2="195" />
+                    <line class="sulci-fine" x1="138" y1="210" x2="150" y2="210" />
+                </g>
+            </svg>
+        </div>
+
+        <div class="telemetry-tray">
+            <div class="telemetry-row">
+                <span class="lbl">SELECTED AGENT:</span>
+                <span id="tel-agent" class="val">STRATEGIST</span>
+            </div>
+            <div class="telemetry-row">
+                <span class="lbl">MAPPED REGION:</span>
+                <span id="tel-role" class="val">Executive Decisions / Planning</span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const regions = document.querySelectorAll('.lobe-region');
+        const telAgent = document.getElementById('tel-agent');
+        const telRole = document.getElementById('tel-role');
+
+        regions.forEach(region => {
+            region.addEventListener('mouseenter', () => {
+                telAgent.textContent = region.getAttribute('data-agent');
+                telRole.textContent = region.getAttribute('data-role');
+            });
+        });
+    </script>
+</body>
+</html>

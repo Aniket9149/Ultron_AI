@@ -1,0 +1,98 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Ultron Dashboard - Agents Review Mode</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; }
+    body { background-color: #030811; color: #00ffff; font-family: 'Courier New', Courier, monospace; min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; overflow: hidden; }
+    .dashboard-preview { width: 900px; height: 520px; background: radial-gradient(circle at center, #06192e 0%, #020712 100%); border: 1px solid rgba(0, 255, 255, 0.2); box-shadow: 0 0 25px rgba(0, 255, 255, 0.15); position: relative; padding: 30px; display: flex; gap: 30px; }
+    .sidebar { width: 180px; display: flex; flex-direction: column; gap: 12px; border-right: 1px dashed rgba(0, 255, 255, 0.3); padding-right: 15px; }
+    .nav-btn { background: rgba(0, 255, 255, 0.05); border: 1px solid rgba(0, 255, 255, 0.3); color: rgba(0, 255, 255, 0.7); padding: 10px 12px; font-size: 11px; letter-spacing: 2px; cursor: pointer; display: flex; align-items: center; justify-content: space-between; transition: all 0.2s ease; }
+    .nav-btn:hover { background: rgba(0, 255, 255, 0.15); color: #00ffff; box-shadow: 0 0 10px rgba(0, 255, 255, 0.4); }
+    .nav-btn.active { background: rgba(0, 255, 255, 0.25); border-color: #00ffff; color: #ffffff; box-shadow: 0 0 14px rgba(0, 255, 255, 0.6); }
+    .viewport { flex: 1; position: relative; }
+    .agents-panel { width: 320px; background: rgba(4, 16, 30, 0.85); border: 1px solid #00ffff; box-shadow: 0 0 15px rgba(0, 255, 255, 0.2); backdrop-filter: blur(8px); padding: 16px; position: absolute; top: 10px; left: 10px; display: none; flex-direction: column; gap: 12px; }
+    .agents-panel.visible { display: flex; }
+    .panel-header { font-size: 12px; font-weight: bold; letter-spacing: 2px; border-bottom: 1px solid rgba(0, 255, 255, 0.4); padding-bottom: 6px; display: flex; justify-content: space-between; }
+    .agents-list-container { display: flex; flex-direction: column; gap: 8px; max-height: 220px; overflow-y: auto; }
+    .agent-item { display: flex; justify-content: space-between; align-items: center; padding: 6px 10px; background: rgba(0, 255, 255, 0.04); border: 1px solid rgba(0, 255, 255, 0.15); font-size: 11px; letter-spacing: 1.5px; }
+    .agent-name { color: #00ffff; text-shadow: 0 0 5px rgba(0, 255, 255, 0.7); }
+    .agent-status { font-size: 9px; padding: 2px 6px; border-radius: 2px; background: rgba(0, 255, 170, 0.15); color: #00ffaa; border: 1px solid #00ffaa; }
+    .sandbox-controls { margin-top: 20px; display: flex; gap: 10px; }
+    .sandbox-controls input { background: #020712; border: 1px solid rgba(0, 255, 255, 0.5); color: #00ffff; padding: 8px 12px; font-family: monospace; outline: none; }
+    .sandbox-controls button { background: rgba(0, 255, 255, 0.2); border: 1px solid #00ffff; color: #ffffff; padding: 8px 16px; font-family: monospace; cursor: pointer; letter-spacing: 1px; }
+  </style>
+</head>
+<body>
+  <div class="dashboard-preview">
+    <div class="sidebar">
+      <div class="nav-btn"><span>// HOME</span></div>
+      <div class="nav-btn"><span>// SYSTEM</span></div>
+      <div class="nav-btn" id="btn-agents">
+        <span>// AGENTS</span>
+        <span id="agent-count">[4]</span>
+      </div>
+      <div class="nav-btn"><span>// CORE</span></div>
+    </div>
+    <div class="viewport">
+      <div class="agents-panel" id="agents-panel">
+        <div class="panel-header">
+          <span>ACTIVE AGENTS</span>
+          <span style="color: #00ffaa;">ONLINE</span>
+        </div>
+        <div class="agents-list-container" id="agents-container"></div>
+      </div>
+    </div>
+  </div>
+  <div class="sandbox-controls">
+    <input type="text" id="new-agent-name" placeholder="Enter Agent Name (e.g. SENTINEL)">
+    <button id="add-agent-btn">+ ADD AGENT IN REAL-TIME</button>
+  </div>
+  <script>
+    const agentRegistry = [
+      { id: "ag_01", name: "STRATEGIST", status: "ONLINE" },
+      { id: "ag_02", name: "RESEARCHER", status: "ONLINE" },
+      { id: "ag_03", name: "SECURITY", status: "ONLINE" },
+      { id: "ag_04", name: "EVOLUTION", status: "ONLINE" }
+    ];
+    const agentsBtn = document.getElementById("btn-agents");
+    const agentsPanel = document.getElementById("agents-panel");
+    const agentsContainer = document.getElementById("agents-container");
+    const agentCountBadge = document.getElementById("agent-count");
+    const newAgentInput = document.getElementById("new-agent-name");
+    const addAgentBtn = document.getElementById("add-agent-btn");
+
+    function renderAgents() {
+      agentsContainer.innerHTML = "";
+      agentRegistry.forEach((agent) => {
+        const row = document.createElement("div");
+        row.className = "agent-item";
+        row.innerHTML = `<span class="agent-name">▣ ${agent.name}</span><span class="agent-status">${agent.status}</span>`;
+        agentsContainer.appendChild(row);
+      });
+      agentCountBadge.textContent = `[${agentRegistry.length}]`;
+    }
+
+    agentsBtn.addEventListener("click", () => {
+      const isVisible = agentsPanel.classList.toggle("visible");
+      agentsBtn.classList.toggle("active", isVisible);
+      if (isVisible) renderAgents();
+    });
+
+    addAgentBtn.addEventListener("click", () => {
+      const name = newAgentInput.value.trim();
+      if (!name) return;
+      agentRegistry.push({ id: "ag_" + Date.now(), name: name.toUpperCase(), status: "ONLINE" });
+      newAgentInput.value = "";
+      renderAgents();
+      if (!agentsPanel.classList.contains("visible")) {
+        agentsPanel.classList.add("visible");
+        agentsBtn.classList.add("active");
+      }
+    });
+
+    renderAgents();
+  </script>
+</body>
+</html>
