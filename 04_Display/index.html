@@ -287,5 +287,26 @@
       slab.appendChild(el);
     });
   </script>
+<script id="ultron-auto-tab-agents">
+  window.addEventListener('DOMContentLoaded', () => {
+    setTimeout(() => {
+      // Find AGENTS nav button across common patterns
+      const navButtons = Array.from(document.querySelectorAll('button, .nav-item, .nav-tab, .menu-item, [data-tab], [data-view]'));
+      const agentBtn = navButtons.find(el => el.textContent.trim().toUpperCase().includes('AGENTS') || el.getAttribute('data-tab') === 'agents');
+      
+      if (agentBtn) {
+        agentBtn.click();
+        console.log('[ULTRON OS] AGENTS Tab automatically triggered.');
+      } else {
+        // Fallback: If iframe/container exists, route directly
+        const container = document.querySelector('#content-viewport, #main-viewport, #view-container, iframe#main-frame');
+        if (container && container.tagName === 'IFRAME') {
+          container.src = 'display_agents.html';
+        }
+      }
+    }, 250);
+  });
+</script>
 </body>
 </html>
+
