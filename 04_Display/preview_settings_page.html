@@ -1,0 +1,1209 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ultron Master Command Deck</title>
+  <link href="https://fonts.googleapis.com/css2?family=Oxanium:wght@500;600;700;800&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --accent: #00f0ff;
+      --accent-glow: rgba(0, 240, 255, 0.6);
+      --accent-dim: rgba(0, 240, 255, 0.15);
+      --success: #00ffaa;
+      --success-glow: rgba(0, 255, 170, 0.5);
+      --danger: #ff3366;
+      --danger-glow: rgba(255, 51, 102, 0.55);
+      --surface-dark: rgba(2, 10, 20, 0.85);
+      --surface-card: rgba(0, 22, 44, 0.6);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      user-select: none;
+    }
+
+    html, body {
+      width: 100%;
+      height: 100%;
+      background: rgba(1, 5, 12, 0.95);
+      backdrop-filter: blur(20px);
+      font-family: 'Oxanium', monospace, sans-serif;
+      color: var(--accent);
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* Ambient Hexagonal Blueprint Grid */
+    body::before {
+      content: '';
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      background-image: 
+        radial-gradient(circle at 50% 50%, rgba(0, 240, 255, 0.06) 0%, transparent 65%),
+        linear-gradient(rgba(0, 240, 255, 0.035) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0, 240, 255, 0.035) 1px, transparent 1px);
+      background-size: 100% 100%, 28px 28px, 28px 28px;
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    /* Outer Armored Tactical Console */
+    .command-deck {
+      width: 1060px;
+      max-width: 96vw;
+      height: 640px;
+      max-height: 92vh;
+      background: radial-gradient(circle at 40% 10%, rgba(0, 40, 75, 0.7) 0%, rgba(1, 9, 18, 0.98) 100%);
+      border: 1px solid rgba(0, 240, 255, 0.4);
+      border-radius: 6px;
+      box-shadow: 0 0 60px rgba(0, 240, 255, 0.25), inset 0 0 40px rgba(0, 240, 255, 0.08);
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      clip-path: polygon(0 0, calc(100% - 24px) 0, 100% 24px, 100% calc(100% - 16px), calc(100% - 16px) 100%, 0 100%);
+      z-index: 5;
+    }
+
+    /* Holographic Edge Brackets */
+    .bracket {
+      position: absolute;
+      width: 14px;
+      height: 14px;
+      border: 2px solid var(--accent);
+      pointer-events: none;
+      z-index: 10;
+    }
+    .b-tl { top: 3px; left: 3px; border-right: none; border-bottom: none; }
+    .b-bl { bottom: 3px; left: 3px; border-right: none; border-top: none; }
+    .b-br { bottom: 3px; right: 3px; border-left: none; border-top: none; }
+
+    /* Top Command Header */
+    .deck-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px 24px;
+      background: linear-gradient(90deg, rgba(0, 28, 52, 0.85) 0%, rgba(2, 12, 24, 0.5) 100%);
+      border-bottom: 1px solid var(--accent-glow);
+      position: relative;
+    }
+    .deck-header::after {
+      content: '';
+      position: absolute;
+      bottom: -1px;
+      left: 24px;
+      width: 180px;
+      height: 2px;
+      background: var(--accent);
+      box-shadow: 0 0 12px var(--accent);
+    }
+
+    .header-title-group {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .deck-title {
+      font-size: 15px;
+      font-weight: 800;
+      letter-spacing: 2px;
+      color: #ffffff;
+      text-shadow: 0 0 12px var(--accent-glow);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .pill-badge {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 9px;
+      letter-spacing: 1px;
+      color: var(--success);
+      background: rgba(0, 255, 170, 0.12);
+      border: 1px solid var(--success);
+      padding: 2px 8px;
+      border-radius: 2px;
+      box-shadow: 0 0 8px var(--success-glow);
+    }
+
+    .header-right {
+      display: flex;
+      align-items: center;
+      gap: 18px;
+    }
+
+    .header-telemetry {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 10px;
+      color: #79a5c4;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .pulse-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--success);
+      box-shadow: 0 0 8px var(--success);
+      animation: blink 1.2s infinite alternate;
+    }
+    @keyframes blink {
+      0% { opacity: 0.3; transform: scale(0.8); }
+      100% { opacity: 1; transform: scale(1.2); }
+    }
+
+    .exit-btn {
+      font-family: 'Oxanium', sans-serif;
+      font-size: 10.5px;
+      font-weight: 800;
+      letter-spacing: 1.2px;
+      color: var(--danger);
+      background: rgba(255, 51, 102, 0.12);
+      border: 1px solid var(--danger);
+      padding: 6px 16px;
+      border-radius: 3px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .exit-btn:hover {
+      background: var(--danger);
+      color: #ffffff;
+      box-shadow: 0 0 16px var(--danger-glow);
+      transform: scale(1.04);
+    }
+
+    /* Main 2-Column Console Layout */
+    .deck-content {
+      display: flex;
+      flex: 1;
+      overflow: hidden;
+    }
+
+    /* Left Sidebar Navigation Rail */
+    .nav-rail {
+      width: 260px;
+      border-right: 1px solid rgba(0, 240, 255, 0.2);
+      background: rgba(1, 12, 24, 0.6);
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+      padding: 14px 10px;
+    }
+
+    .nav-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 11px 14px;
+      background: rgba(0, 20, 38, 0.4);
+      border: 1px solid transparent;
+      border-left: 3px solid rgba(0, 240, 255, 0.2);
+      border-radius: 3px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    .nav-item:hover {
+      background: rgba(0, 36, 68, 0.45);
+      border-color: rgba(0, 240, 255, 0.3);
+      border-left-color: var(--accent);
+      transform: translateX(2px);
+    }
+    .nav-item.active {
+      background: linear-gradient(90deg, rgba(0, 48, 85, 0.65) 0%, rgba(2, 14, 28, 0.4) 100%);
+      border-color: rgba(0, 240, 255, 0.45);
+      border-left: 3px solid var(--accent);
+      box-shadow: inset 0 0 15px rgba(0, 240, 255, 0.08);
+    }
+
+    .nav-item-title {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 1.2px;
+      color: #c7e5f8;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .nav-item.active .nav-item-title {
+      color: #ffffff;
+      text-shadow: 0 0 8px var(--accent);
+    }
+
+    .nav-item-status {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 8.5px;
+      color: var(--success);
+      letter-spacing: 0.5px;
+    }
+
+    /* Right Main Stage Viewport */
+    .viewport {
+      flex: 1;
+      padding: 18px 24px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      background: radial-gradient(circle at 60% 40%, rgba(0, 32, 60, 0.4) 0%, rgba(1, 10, 20, 0.8) 100%);
+    }
+
+    .stage-section {
+      display: none;
+      flex-direction: column;
+      gap: 16px;
+      animation: fadeIn 0.25s ease forwards;
+    }
+    .stage-section.active {
+      display: flex;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(4px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Sub-Panels Inside Active Section */
+    .sub-panel {
+      background: var(--surface-card);
+      border: 1px solid var(--accent-dim);
+      border-radius: 4px;
+      padding: 14px 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      position: relative;
+    }
+
+    .panel-header-line {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid rgba(0, 240, 255, 0.18);
+      padding-bottom: 6px;
+    }
+
+    .panel-heading {
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: 1.5px;
+      color: #ffffff;
+      text-transform: uppercase;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .split-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 10px;
+      color: #8daec7;
+      letter-spacing: 0.8px;
+    }
+
+    /* Inputs & Buttons */
+    .cyber-input {
+      background: rgba(0, 10, 20, 0.9);
+      border: 1px solid var(--accent-dim);
+      border-radius: 3px;
+      padding: 7px 12px;
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 13px;
+      color: var(--success);
+      outline: none;
+      letter-spacing: 1.2px;
+      user-select: text !important;
+      flex: 1;
+    }
+    .cyber-input:focus {
+      border-color: var(--success);
+      box-shadow: 0 0 10px var(--success-glow);
+    }
+
+    .btn-tactical {
+      font-family: 'Oxanium', sans-serif;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 1px;
+      color: var(--success);
+      background: rgba(0, 255, 170, 0.12);
+      border: 1px solid var(--success);
+      padding: 7px 16px;
+      border-radius: 3px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .btn-tactical:hover {
+      background: var(--success);
+      color: #000;
+      box-shadow: 0 0 12px var(--success-glow);
+    }
+
+    /* Interactive Hologram Preview Orbs */
+    .theme-row {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+    }
+    .theme-card-btn {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+      padding: 12px 6px;
+      background: rgba(0, 14, 28, 0.7);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-radius: 4px;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 10px;
+    }
+    .theme-card-btn:hover, .theme-card-btn.active {
+      border-color: #fff !important;
+      box-shadow: 0 0 16px currentColor !important;
+      transform: translateY(-2px);
+    }
+    .orb-circle {
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+    }
+
+    /* Custom Tactical Sliders */
+    .slider-wrap {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+    .slider-labels {
+      display: flex;
+      justify-content: space-between;
+      font-size: 10px;
+      color: #8daec7;
+      letter-spacing: 0.8px;
+    }
+    .slider-readout {
+      font-family: 'Share Tech Mono', monospace;
+      color: var(--accent);
+      font-weight: 700;
+    }
+
+    input[type="range"] {
+      -webkit-appearance: none;
+      width: 100%;
+      height: 5px;
+      background: rgba(0, 240, 255, 0.2);
+      border: 1px solid rgba(0, 240, 255, 0.35);
+      border-radius: 2px;
+      outline: none;
+      cursor: pointer;
+    }
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 16px;
+      height: 16px;
+      background: var(--accent);
+      border: 1.5px solid #fff;
+      border-radius: 2px;
+      box-shadow: 0 0 10px var(--accent);
+      transition: transform 0.1s;
+    }
+    input[type="range"]::-webkit-slider-thumb:hover {
+      transform: scale(1.25);
+    }
+
+    /* Holographic Visualizer Box */
+    .visualizer-card {
+      display: flex;
+      gap: 16px;
+      align-items: center;
+      background: rgba(0, 10, 20, 0.65);
+      border: 1px solid var(--accent-dim);
+      border-radius: 4px;
+      padding: 10px 14px;
+    }
+
+    /* Audio Equalizer Spectrum */
+    .eq-container {
+      width: 100%;
+      height: 48px;
+      background: rgba(0, 8, 16, 0.85);
+      border: 1px solid var(--accent-dim);
+      border-radius: 3px;
+      overflow: hidden;
+      position: relative;
+    }
+    #spectrum-canvas {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+
+    /* Model Chips */
+    .model-deck-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+    }
+    .model-tile {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      padding: 10px 12px;
+      background: rgba(0, 16, 32, 0.65);
+      border: 1px solid var(--accent-dim);
+      border-radius: 3px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .model-tile:hover, .model-tile.active {
+      border-color: var(--accent);
+      background: rgba(0, 48, 90, 0.45);
+      box-shadow: inset 0 0 12px rgba(0, 240, 255, 0.1);
+    }
+    .model-tile.active .tile-title {
+      color: #fff;
+      text-shadow: 0 0 8px var(--accent);
+    }
+    .tile-title {
+      font-size: 11px;
+      font-weight: 700;
+      color: #b0d3ec;
+    }
+    .tile-status {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 8.5px;
+      color: var(--success);
+    }
+
+    /* Nuclear Hazard Section */
+    .danger-sub-panel {
+      border-color: var(--danger-glow);
+      background: rgba(38, 8, 18, 0.65);
+    }
+    .hazard-stripes {
+      height: 6px;
+      width: 100%;
+      background: repeating-linear-gradient(
+        -45deg,
+        rgba(255, 51, 102, 0.7),
+        rgba(255, 51, 102, 0.7) 10px,
+        rgba(20, 4, 8, 0.9) 10px,
+        rgba(20, 4, 8, 0.9) 20px
+      );
+      border-radius: 2px;
+    }
+    .btn-nuke {
+      padding: 10px;
+      color: var(--danger);
+      background: rgba(255, 51, 102, 0.15);
+      border: 1px solid var(--danger);
+      font-weight: 800;
+      letter-spacing: 1.5px;
+      cursor: pointer;
+      border-radius: 3px;
+      transition: all 0.2s;
+    }
+    .btn-nuke:hover {
+      background: var(--danger);
+      color: #fff;
+      box-shadow: 0 0 20px var(--danger-glow);
+    }
+
+    /* Footer Live Ticker */
+    .deck-footer {
+      padding: 10px 24px;
+      background: rgba(0, 10, 20, 0.85);
+      border-top: 1px solid var(--accent-dim);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .footer-log {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 11px;
+      color: #7ba3bf;
+      letter-spacing: 0.8px;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="command-deck" id="deck-frame">
+    <!-- Laser Brackets -->
+    <div class="bracket b-tl"></div>
+    <div class="bracket b-bl"></div>
+    <div class="bracket b-br"></div>
+
+    <!-- Top Command Header -->
+    <div class="deck-header">
+      <div class="header-title-group">
+        <div class="deck-title">
+          <span>// ULTRON CORE PREFERENCES</span>
+        </div>
+        <span class="pill-badge">ROOT ACCESS // LEVEL-9</span>
+      </div>
+
+      <div class="header-right">
+        <div class="header-telemetry">
+          <div class="pulse-dot"></div>
+          <span>NEURAL BUS: 11ms | OPTIMAL</span>
+        </div>
+        <button class="exit-btn" onclick="handleExit()">✕ EXIT DASHBOARD</button>
+      </div>
+    </div>
+
+    <!-- Main Content: Left Nav + Right Viewport -->
+    <div class="deck-content">
+      
+      <!-- Left Navigation Rail -->
+      <div class="nav-rail">
+        <div class="nav-item active" onclick="switchTab('tab-identity', this)">
+          <span class="nav-item-title">01. OPERATOR PROTOCOL</span>
+          <span class="nav-item-status">ACTIVE</span>
+        </div>
+
+        <div class="nav-item" onclick="switchTab('tab-hud', this)">
+          <span class="nav-item-title">02. HOLOGRAPHIC HUD</span>
+          <span class="nav-item-status" style="color:var(--accent);">SPECTRA</span>
+        </div>
+
+        <div class="nav-item" onclick="switchTab('tab-neural', this)">
+          <span class="nav-item-title">03. NEURAL COGNITION</span>
+          <span class="nav-item-status">INFERENCE</span>
+        </div>
+
+        <div class="nav-item" onclick="switchTab('tab-audio', this)">
+          <span class="nav-item-title">04. ACOUSTIC MATRIX</span>
+          <span class="nav-item-status">RVC ENG</span>
+        </div>
+
+        <div class="nav-item" onclick="switchTab('tab-kernel', this)">
+          <span class="nav-item-title">05. HARDWARE KERNEL</span>
+          <span class="nav-item-status">ACCEL</span>
+        </div>
+
+        <div class="nav-item" onclick="switchTab('tab-vault', this)" style="border-left-color: rgba(255,51,102,0.3);">
+          <span class="nav-item-title" style="color:#ff6688;">06. MEMORY VAULT</span>
+          <span class="nav-item-status" style="color:var(--danger);">DANGER</span>
+        </div>
+      </div>
+
+      <!-- Right Main Stage Viewport -->
+      <div class="viewport">
+
+        <!-- Tab 01: Operator Identity -->
+        <div class="stage-section active" id="tab-identity">
+          <div class="sub-panel">
+            <div class="panel-header-line">
+              <span class="panel-heading">Operator Designation &amp; Bio-Clearance</span>
+              <span class="pill-badge" id="callsign-badge">VERIFIED</span>
+            </div>
+
+            <div class="split-row">
+              <span>VOICE RECOGNITION CALLSIGN</span>
+              <span>AUTH ENCRYPTION: SHA-512</span>
+            </div>
+
+            <div style="display:flex; gap:10px;">
+              <input type="text" id="op-name" class="cyber-input" value="Aniket" placeholder="Enter Callsign...">
+              <button class="btn-tactical" onclick="saveCallsign()">COMMIT CALLSIGN</button>
+            </div>
+          </div>
+
+          <div class="visualizer-card">
+            <canvas id="bio-wire-canvas" width="64" height="64" style="border:1px solid rgba(0,240,255,0.3); border-radius:4px;"></canvas>
+            <div style="flex:1; display:flex; flex-direction:column; gap:4px;">
+              <div class="split-row">
+                <span>BIOMETRIC CLEARANCE MATRIX</span>
+                <span style="color:var(--success);">ALPHA-9 PRIVILEGE</span>
+              </div>
+              <div class="split-row">
+                <span>ACTIVE SESSION TOKEN</span>
+                <span style="font-family:'Share Tech Mono'; color:#00e5ff;">0x7E3A..481B [LOCK: 24H]</span>
+              </div>
+              <div class="split-row">
+                <span>NEURAL BUS BRIDGE</span>
+                <span style="color:var(--success);">CONNECTED // LOCALHOST:8000</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tab 02: Holographic HUD & Visuals -->
+        <div class="stage-section" id="tab-hud">
+          <div class="sub-panel">
+            <div class="panel-header-line">
+              <span class="panel-heading">HUD Visual Resonance &amp; Spectra</span>
+              <span style="color:var(--accent); font-size:10px; font-weight:700;">LIVE PREVIEW</span>
+            </div>
+
+            <div class="theme-row">
+              <div class="theme-card-btn active" id="th-cyan" style="color:#00f0ff;" onclick="applyTheme('CYAN')">
+                <div class="orb-circle" style="background:#00f0ff;"></div> CYAN SPECTRA
+              </div>
+              <div class="theme-card-btn" id="th-amber" style="color:#ffaa00;" onclick="applyTheme('AMBER')">
+                <div class="orb-circle" style="background:#ffaa00;"></div> WAR ROOM AMBER
+              </div>
+              <div class="theme-card-btn" id="th-crimson" style="color:#ff3366;" onclick="applyTheme('CRIMSON')">
+                <div class="orb-circle" style="background:#ff3366;"></div> ROGUE CRIMSON
+              </div>
+              <div class="theme-card-btn" id="th-matrix" style="color:#00ffaa;" onclick="applyTheme('MATRIX')">
+                <div class="orb-circle" style="background:#00ffaa;"></div> MATRIX EMERALD
+              </div>
+            </div>
+          </div>
+
+          <div class="sub-panel">
+            <div class="slider-wrap">
+              <div class="slider-labels">
+                <span>HOLOGRAPHIC BLOOM &amp; AMBIENT GLOW</span>
+                <span class="slider-readout" id="bloom-val">75%</span>
+              </div>
+              <input type="range" id="bloom-slider" min="20" max="100" value="75" oninput="handleBloom(this.value)">
+            </div>
+
+            <div class="split-row" style="margin-top:6px;">
+              <span>CRT CHROMATIC SCANLINES (4PX)</span>
+              <button class="btn-tactical" id="scan-btn" onclick="toggleScanlines(this)">ENABLED</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tab 03: Neural Cognition & Model Matrix -->
+        <div class="stage-section" id="tab-neural">
+          <div class="sub-panel">
+            <div class="panel-header-line">
+              <span class="panel-heading">Primary Reasoning Engine</span>
+              <span style="color:var(--success); font-size:10px; font-weight:700;">INFERENCE READY</span>
+            </div>
+
+            <div class="model-deck-grid">
+              <div class="model-tile active" onclick="pickModel(this, 'Ollama Local Q4_K')">
+                <span class="tile-title">Ollama Local // 8B</span>
+                <span class="tile-status">OFFLINE // 12ms</span>
+              </div>
+              <div class="model-tile" onclick="pickModel(this, 'DeepSeek V3 Core')">
+                <span class="tile-title">DeepSeek V3 Core</span>
+                <span class="tile-status" style="color:#00e5ff;">CLOUD // 42ms</span>
+              </div>
+              <div class="model-tile" onclick="pickModel(this, 'Ultron Prime MoE')">
+                <span class="tile-title">Ultron Prime // MoE</span>
+                <span class="tile-status" style="color:#ffaa00;">STANDBY</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="sub-panel">
+            <div class="slider-wrap">
+              <div class="slider-labels">
+                <span>HEURISTIC TEMPERATURE (REASONING DRIFT)</span>
+                <span class="slider-readout" id="temp-val">0.70</span>
+              </div>
+              <input type="range" id="temp-slider" min="10" max="100" value="70" oninput="handleTemp(this.value)">
+            </div>
+
+            <div class="split-row">
+              <span>SYNAPTIC ATTENTION SAMPLING</span>
+              <span style="color:var(--success);">TOP-P: 0.95 | REPETITION: 1.1</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tab 04: Acoustic Matrix & Audio Synth -->
+        <div class="stage-section" id="tab-audio">
+          <div class="sub-panel">
+            <div class="panel-header-line">
+              <span class="panel-heading">RVC Neural Voice Persona</span>
+              <button class="btn-tactical" id="persona-btn" onclick="togglePersona()">ULTRON MK-I</button>
+            </div>
+
+            <div class="eq-container">
+              <canvas id="spectrum-canvas"></canvas>
+            </div>
+          </div>
+
+          <div class="sub-panel">
+            <div class="slider-wrap">
+              <div class="slider-labels">
+                <span>PITCH OFFSET MODULATION</span>
+                <span class="slider-readout" id="pitch-val">+0 st</span>
+              </div>
+              <input type="range" id="pitch-slider" min="-12" max="12" value="0" oninput="handlePitch(this.value)">
+            </div>
+
+            <div class="split-row" style="margin-top:4px;">
+              <span>HOLOGRAPHIC AUDIO SFX (SYNTH)</span>
+              <button class="btn-tactical" id="sfx-btn" onclick="toggleSFX()">ENABLED</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tab 05: Hardware Kernel -->
+        <div class="stage-section" id="tab-kernel">
+          <div class="sub-panel">
+            <div class="panel-header-line">
+              <span class="panel-heading">Tensor Accelerators &amp; VRAM</span>
+              <span style="color:var(--success); font-size:10px; font-weight:700;">ACCELERATED</span>
+            </div>
+
+            <div class="split-row">
+              <span>TENSOR VRAM PIPELINE</span>
+              <span style="color:var(--success);" id="vram-stat">4.6 / 8.0 GB (58%)</span>
+            </div>
+
+            <div style="width:100%; height:8px; background:rgba(0,240,255,0.15); border-radius:2px; overflow:hidden; border:1px solid rgba(0,240,255,0.3);">
+              <div id="vram-fill" style="width:58%; height:100%; background:linear-gradient(90deg, #00f0ff 0%, #00ffaa 100%); box-shadow:0 0 8px #00ffaa; transition: width 0.4s;"></div>
+            </div>
+
+            <div class="split-row" style="margin-top:6px;">
+              <span>CUDA ZERO-COPY INGESTION</span>
+              <button class="btn-tactical" id="cuda-btn" onclick="toggleCuda(this)">ENABLED</button>
+            </div>
+          </div>
+
+          <div class="sub-panel">
+            <div class="split-row">
+              <span>CHASSIS THERMALS</span>
+              <span style="color:var(--success);">48°C // STABLE</span>
+            </div>
+            <div class="split-row">
+              <span>FAN SPEED GOVERNOR</span>
+              <span style="font-family:'Share Tech Mono';">2150 RPM // AUTO</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tab 06: Security Vault & Nuclear Purge -->
+        <div class="stage-section" id="tab-vault">
+          <div class="sub-panel danger-sub-panel">
+            <div class="panel-header-line" style="border-bottom-color: rgba(255,51,102,0.3);">
+              <span class="panel-heading" style="color:#ff6688;">Memory Vault &amp; Vector Cache</span>
+              <span style="color:var(--danger); font-size:10px; font-weight:800;">HAZARD INTERLOCK</span>
+            </div>
+
+            <div class="hazard-stripes"></div>
+
+            <div class="split-row">
+              <span>SYNAPTIC NODES RECORDED</span>
+              <span style="color:#ff99aa;">1,420 VECTORS</span>
+            </div>
+            <div class="split-row">
+              <span>EMBEDDING MODEL</span>
+              <span style="font-family:'Share Tech Mono';">BGE-LARGE-V1.5</span>
+            </div>
+
+            <button class="btn-tactical" style="color:#00f0ff; border-color:rgba(0,240,255,0.4); background:rgba(0,240,255,0.1); margin-top:6px;" onclick="exportMemory()">EXPORT SNAPSHOT (JSON)</button>
+            <button class="btn-nuke" onclick="purgeVault()">NUCLEAR WIPE (ZERO VECTOR MEMORY)</button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Master Footer Ticker -->
+    <div class="deck-footer">
+      <div class="footer-log" id="footer-log">&gt; STANDBY // SUBSYSTEM PARAMETERS SYNCHRONIZED</div>
+      <div style="font-family:'Share Tech Mono'; font-size:10px; color:#5c819e;">ULTRON MK-VIII // MASTER ARCH 2026.09</div>
+    </div>
+  </div>
+
+    <script>
+    // Audio Synthesizer Engine
+    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    let sfxEnabled = true;
+
+    function playTone(freq = 800, type = 'sine', duration = 0.08) {
+      if (!sfxEnabled) return;
+      try {
+        if (audioCtx.state === 'suspended') audioCtx.resume();
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = type;
+        osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+        gain.gain.setValueAtTime(0.08, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start();
+        osc.stop(audioCtx.currentTime + duration);
+      } catch(e) {}
+    }
+
+    function logMsg(msg, isAlert = false) {
+      const el = document.getElementById('footer-log');
+      if (!el) return;
+      el.innerText = `> ${msg}`;
+      el.style.color = isAlert ? 'var(--danger)' : 'var(--success)';
+      setTimeout(() => { el.style.color = '#7ba3bf'; }, 3500);
+    }
+
+    // Tab Switcher with Canvas Wakeup
+    function switchTab(tabId, el) {
+      playTone(700, 'sine');
+      document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+      document.querySelectorAll('.stage-section').forEach(s => s.classList.remove('active'));
+
+      el.classList.add('active');
+      const target = document.getElementById(tabId);
+      if (target) target.classList.add('active');
+      logMsg(`ROUTED -> ${el.querySelector('.nav-item-title').innerText}`);
+
+      // Force instant resize and refresh of acoustic canvas
+      setTimeout(() => {
+        resizeSpec();
+      }, 50);
+    }
+
+    // 1. Biometric Avatar 3D Wireframe Cube
+    const bioCanvas = document.getElementById('bio-wire-canvas');
+    let bioCtx = bioCanvas ? bioCanvas.getContext('2d') : null;
+    let bioAngle = 0;
+
+    function renderBioWire() {
+      if (!bioCtx) return;
+      bioCtx.clearRect(0, 0, 64, 64);
+      bioCtx.save();
+      bioCtx.translate(32, 32);
+
+      bioCtx.strokeStyle = 'rgba(0, 240, 255, 0.4)';
+      bioCtx.beginPath();
+      bioCtx.arc(0, 0, 24, 0, Math.PI * 2);
+      bioCtx.stroke();
+
+      bioCtx.rotate(bioAngle);
+      bioCtx.strokeStyle = '#00ffaa';
+      bioCtx.shadowColor = '#00ffaa';
+      bioCtx.shadowBlur = 6;
+      bioCtx.strokeRect(-12, -12, 24, 24);
+
+      bioCtx.restore();
+      bioAngle += 0.035;
+      requestAnimationFrame(renderBioWire);
+    }
+    renderBioWire();
+
+        // High-End Holographic Fluid Ribbon Waveform Engine
+    const specCanvas = document.getElementById('spectrum-canvas');
+    let specCtx = specCanvas ? specCanvas.getContext('2d') : null;
+    let pitchMod = 0;
+    let wavePhase = 0;
+
+    function resizeSpec() {
+      if (!specCanvas || !specCanvas.parentElement) return;
+      const w = specCanvas.parentElement.clientWidth || 450;
+      const h = specCanvas.parentElement.clientHeight || 56;
+      if (w > 0 && h > 0) {
+        specCanvas.width = w;
+        specCanvas.height = h;
+      }
+    }
+    window.addEventListener('resize', resizeSpec);
+    resizeSpec();
+
+    function drawFluidWave(ctx, w, h, phase, freq, amplitude, colorStroke, fillGrad) {
+      ctx.beginPath();
+      ctx.moveTo(0, h / 2);
+
+      const segments = 60;
+      const step = w / segments;
+      const points = [];
+
+      for (let i = 0; i <= segments; i++) {
+        const x = i * step;
+        // Harmonic synthesis: combined smooth sines for natural organic fluidity
+        const envelope = Math.sin((i / segments) * Math.PI); // Pinched at edges, full in middle
+        const y = h / 2 + 
+          (Math.sin(x * freq + phase) * 0.7 + 
+           Math.cos(x * freq * 0.5 - phase * 0.8) * 0.3) * amplitude * envelope;
+        points.push({ x, y });
+      }
+
+      // Smooth Cubic Spline curves
+      for (let i = 0; i < points.length - 1; i++) {
+        const xc = (points[i].x + points[i + 1].x) / 2;
+        const yc = (points[i].y + points[i + 1].y) / 2;
+        ctx.quadraticCurveTo(points[i].x, points[i].y, xc, yc);
+      }
+
+      if (fillGrad) {
+        ctx.lineTo(w, h);
+        ctx.lineTo(0, h);
+        ctx.closePath();
+        ctx.fillStyle = fillGrad;
+        ctx.fill();
+      }
+
+      ctx.strokeStyle = colorStroke;
+      ctx.lineWidth = 1.6;
+      ctx.shadowColor = colorStroke;
+      ctx.shadowBlur = 10;
+      ctx.stroke();
+      ctx.shadowBlur = 0;
+    }
+
+    function renderSpectrum() {
+      if (!specCtx || !specCanvas) return;
+      const w = specCanvas.width || 450;
+      const h = specCanvas.height || 56;
+      specCtx.clearRect(0, 0, w, h);
+
+      // 1. Subtle Cyber Telemetry Grid
+      specCtx.strokeStyle = 'rgba(0, 240, 255, 0.08)';
+      specCtx.lineWidth = 1;
+      [-14, 0, 14].forEach(offset => {
+        specCtx.beginPath();
+        specCtx.moveTo(0, h / 2 + offset);
+        specCtx.lineTo(w, h / 2 + offset);
+        specCtx.stroke();
+      });
+
+      // 2. Frequency & dB Scales
+      specCtx.font = '7px "Share Tech Mono"';
+      specCtx.fillStyle = 'rgba(0, 240, 255, 0.4)';
+      specCtx.fillText('+6dB', 8, 12);
+      specCtx.fillText(' 0dB', 8, h / 2 + 2);
+      specCtx.fillText('-12dB', 8, h - 6);
+
+      const baseFreq = 0.016 + (pitchMod + 12) * 0.0009;
+      const amp = h * 0.42;
+
+      // 3. Layer 1: Ambient Depth Wave (Emerald / Matrix Aura)
+      const grad1 = specCtx.createLinearGradient(0, 0, 0, h);
+      grad1.addColorStop(0, 'rgba(0, 255, 170, 0.12)');
+      grad1.addColorStop(1, 'rgba(0, 255, 170, 0.0)');
+      drawFluidWave(specCtx, w, h, wavePhase * 0.7, baseFreq * 0.8, amp * 0.75, 'rgba(0, 255, 170, 0.65)', grad1);
+
+      // 4. Layer 2: Main Electric Cyan Ribbon
+      const grad2 = specCtx.createLinearGradient(0, 0, 0, h);
+      grad2.addColorStop(0, 'rgba(0, 229, 255, 0.22)');
+      grad2.addColorStop(1, 'rgba(0, 229, 255, 0.01)');
+      drawFluidWave(specCtx, w, h, -wavePhase * 1.1, baseFreq * 1.25, amp * 0.95, '#00e5ff', grad2);
+
+      // 5. Layer 3: High-Frequency Sharp Harmonic Core
+      drawFluidWave(specCtx, w, h, wavePhase * 1.8, baseFreq * 2.1, amp * 0.5, '#ffffff', null);
+
+      // 6. Floating Dynamic Energy Sparks along the center
+      const sparkCount = 6;
+      for (let s = 0; s < sparkCount; s++) {
+        const sx = ((s / sparkCount) * w + (wavePhase * 40)) % w;
+        const sy = h / 2 + Math.sin(sx * baseFreq + wavePhase) * (amp * 0.7);
+        specCtx.fillStyle = '#ffffff';
+        specCtx.shadowColor = '#00f0ff';
+        specCtx.shadowBlur = 6;
+        specCtx.beginPath();
+        specCtx.arc(sx, sy, 1.4, 0, Math.PI * 2);
+        specCtx.fill();
+        specCtx.shadowBlur = 0;
+      }
+
+      wavePhase += 0.032;
+      requestAnimationFrame(renderSpectrum);
+    }
+    renderSpectrum();
+
+    // Callsign Save
+    function saveCallsign() {
+      playTone(920, 'triangle');
+      const input = document.getElementById('op-name');
+      const val = (input ? input.value.trim() : '') || 'COMMANDER';
+      localStorage.setItem('ultron_operator_name', val);
+      
+      const badge = document.getElementById('callsign-badge');
+      if (badge) {
+        badge.innerText = 'COMMITTED';
+        badge.style.color = '#00ffaa';
+      }
+      logMsg(`OPERATOR DESIGNATION COMMITTED: [${val}]`);
+      window.parent.postMessage({ type: 'OPERATOR_NAME_CHANGED', name: val }, '*');
+    }
+
+    // Theme Switcher
+    const themes = {
+      CYAN: { accent: '#00f0ff', glow: 'rgba(0, 240, 255, 0.6)', dim: 'rgba(0, 240, 255, 0.15)' },
+      AMBER: { accent: '#ffaa00', glow: 'rgba(255, 170, 0, 0.6)', dim: 'rgba(255, 170, 0, 0.15)' },
+      CRIMSON: { accent: '#ff3366', glow: 'rgba(255, 51, 102, 0.6)', dim: 'rgba(255, 51, 102, 0.15)' },
+      MATRIX: { accent: '#00ffaa', glow: 'rgba(0, 255, 170, 0.6)', dim: 'rgba(0, 255, 170, 0.15)' }
+    };
+
+    function applyTheme(name) {
+      playTone(720, 'sine');
+      document.querySelectorAll('.theme-card-btn').forEach(b => b.classList.remove('active'));
+      const activeBtn = document.getElementById('th-' + name.toLowerCase());
+      if (activeBtn) activeBtn.classList.add('active');
+
+      const p = themes[name];
+      if (p) {
+        document.documentElement.style.setProperty('--accent', p.accent);
+        document.documentElement.style.setProperty('--accent-glow', p.glow);
+        document.documentElement.style.setProperty('--accent-dim', p.dim);
+      }
+      localStorage.setItem('ultron_theme', name);
+      logMsg(`HUD RESONANCE TUNED -> ${name} SPECTRA`);
+      window.parent.postMessage({ type: 'THEME_CHANGED', theme: name }, '*');
+    }
+
+    function handleBloom(val) {
+      const read = document.getElementById('bloom-val');
+      if (read) read.innerText = val + '%';
+      const frame = document.getElementById('deck-frame');
+      if (frame) {
+        frame.style.boxShadow = `0 0 ${val * 0.8}px var(--accent-glow), inset 0 0${val * 0.5}px rgba(0, 240, 255, 0.08)`;
+      }
+    }
+
+    function toggleScanlines(btn) {
+      playTone(850, 'sine');
+      const cur = btn.innerText === 'ENABLED';
+      btn.innerText = cur ? 'DISABLED' : 'ENABLED';
+      btn.style.color = cur ? '#ffaa00' : 'var(--success)';
+      btn.style.borderColor = cur ? '#ffaa00' : 'var(--success)';
+      logMsg(`SCANLINE POST-PROCESS -> ${btn.innerText}`);
+    }
+
+    function pickModel(el, name) {
+      playTone(850, 'sine');
+      document.querySelectorAll('.model-tile').forEach(c => c.classList.remove('active'));
+      el.classList.add('active');
+      logMsg(`PRIMARY REASONER BOUND -> [${name}]`);
+    }
+
+    function handleTemp(val) {
+      const num = (val / 100).toFixed(2);
+      const read = document.getElementById('temp-val');
+      if (read) read.innerText = num;
+      localStorage.setItem('ultron_temperature', num);
+    }
+
+    let isUltron = true;
+    function togglePersona() {
+      playTone(650, 'square');
+      isUltron = !isUltron;
+      const b = document.getElementById('persona-btn');
+      if (b) b.innerText = isUltron ? 'ULTRON MK-I' : 'JARVIS CORE';
+      logMsg(`AI PERSONA SHIFTED -> ${b ? b.innerText : ''}`);
+      localStorage.setItem('ultron_persona', b ? b.innerText : 'ULTRON MK-I');
+    }
+
+    function handlePitch(val) {
+      pitchMod = parseInt(val, 10);
+      const formatted = pitchMod > 0 ? `+${pitchMod} st` : `${pitchMod} st`;
+      const read = document.getElementById('pitch-val');
+      if (read) read.innerText = formatted;
+    }
+
+    function toggleSFX() {
+      sfxEnabled = !sfxEnabled;
+      const b = document.getElementById('sfx-btn');
+      if (b) {
+        b.innerText = sfxEnabled ? 'ENABLED' : 'MUTED';
+        b.style.color = sfxEnabled ? 'var(--success)' : '#ffaa00';
+        b.style.borderColor = sfxEnabled ? 'var(--success)' : '#ffaa00';
+      }
+      if (sfxEnabled) playTone(1100, 'sine');
+      logMsg(`AUDIO SFX BUS -> ${b ? b.innerText : ''}`);
+    }
+
+    function toggleCuda(btn) {
+      playTone(900, 'triangle');
+      const cur = btn.innerText === 'ENABLED';
+      btn.innerText = cur ? 'DISABLED' : 'ENABLED';
+      btn.style.color = cur ? '#ffaa00' : 'var(--success)';
+      btn.style.borderColor = cur ? '#ffaa00' : 'var(--success)';
+      logMsg(`CUDA ZERO-COPY ENGINE -> ${btn.innerText}`);
+    }
+
+    function exportMemory() {
+      playTone(1000, 'sine');
+      const dump = {
+        operator: document.getElementById('op-name') ? document.getElementById('op-name').value : 'COMMANDER',
+        timestamp: new Date().toISOString(),
+        nodes: 1420,
+        embeddings: 'BGE-Large-V1.5'
+      };
+      const blob = new Blob([JSON.stringify(dump, null, 2)], { type: 'application/json' });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = `ultron_memory_${Date.now()}.json`;
+      a.click();
+      logMsg("MEMORY SNAPSHOT EXPORTED (.JSON)");
+    }
+
+    function purgeVault() {
+      playTone(350, 'sawtooth', 0.25);
+      if (confirm("CRITICAL DIRECTIVE: Wipe all vector embeddings, chat logs and operator cache?")) {
+        localStorage.clear();
+        const input = document.getElementById('op-name');
+        if (input) input.value = 'COMMANDER';
+        const badge = document.getElementById('callsign-badge');
+        if (badge) {
+          badge.innerText = 'PURGED';
+          badge.style.color = 'var(--danger)';
+        }
+        logMsg("ALL LOCAL STORAGE & EMBEDDINGS ZEROED", true);
+        playTone(200, 'sawtooth', 0.3);
+      }
+    }
+
+    // Direct Dual-Mode Exit Handler
+    function handleExit() {
+      playTone(450, 'sine');
+      // 1. PostMessage to parent
+      window.parent.postMessage({ type: 'CLOSE_SETTINGS' }, '*');
+
+      // 2. Direct DOM fallback if accessible
+      try {
+        if (window.parent && window.parent.document) {
+          const frame = window.parent.document.getElementById('settings-overlay-frame');
+          if (frame) frame.style.display = 'none';
+        }
+      } catch(e) {}
+    }
+
+    // Keyboard ESC to Exit
+    window.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') handleExit();
+    });
+
+    // Telemetry tick
+    setInterval(() => {
+      const v = (4.4 + Math.sin(Date.now() * 0.001) * 0.5).toFixed(1);
+      const stat = document.getElementById('vram-stat');
+      const fill = document.getElementById('vram-fill');
+      if (stat) stat.innerText = `${v} / 8.0 GB (${Math.round((v/8)*100)}%)`;
+      if (fill) fill.style.width = `${(v / 8.0) * 100}%`;
+    }, 1800);
+
+    // Initial Wakeup
+    window.addEventListener('DOMContentLoaded', () => {
+      const savedName = localStorage.getItem('ultron_operator_name');
+      const input = document.getElementById('op-name');
+      if (savedName && input) input.value = savedName;
+
+      const savedTheme = localStorage.getItem('ultron_theme');
+      if (savedTheme && themes[savedTheme]) applyTheme(savedTheme);
+
+      const savedPersona = localStorage.getItem('ultron_persona');
+      const pBtn = document.getElementById('persona-btn');
+      if (savedPersona && pBtn) {
+        pBtn.innerText = savedPersona;
+        isUltron = (savedPersona === 'ULTRON MK-I');
+      }
+
+      setTimeout(resizeSpec, 100);
+    });
+  </script>
+</body>
+</html>
+
+

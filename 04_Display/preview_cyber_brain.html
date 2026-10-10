@@ -1,0 +1,437 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<style>
+  * {
+    margin: 0; padding: 0; box-sizing: border-box;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Consolas, monospace;
+    user-select: none;
+    -webkit-font-smoothing: subpixel-antialiased;
+    text-rendering: geometricPrecision;
+  }
+  html, body {
+    background: transparent !important;
+    width: 340px;
+    height: 620px;
+    overflow: hidden;
+    color: #fff;
+    padding: 0 4px;
+  }
+
+  #agents-root {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    animation: holoProject 0.35s cubic-bezier(0.1, 0.9, 0.2, 1);
+  }
+  @keyframes holoProject {
+    from { opacity: 0; transform: scale(0.96); filter: blur(3px); }
+    to { opacity: 1; transform: scale(1); filter: blur(0); }
+  }
+
+  /* Laser Header */
+  .holo-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1.5px solid rgba(0, 229, 255, 0.35);
+    padding-bottom: 5px;
+    margin-bottom: 4px;
+    flex-shrink: 0;
+    max-width: 330px;
+  }
+  .holo-header-title {
+    font-size: 11px;
+    letter-spacing: 2.5px;
+    font-weight: 900;
+    color: #00f0ff;
+    text-shadow: 0 0 10px rgba(0, 240, 255, 0.9);
+  }
+  .holo-tag {
+    font-size: 8px;
+    letter-spacing: 1px;
+    color: #00ffaa;
+    font-weight: 900;
+    background: rgba(0, 255, 170, 0.15);
+    padding: 2px 6px;
+    border-radius: 2px;
+    border: 1px solid rgba(0, 255, 170, 0.5);
+    box-shadow: 0 0 8px rgba(0, 255, 170, 0.4);
+  }
+
+  /* Perfectly Calibrated Stage */
+  .brain-stage {
+    width: 330px;
+    height: 220px;
+    position: relative;
+    flex-shrink: 0;
+    background: radial-gradient(circle at 50% 50%, rgba(0, 240, 255, 0.25) 0%, rgba(1, 8, 22, 0.95) 75%, #000 100%);
+    border: 1px solid rgba(0, 229, 255, 0.5);
+    border-radius: 4px;
+    box-shadow: inset 0 0 50px rgba(0, 180, 255, 0.35), 0 0 15px rgba(0, 229, 255, 0.2);
+    overflow: hidden;
+  }
+  #neural-brain-canvas {
+    width: 100%;
+    height: 100%;
+    display: block;
+  }
+
+  .brain-stage::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.35) 50%);
+    background-size: 100% 4px;
+    pointer-events: none;
+    opacity: 0.35;
+  }
+
+  /* Scrollable Roster */
+  .agents-scroll-viewport {
+    flex: 1;
+    max-height: 340px;
+    overflow-y: scroll;
+    overflow-x: hidden;
+    padding-right: 6px;
+    margin-top: 6px;
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+    scroll-behavior: smooth;
+    max-width: 330px;
+  }
+
+  .agents-scroll-viewport::-webkit-scrollbar {
+    width: 3px;
+  }
+  .agents-scroll-viewport::-webkit-scrollbar-track {
+    background: rgba(0, 229, 255, 0.05);
+  }
+  .agents-scroll-viewport::-webkit-scrollbar-thumb {
+    background: linear-gradient(180deg, #00ffaa, #00f0ff);
+    border-radius: 2px;
+    box-shadow: 0 0 8px #00f0ff;
+  }
+
+  .agent-card {
+    display: flex;
+    flex-direction: column;
+    padding: 7px 10px;
+    border-left: 3px solid #00f0ff;
+    background: linear-gradient(90deg, rgba(0, 229, 255, 0.07) 0%, rgba(0, 229, 255, 0.01) 100%);
+    border-bottom: 1px solid rgba(0, 229, 255, 0.15);
+    border-radius: 0 3px 3px 0;
+    transition: all 0.2s ease;
+    flex-shrink: 0;
+  }
+  .agent-card:hover {
+    border-left-color: #00ffaa;
+    background: linear-gradient(90deg, rgba(0, 255, 170, 0.14) 0%, rgba(0, 255, 170, 0.02) 100%);
+    transform: translateX(4px);
+  }
+
+  .agent-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .agent-name-wrap {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+  }
+  .beacon-pulse {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: #00ffaa;
+    box-shadow: 0 0 10px #00ffaa;
+  }
+  .agent-name {
+    font-size: 12.5px;
+    font-weight: 900;
+    letter-spacing: 2px;
+    color: #ffffff;
+    font-family: 'Consolas', monospace;
+    text-shadow: 0 0 10px rgba(0, 240, 255, 0.85);
+  }
+
+  .agent-meta-right {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .status-badge {
+    font-size: 9px;
+    font-weight: 900;
+    color: #00ffaa;
+    letter-spacing: 1.5px;
+  }
+  .ping-badge {
+    font-size: 10px;
+    color: #00e5ff;
+    font-family: 'Consolas', monospace;
+    font-weight: 800;
+  }
+
+  .agent-role {
+    font-size: 9.5px;
+    letter-spacing: 0.8px;
+    color: rgba(220, 245, 255, 0.9);
+    margin-top: 2px;
+    font-weight: 700;
+  }
+  .agent-directive {
+    font-size: 8px;
+    letter-spacing: 1.2px;
+    color: #7ee8ff;
+    font-family: 'Consolas', monospace;
+    margin-top: 2px;
+    font-weight: 700;
+  }
+</style>
+</head>
+<body>
+
+  <div id="agents-root">
+    <div class="holo-header">
+      <span class="holo-header-title">// CORTICAL AGENTS MESH</span>
+      <span class="holo-tag">● 8 LOBES ACTIVE</span>
+    </div>
+
+    <!-- Volumetric Stage -->
+    <div class="brain-stage">
+      <canvas id="neural-brain-canvas"></canvas>
+    </div>
+
+    <!-- Scrollable Roster -->
+    <div class="agents-scroll-viewport" id="scroll-roster"></div>
+  </div>
+
+  <script>
+    const cvs = document.getElementById('neural-brain-canvas');
+    const ctx = cvs.getContext('2d', { alpha: true });
+
+    let dpr = window.devicePixelRatio || 2;
+    function setupCanvas() {
+      const rect = cvs.getBoundingClientRect();
+      cvs.width = Math.round(rect.width * dpr);
+      cvs.height = Math.round(rect.height * dpr);
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    }
+    window.addEventListener('resize', setupCanvas);
+    setupCanvas();
+
+    // Screen Space Geometry: Perfectly fits inside 330x220 container
+    const BRAIN_NODES = [];
+    const TOTAL_NODES = 260;
+
+    for (let i = 0; i < TOTAL_NODES; i++) {
+      const isLeft = (i % 2 === 0);
+      const theta = Math.acos(2 * (i / TOTAL_NODES) - 1);
+      const phi = Math.sqrt(TOTAL_NODES * Math.PI) * theta;
+
+      // Fully scaled to occupy ~65% of screen height
+      let rx = 58;  // Width
+      let ry = 62;  // Height
+      let rz = 52;  // Depth
+
+      let x = rx * Math.sin(theta) * Math.cos(phi);
+      let y = ry * Math.sin(theta) * Math.sin(phi);
+      let z = rz * Math.cos(theta);
+
+      // Natural Human Brain Sulci & Gyri Folding Equations
+      const foldEffect = Math.sin(x * 0.12) * Math.cos(y * 0.14) * 9.0;
+      x += foldEffect;
+      y += foldEffect;
+
+      // Cranial Vault Expansion (Cerebrum on top, tapered cerebellum base)
+      if (y < 0) y *= 1.18; // Top hemisphere curvature
+      if (y > 20) { x *= 0.85; z *= 0.85; } // Lower cerebellar structure
+
+      // Longitudinal Fissure (Center Hemispheric Separation)
+      const fissureGap = 11;
+      const xOffset = isLeft ? -(22 + fissureGap) : (22 + fissureGap);
+
+      // Color scheme according to the neural vision:
+      // Dominant Cyan, Electric Blue filaments, and concentrated firing Neon Green nodes
+      let type = 'cyan';
+      if (i % 7 === 0) type = 'green';
+      else if (i % 3 === 0) type = 'blue';
+
+      BRAIN_NODES.push({
+        baseX: x + xOffset,
+        baseY: y - 8,
+        baseZ: z,
+        type: type,
+        speed: 1.5 + Math.random() * 2,
+        pulseOffset: Math.random() * Math.PI * 2
+      });
+    }
+
+    let rotY = 0;
+    let time = 0;
+
+    function renderScreenCalibratedBrain() {
+      const rect = cvs.getBoundingClientRect();
+      const w = rect.width;
+      const h = rect.height;
+      ctx.clearRect(0, 0, w, h);
+
+      const cx = w / 2;
+      const cy = h / 2 + 6;
+      const fov = 340; // Calibrated perspective to prevent shrinking
+
+      time += 0.03;
+      rotY = Math.sin(time * 0.5) * 0.18; // Frontal symmetrical oscillation, keeps frontal 3/4 perspective locked
+
+      // 1. Subtle Background Orbital Rings
+      ctx.save();
+      for (let r = 0; r < 2; r++) {
+        ctx.beginPath();
+        const rAng = (r === 0) ? -0.25 : 0.2;
+        ctx.ellipse(cx, cy - 2, 135 + r * 15, 45 + r * 8, rAng, 0, Math.PI * 2);
+        ctx.strokeStyle = (r === 0) ? 'rgba(0, 229, 255, 0.25)' : 'rgba(0, 255, 170, 0.18)';
+        ctx.lineWidth = 1;
+        ctx.stroke();
+      }
+      ctx.restore();
+
+      // 2. Downward Neural Streaming Data Flow
+      for (let s = -2; s <= 2; s++) {
+        const streamX = cx + s * 6;
+        const streamY = cy + 55;
+        const streamLen = 30 + Math.sin(time * 4 + s) * 10;
+        ctx.beginPath();
+        ctx.moveTo(streamX, streamY);
+        ctx.lineTo(streamX + s * 1.5, streamY + streamLen);
+        ctx.strokeStyle = `rgba(0, 255, 170, ${0.45 - Math.abs(s) * 0.08})`;
+        ctx.lineWidth = 1.2;
+        ctx.stroke();
+      }
+
+      // 3. 3D Rotation & Perspective Projection
+      const projected = BRAIN_NODES.map(node => {
+        let x1 = node.baseX * Math.cos(rotY) + node.baseZ * Math.sin(rotY);
+        let z1 = -node.baseX * Math.sin(rotY) + node.baseZ * Math.cos(rotY);
+
+        // Constant pitch tilt for 3D depth
+        let pitch = 0.15;
+        let y2 = node.baseY * Math.cos(pitch) - z1 * Math.sin(pitch);
+        let z2 = node.baseY * Math.sin(pitch) + z1 * Math.cos(pitch);
+
+        const scale = fov / (fov + z2);
+        return {
+          x: cx + x1 * scale,
+          y: cy + y2 * scale,
+          z: z2,
+          scale: scale,
+          type: node.type,
+          speed: node.speed,
+          pulseOffset: node.pulseOffset
+        };
+      });
+
+      // 4. Interconnected Synaptic Neural Fibers
+      for (let i = 0; i < projected.length; i++) {
+        for (let j = i + 1; j < projected.length; j++) {
+          const dx = projected[i].x - projected[j].x;
+          const dy = projected[i].y - projected[j].y;
+          const dist = Math.sqrt(dx * dx + dy * dy);
+
+          if (dist < 34) {
+            const alpha = (1 - dist / 34) * 0.65;
+            const isGreenConnection = (projected[i].type === 'green' || projected[j].type === 'green');
+
+            ctx.beginPath();
+            ctx.moveTo(projected[i].x, projected[i].y);
+            ctx.lineTo(projected[j].x, projected[j].y);
+            ctx.strokeStyle = isGreenConnection
+              ? `rgba(0, 255, 170, ${alpha * 1.25})`
+              : `rgba(0, 229, 255, ${alpha})`;
+            ctx.lineWidth = isGreenConnection ? 1.1 : 0.8;
+            ctx.stroke();
+          }
+        }
+      }
+
+      // 5. Glowing Firing Neural Nodes
+      projected.sort((a, b) => b.z - a.z);
+      projected.forEach(p => {
+        const pulse = Math.sin(time * p.speed + p.pulseOffset) * 0.5 + 0.5;
+        const radius = Math.max(1.2, p.scale * (2.0 + pulse * 1.4));
+
+        let color = '#00f0ff';
+        let blur = 10;
+
+        if (p.type === 'green') {
+          color = '#00ffaa';
+          blur = 16;
+        } else if (p.type === 'blue') {
+          color = '#0088ff';
+          blur = 8;
+        }
+
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, radius, 0, Math.PI * 2);
+        ctx.fillStyle = color;
+        ctx.shadowColor = color;
+        ctx.shadowBlur = blur;
+        ctx.fill();
+        ctx.shadowBlur = 0;
+      });
+
+      // 6. Central Thalamic Energy Core (Balanced)
+      ctx.beginPath();
+      ctx.ellipse(cx, cy, 26, 12, 0, 0, Math.PI * 2);
+      ctx.fillStyle = 'rgba(0, 255, 170, 0.85)';
+      ctx.shadowColor = '#00ffaa';
+      ctx.shadowBlur = 25;
+      ctx.fill();
+      ctx.shadowBlur = 0;
+
+      requestAnimationFrame(renderScreenCalibratedBrain);
+    }
+    renderScreenCalibratedBrain();
+
+    const AGENTS_LIST = [
+      { name: "ARCHON", role: "Chief Systems Architect & Engine Weaver", directive: "CORE SYSTEMS & PIPELINES ARMED", status: "ONLINE", ping: "0.02 ms" },
+      { name: "ATLAS", role: "Executive Task Dispatcher & Producer", directive: "AUTONOMOUS SUB-TASK SYNCED", status: "ONLINE", ping: "0.04 ms" },
+      { name: "AURA", role: "Art Direction & Spatial Holographic Lead", directive: "16K SPATIAL SHADERS ENGAGED", status: "ONLINE", ping: "0.06 ms" },
+      { name: "CIPHER", role: "QA Lead & Sentinel Threat Auditor", directive: "KERNEL THREAT MATRIX NOMINAL", status: "ONLINE", ping: "0.01 ms" },
+      { name: "ULTRON CORE", role: "Master Autonomous Neural Coordinator", directive: "HIGH DIRECTIVE PRIME EXECUTED", status: "ONLINE", ping: "0.01 ms" },
+      { name: "VALKYRIE", role: "Autonomous Defense & Memory Shield", directive: "VECTOR EMBEDDINGS DEFENSE ACTIVE", status: "ONLINE", ping: "0.03 ms" },
+      { name: "ORACLE", role: "Predictive Heuristics & Future Inference", directive: "PROBABILITY ENGINE LOCKED", status: "STANDBY", ping: "0.05 ms" },
+      { name: "CHRONOS", role: "Temporal Scheduler & Task Pipeline Queue", directive: "ASYNC EVENT LOOP RUNNING", status: "ONLINE", ping: "0.02 ms" }
+    ];
+
+    const container = document.getElementById('scroll-roster');
+    AGENTS_LIST.forEach(agent => {
+      const card = document.createElement('div');
+      card.className = 'agent-card';
+      card.innerHTML = `
+        <div class="agent-top">
+          <div class="agent-name-wrap">
+            <div class="beacon-pulse"></div>
+            <span class="agent-name">${agent.name}</span>
+          </div>
+          <div class="agent-meta-right">
+            <span class="status-badge">${agent.status}</span>
+            <span class="ping-badge">${agent.ping}</span>
+          </div>
+        </div>
+        <span class="agent-role">${agent.role}</span>
+        <span class="agent-directive">// ${agent.directive}</span>
+      `;
+      container.appendChild(card);
+    });
+
+    window.addEventListener('wheel', (e) => {
+      container.scrollTop += e.deltaY;
+    }, { passive: true });
+  </script>
+</body>
+</html>

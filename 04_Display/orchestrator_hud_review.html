@@ -106,6 +106,62 @@
       }
     });
 </script>
+<!-- CINEMATIC START BUTTON -->
+<style>
+  .ultron-start-btn {
+    position: absolute;
+    bottom: 35px;
+    right: 35px;
+    z-index: 999999;
+    background: linear-gradient(135deg, rgba(0, 240, 255, 0.08) 0%, rgba(2, 6, 15, 0.85) 100%);
+    border: 1px solid rgba(0, 240, 255, 0.3);
+    border-left: 3px solid #00f0ff;
+    border-right: 3px solid #00f0ff;
+    padding: 14px 45px;
+    color: #ffffff;
+    font-family: 'Orbitron', 'Chakra Petch', 'Segoe UI', monospace;
+    font-size: 15px;
+    font-weight: 800;
+    letter-spacing: 6px;
+    text-transform: uppercase;
+    cursor: pointer;
+    clip-path: polygon(15px 0, 100% 0, 100% calc(100% - 15px), calc(100% - 15px) 100%, 0 100%, 0 15px);
+    backdrop-filter: blur(15px);
+    -webkit-backdrop-filter: blur(15px);
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.9), 0 0 20px rgba(0, 240, 255, 0.15), inset 0 0 15px rgba(0, 240, 255, 0.1);
+    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+  .ultron-start-btn::before {
+    content: '';
+    width: 8px;
+    height: 8px;
+    background: #00ffaa;
+    border-radius: 50%;
+    box-shadow: 0 0 12px #00ffaa, 0 0 24px #00ffaa;
+    animation: pulseStartIndicator 1.5s infinite alternate;
+  }
+  .ultron-start-btn:hover {
+    background: linear-gradient(135deg, rgba(0, 240, 255, 0.2) 0%, rgba(2, 6, 15, 0.95) 100%);
+    box-shadow: 0 15px 45px rgba(0, 0, 0, 0.95), 0 0 35px rgba(0, 240, 255, 0.4), inset 0 0 25px rgba(0, 240, 255, 0.25);
+    transform: scale(1.05) translateY(-3px);
+    border-color: #00f0ff;
+    text-shadow: 0 0 15px #00f0ff;
+  }
+  .ultron-start-btn:active {
+    transform: scale(0.95) translateY(0);
+  }
+  @keyframes pulseStartIndicator {
+    from { opacity: 0.4; transform: scale(0.8); }
+    to { opacity: 1; transform: scale(1.4); }
+  }
+</style>
+<div class="ultron-start-btn" onclick="initiateUltronWarp()">START</div>
+<!-- END CINEMATIC START BUTTON -->
 </body>
 </html>
+
+
 

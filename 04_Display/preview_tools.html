@@ -1,0 +1,351 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ultron Tactical Tools</title>
+  <link href="https://fonts.googleapis.com/css2?family=Oxanium:wght@500;600;700;800&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+  <style>
+    * {
+      box-sizing: border-box !important;
+      margin: 0;
+      padding: 0;
+      user-select: none;
+    }
+
+    html, body {
+      width: 100% !important;
+      height: 100% !important;
+      background: transparent !important;
+      overflow: hidden !important;
+      font-family: 'Oxanium', monospace, sans-serif;
+      color: #00e5ff;
+    }
+
+    .tools-container {
+      width: 275px !important;
+      padding: 4px 18px 4px 2px !important;
+      display: flex;
+      flex-direction: column;
+      gap: 11px;
+    }
+
+    /* Cyber Header */
+    .cyber-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid rgba(0, 229, 255, 0.4);
+      padding-bottom: 5px;
+      position: relative;
+    }
+    .cyber-header::after {
+      content: '';
+      position: absolute;
+      bottom: -1px;
+      right: 0;
+      width: 40px;
+      height: 2px;
+      background: #00ffaa;
+      box-shadow: 0 0 10px #00ffaa;
+    }
+
+    .title-text {
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: 1.6px;
+      color: #00f0ff;
+      text-shadow: 0 0 12px rgba(0, 240, 255, 0.85);
+      text-transform: uppercase;
+    }
+
+    .badge-auto {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 9px;
+      letter-spacing: 1px;
+      color: #00ffaa;
+      background: rgba(0, 255, 170, 0.12);
+      border: 1px solid rgba(0, 255, 170, 0.45);
+      padding: 2px 7px;
+      border-radius: 2px;
+      box-shadow: 0 0 8px rgba(0, 255, 170, 0.3);
+    }
+
+    /* Modern Tactical Action Tiles */
+    .utility-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 7px;
+    }
+
+    .utility-card {
+      position: relative;
+      background: linear-gradient(135deg, rgba(0, 32, 60, 0.55) 0%, rgba(1, 14, 28, 0.8) 100%);
+      border: 1px solid rgba(0, 229, 255, 0.28);
+      border-radius: 4px;
+      padding: 8px 9px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      cursor: pointer;
+      transition: all 0.22s ease-in-out;
+      box-shadow: inset 0 0 15px rgba(0, 229, 255, 0.05);
+      clip-path: polygon(0 0, calc(100% - 6px) 0, 100% 6px, 100% 100%, 0 100%);
+    }
+    .utility-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 3px;
+      height: 100%;
+      background: #00e5ff;
+      box-shadow: 0 0 8px #00e5ff;
+      opacity: 0.7;
+      transition: all 0.2s;
+    }
+    .utility-card:hover {
+      border-color: #00ffaa;
+      background: linear-gradient(135deg, rgba(0, 50, 90, 0.65) 0%, rgba(1, 20, 40, 0.9) 100%);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 14px rgba(0, 229, 255, 0.25), inset 0 0 15px rgba(0, 255, 170, 0.15);
+    }
+    .utility-card:hover::before {
+      background: #00ffaa;
+      box-shadow: 0 0 10px #00ffaa;
+      opacity: 1;
+    }
+    .utility-card:active {
+      transform: scale(0.97);
+    }
+
+    .card-title {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 1.1px;
+      color: #f0f7ff;
+      text-transform: uppercase;
+    }
+
+    .card-action {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 9.5px;
+      font-weight: 600;
+      color: #00e5ff;
+      letter-spacing: 0.6px;
+      display: flex;
+      align-items: center;
+      gap: 3px;
+    }
+    .card-action::before {
+      content: '▶';
+      font-size: 7px;
+      color: #00ffaa;
+    }
+
+    /* Modern Registry Items */
+    .registry-list {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .tool-tile {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 6px 9px;
+      background: linear-gradient(90deg, rgba(0, 26, 50, 0.55) 0%, rgba(1, 14, 28, 0.35) 100%);
+      border: 1px solid rgba(0, 229, 255, 0.18);
+      border-left: 2.5px solid #00ffaa;
+      border-radius: 3px;
+      transition: all 0.2s;
+    }
+    .tool-tile:hover {
+      border-color: rgba(0, 229, 255, 0.45);
+      background: rgba(0, 42, 80, 0.45);
+      transform: translateX(2px);
+    }
+
+    .tool-info {
+      display: flex;
+      flex-direction: column;
+      gap: 1px;
+    }
+
+    .tool-name {
+      font-size: 10.5px;
+      font-weight: 700;
+      letter-spacing: 1px;
+      color: #e2f1fc;
+    }
+
+    .tool-sub {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 9px;
+      color: #79a4c4;
+      letter-spacing: 0.5px;
+    }
+
+    .tool-badge {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 9px;
+      font-weight: 700;
+      letter-spacing: 0.8px;
+      padding: 2px 7px;
+      border-radius: 2px;
+      color: #00ffaa;
+      background: rgba(0, 255, 170, 0.1);
+      border: 1px solid rgba(0, 255, 170, 0.35);
+      text-shadow: 0 0 8px rgba(0, 255, 170, 0.7);
+      flex-shrink: 0;
+    }
+
+    /* Live Tactical Output Console */
+    .console-envelope {
+      background: rgba(0, 8, 18, 0.7);
+      border: 1px solid rgba(0, 229, 255, 0.22);
+      border-radius: 4px;
+      padding: 7px 9px;
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+      margin-top: 1px;
+      box-shadow: inset 0 0 12px rgba(0, 229, 255, 0.08);
+    }
+
+    .console-header {
+      font-size: 8.5px;
+      letter-spacing: 1.2px;
+      color: #638cae;
+      text-transform: uppercase;
+      font-weight: 700;
+      display: flex;
+      justify-content: space-between;
+    }
+
+    .console-line {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 9px;
+      color: #8daec7;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .console-prompt {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 9.5px;
+      color: #00ffaa;
+      text-shadow: 0 0 8px rgba(0, 255, 170, 0.8);
+      font-weight: 700;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="tools-container">
+    <!-- Header -->
+    <div class="cyber-header">
+      <span class="title-text">// System Utilities</span>
+      <span class="badge-auto">TACTICAL DECK</span>
+    </div>
+
+    <!-- Modern Tactical Action Grid -->
+    <div class="utility-grid">
+      <div class="utility-card" onclick="execTool('VRAM PURGE', 'GPU Tensor VRAM Cache Cleared: 1.4 GB Reclaimed')">
+        <span class="card-title">VRAM Flush</span>
+        <span class="card-action">PURGE TENSOR</span>
+      </div>
+
+      <div class="utility-card" onclick="execTool('DEV CONSOLE', 'Subprocess Terminal Spawned: PID 4812 [READY]')">
+        <span class="card-title">Dev Console</span>
+        <span class="card-action">LAUNCH REPL</span>
+      </div>
+
+      <div class="utility-card" onclick="execTool('SCREEN CAP', 'Viewport Buffer Captured: 8K Frame Ingested')">
+        <span class="card-title">Screen Cap</span>
+        <span class="card-action">CAPTURE HUD</span>
+      </div>
+
+      <div class="utility-card" onclick="execTool('RVC CALIB', 'Audio Gateway Calibrated: 0.0 dB // 14ms Lock')">
+        <span class="card-title">Mic Calibrate</span>
+        <span class="card-action">GAIN AUTO-SYNC</span>
+      </div>
+    </div>
+
+    <!-- Agent Tool Registry -->
+    <div class="cyber-header" style="margin-top: 2px;">
+      <span class="title-text">// Agent Tool Registry</span>
+      <span class="badge-auto" style="color: #00e5ff; border-color: rgba(0, 229, 255, 0.4);">4 ARMED</span>
+    </div>
+
+    <div class="registry-list">
+      <div class="tool-tile">
+        <div class="tool-info">
+          <span class="tool-name">BASH / CMD Runtime</span>
+          <span class="tool-sub">Subprocess CLI Interface</span>
+        </div>
+        <span class="tool-badge">READY</span>
+      </div>
+
+      <div class="tool-tile" style="border-left-color: #00e5ff;">
+        <div class="tool-info">
+          <span class="tool-name">Web Scraper &amp; Search</span>
+          <span class="tool-sub">DuckDuckGo / Headless DOM</span>
+        </div>
+        <span class="tool-badge" style="color: #00e5ff; border-color: rgba(0,229,255,0.4); background: rgba(0,229,255,0.1);">ARMED</span>
+      </div>
+
+      <div class="tool-tile">
+        <div class="tool-info">
+          <span class="tool-name">Python REPL Compiler</span>
+          <span class="tool-sub">Py3.11 Sandboxed Host</span>
+        </div>
+        <span class="tool-badge">ACTIVE</span>
+      </div>
+
+      <div class="tool-tile" style="border-left-color: #00e5ff;">
+        <div class="tool-info">
+          <span class="tool-name">Vision OCR Scanner</span>
+          <span class="tool-sub">CV2 Optical Matrix</span>
+        </div>
+        <span class="tool-badge" style="color: #00e5ff; border-color: rgba(0,229,255,0.4); background: rgba(0,229,255,0.1);">READY</span>
+      </div>
+    </div>
+
+    <!-- Tactical Live Console -->
+    <div class="console-envelope">
+      <div class="console-header">
+        <span>TACTICAL TELEMETRY</span>
+        <span style="color: #00ffaa;">ONLINE</span>
+      </div>
+      <div class="console-line">&gt; ULTRON AGENT ARSENAL INVENTORY [OK]</div>
+      <div class="console-prompt" id="cli-target">&gt; STANDBY // SELECT UTILITY TO FIRE</div>
+    </div>
+  </div>
+
+  <script>
+    function execTool(name, feedback) {
+      const target = document.getElementById('cli-target');
+      target.innerText = `> EXEC [${name}]: ${feedback}`;
+      target.style.color = '#00ffaa';
+      target.style.textShadow = '0 0 10px #00ffaa';
+
+      setTimeout(() => {
+        target.style.color = '#7ba3bf';
+        target.style.textShadow = 'none';
+      }, 4000);
+    }
+
+    setInterval(() => {
+      const target = document.getElementById('cli-target');
+      if (target.innerText.includes('STANDBY')) {
+        const pings = ['MEM_DEFRAG: OK', 'LLM_HOST: LISTENING', 'CV2_CAMERA: STANDBY', 'AUDIO_DAEMON: SYNCED'];
+        const chosen = pings[Math.floor(Math.random() * pings.length)];
+        target.innerText = `> TICK // ${chosen}`;
+      }
+    }, 5000);
+  </script>
+</body>
+</html>

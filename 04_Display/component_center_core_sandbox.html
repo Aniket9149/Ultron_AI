@@ -1,0 +1,341 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Ultron Quantum Core - Precision Selective Core Bloom</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; user-select: none; }
+    html, body {
+      width: 100vw; height: 100vh; overflow: hidden;
+      background: radial-gradient(circle at 50% 50%, rgba(0, 25, 55, 0.45) 0%, #01040a 100%);
+      font-family: 'Segoe UI', Consolas, monospace;
+    }
+    #canvas-container { width: 100%; height: 100%; position: absolute; inset: 0; z-index: 1; }
+    .hud-overlay {
+      position: absolute; inset: 0; z-index: 2; pointer-events: none; padding: 16px 20px;
+      display: flex; flex-direction: column; justify-content: space-between;
+    }
+    .top-brand { display: flex; flex-direction: column; align-items: center; text-align: center; }
+    .brand-title {
+      font-size: 26px; font-weight: 900; letter-spacing: 12px; color: #ffffff;
+      text-shadow: 0 0 20px rgba(0, 229, 255, 0.9), 0 0 40px rgba(0, 229, 255, 0.5);
+    }
+    .brand-sub { font-size: 8.5px; letter-spacing: 4px; color: #7ad7ff; margin-top: 4px; opacity: 0.85; }
+    .core-telemetry-left {
+      position: absolute; left: 20px; top: 45%; transform: translateY(-50%);
+      display: flex; flex-direction: column; gap: 6px; font-size: 9px; letter-spacing: 1.5px; color: rgba(180, 230, 255, 0.85);
+    }
+    .core-telemetry-left b { color: #00e5ff; text-shadow: 0 0 8px #00e5ff; }
+    .core-telemetry-right {
+      position: absolute; right: 20px; top: 45%; transform: translateY(-50%); text-align: right;
+      display: flex; flex-direction: column; gap: 6px; font-size: 9px; letter-spacing: 1.5px; color: rgba(180, 230, 255, 0.85);
+    }
+    .core-telemetry-right b { color: #00ffaa; text-shadow: 0 0 8px #00ffaa; }
+    .bottom-directive {
+      text-align: center; font-size: 8px; letter-spacing: 6px; color: rgba(0, 229, 255, 0.7);
+      border-top: 1px solid rgba(0, 229, 255, 0.2); padding-top: 8px;
+    }
+    #loading-screen {
+      position: absolute; inset: 0; background: #010612; z-index: 10;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      color: #00e5ff; font-size: 11px; letter-spacing: 3px; transition: opacity 0.4s ease;
+    }
+  </style>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
+
+  <!-- Post-Processing Pipeline -->
+  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/EffectComposer.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/RenderPass.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/ShaderPass.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/shaders/CopyShader.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/shaders/LuminosityHighPassShader.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/UnrealBloomPass.js"></script>
+<style id="telemetry-reposition-override">
+  /* Reposition Left Telemetry higher up & clean from left panel */
+  [class*="telemetry-left"], .telemetry-left, div[style*="left: 2"], div[style*="left:2"] {
+    top: 24% !important;
+    left: 27% !important;
+  }
+  /* Reposition Right Telemetry higher up & clean from oscilloscope wave */
+  [class*="telemetry-right"], .telemetry-right, div[style*="right: 2"], div[style*="right:2"] {
+    top: 24% !important;
+    right: 28% !important;
+  }
+</style>
+</head>
+<body>
+
+  <div id="loading-screen">
+    <div id="load-status">CALIBRATING CORE SINGULARITY...</div>
+  </div>
+
+  <div id="canvas-container"></div>
+
+  <div class="hud-overlay">
+    <div class="top-brand">
+      <div class="brand-title">ULTRON</div>
+      <div class="brand-sub">QUANTUM AI CORE ENGINE // MK-VIII</div>
+      <div style="font-size: 8px; letter-spacing: 3px; color: #00ffaa; margin-top: 2px;">OBSERVE • REASON • ADAPT • EXECUTE</div>
+    </div>
+
+    <div class="core-telemetry-left">
+      <div>SINGULARITY: <b>LOCKED</b></div>
+      <div>CORE_EMISSION: <b>ISOLATED</b></div>
+      <div>FIELD_HARMONIC: <b>0.9998</b></div>
+      <div>REACTOR_TEMP: <b>4.2 K</b></div>
+      <div>PHASE_DRIFT: <b>0.00%</b></div>
+      <div>ORBITAL_RINGS: <b>METALLIC</b></div>
+    </div>
+
+    <div class="core-telemetry-right">
+      <div>ARC_DISCHARGE: <b>FOCUSED</b></div>
+      <div>CORE_STABILITY: <b>99.98%</b></div>
+      <div>BANDWIDTH: <b>1.2 TB/s</b></div>
+      <div>THREAT_MATRIX: <b>NOMINAL</b></div>
+      <div>AI_DIRECTIVE: <b>AUTONOMOUS</b></div>
+    </div>
+
+    <div class="bottom-directive">
+      CONTROL IS A RESPONSIBILITY
+    </div>
+  </div>
+
+  <script>
+    const container = document.getElementById('canvas-container');
+    const loadingScreen = document.getElementById('loading-screen');
+    const loadStatus = document.getElementById('load-status');
+
+    // 1. Scene & Perspective
+    const scene = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
+    camera.position.set(0, 0, 15);
+
+    // 2. High-Fidelity Renderer
+    const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    renderer.toneMapping = THREE.ACESFilmicToneMapping;
+    renderer.toneMappingExposure = 1.25;
+    container.appendChild(renderer.domElement);
+
+    // 3. Selective Bloom Pass (Threshold set so ONLY ultra-bright core glows)
+    const renderScene = new THREE.RenderPass(scene, camera);
+    const bloomPass = new THREE.UnrealBloomPass(
+      new THREE.Vector2(window.innerWidth, window.innerHeight),
+      2.8,  // Intense glow on high-brightness elements
+      0.35, // Tight bloom radius around core
+      0.82  // HIGH THRESHOLD: Rings under 0.82 get ZERO bloom, only the white core over 1.0 glows!
+    );
+
+    const composer = new THREE.EffectComposer(renderer);
+    composer.addPass(renderScene);
+    composer.addPass(bloomPass);
+
+    // 4. Studio Lighting for Crisp Metallic Outer Rings
+    scene.add(new THREE.AmbientLight(0x0a192f, 1.2));
+
+    const ringLight1 = new THREE.DirectionalLight(0xa5d8ff, 2.2);
+    ringLight1.position.set(12, 18, 14);
+    scene.add(ringLight1);
+
+    const ringLight2 = new THREE.DirectionalLight(0x406080, 1.8);
+    ringLight2.position.set(-12, -15, -10);
+    scene.add(ringLight2);
+
+    // Focused Core Plasma Light
+    const coreCenterLight = new THREE.PointLight(0xffffff, 8.0, 12);
+    coreCenterLight.position.set(0, 0, 0);
+    scene.add(coreCenterLight);
+
+    const coreCyanHaze = new THREE.PointLight(0x00e5ff, 4.0, 8);
+    coreCyanHaze.position.set(0, 0, 0);
+    scene.add(coreCyanHaze);
+
+    // 5. Procedural Lightning Arcs tightly confined to the White Core Center
+    const lightningGroup = new THREE.Group();
+    scene.add(lightningGroup);
+
+    const MAX_BOLTS = 4;
+    const boltLines = [];
+
+    for (let i = 0; i < MAX_BOLTS; i++) {
+      const geom = new THREE.BufferGeometry();
+      const positions = new Float32Array(24 * 3);
+      geom.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+      
+      const mat = new THREE.LineBasicMaterial({
+        color: (i % 2 === 0) ? 0xffffff : 0x80f5ff,
+        transparent: true,
+        opacity: 0.95,
+        linewidth: 2
+      });
+
+      const line = new THREE.Line(geom, mat);
+      lightningGroup.add(line);
+      boltLines.push({ line, lastUpdate: 0 });
+    }
+
+    function generateCoreArc(radius) {
+      const points = [];
+      const theta1 = Math.random() * Math.PI * 2;
+      const phi1 = (Math.random() - 0.5) * Math.PI;
+      const start = new THREE.Vector3(
+        radius * Math.cos(phi1) * Math.sin(theta1),
+        radius * Math.sin(phi1),
+        radius * Math.cos(phi1) * Math.cos(theta1)
+      );
+
+      const theta2 = theta1 + (Math.random() - 0.5) * 2.2;
+      const phi2 = phi1 + (Math.random() - 0.5) * 2.2;
+      const end = new THREE.Vector3(
+        radius * Math.cos(phi2) * Math.sin(theta2),
+        radius * Math.sin(phi2),
+        radius * Math.cos(phi2) * Math.cos(theta2)
+      );
+
+      points.push(start);
+      for (let i = 1; i < 7; i++) {
+        const t = i / 7;
+        const p = new THREE.Vector3().lerpVectors(start, end, t);
+        p.x += (Math.random() - 0.5) * 0.35;
+        p.y += (Math.random() - 0.5) * 0.35;
+        p.z += (Math.random() - 0.5) * 0.35;
+        points.push(p);
+      }
+      points.push(end);
+      return points;
+    }
+
+    function updateCoreLightning() {
+      const now = performance.now();
+      boltLines.forEach(bolt => {
+        if (now - bolt.lastUpdate > 45 + Math.random() * 40) {
+          bolt.lastUpdate = now;
+          const arc = generateCoreArc(1.2 + Math.random() * 0.5); // Arc radius directly hugging the white core
+          const posAttr = bolt.line.geometry.attributes.position;
+          
+          for (let i = 0; i < 8; i++) {
+            const pt = arc[Math.min(i, arc.length - 1)];
+            posAttr.setXYZ(i, pt.x, pt.y, pt.z);
+          }
+          for (let i = 8; i < 24; i++) {
+            const pt = arc[arc.length - 1];
+            posAttr.setXYZ(i, pt.x, pt.y, pt.z);
+          }
+          posAttr.needsUpdate = true;
+          bolt.line.material.opacity = 0.6 + Math.random() * 0.4;
+        }
+      });
+    }
+
+    // 6. Selective Material Isolation
+    let mixer = null;
+    let coreModel = null;
+    const glowingCoreMaterials = [];
+
+    const loader = new THREE.GLTFLoader();
+    loader.load(
+      'ultron_quantum_core.glb',
+      (gltf) => {
+        coreModel = gltf.scene;
+
+        const box = new THREE.Box3().setFromObject(coreModel);
+        const center = box.getCenter(new THREE.Vector3());
+        const size = box.getSize(new THREE.Vector3());
+        coreModel.position.x -= center.x;
+        coreModel.position.y -= center.y;
+        coreModel.position.z -= center.z;
+
+        const maxDim = Math.max(size.x, size.y, size.z);
+        if (maxDim > 0) {
+          const scale = 8.5 / maxDim;
+          coreModel.scale.set(scale, scale, scale);
+        }
+
+        // Clean separation: Rings stay pure Metallic, Only Core Spheres Glow
+        coreModel.traverse((child) => {
+          if (child.isMesh && child.material) {
+            const name = (child.name || '').toLowerCase();
+            const matName = (child.material.name || '').toLowerCase();
+            const mat = child.material;
+
+            const isRing = name.includes('ring') || name.includes('torus') || name.includes('circle') || name.includes('outer') || name.includes('frame') || matName.includes('ring') || matName.includes('metal');
+            const isCoreCenter = name.includes('core') || name.includes('center') || name.includes('sphere') || name.includes('icosphere') || name.includes('cube') || name.includes('light') || matName.includes('core') || matName.includes('white') || matName.includes('glow');
+
+            if (isRing && !isCoreCenter) {
+              // Strict Metallic PBR on Outer Rings: ZERO Emissive / ZERO Bloom
+              mat.emissive = new THREE.Color(0x000000);
+              mat.emissiveIntensity = 0.0;
+              mat.metalness = 0.95;
+              mat.roughness = 0.25;
+            } else {
+              // White Circle Core gets pure White/Cyan super-emissive bloom
+              mat.emissive = new THREE.Color(0xffffff);
+              mat.emissiveIntensity = 4.0;
+              glowingCoreMaterials.push(mat);
+            }
+          }
+        });
+
+        scene.add(coreModel);
+
+        if (gltf.animations && gltf.animations.length > 0) {
+          mixer = new THREE.AnimationMixer(coreModel);
+          gltf.animations.forEach(clip => mixer.clipAction(clip).play());
+        }
+
+        loadingScreen.style.opacity = '0';
+        setTimeout(() => loadingScreen.remove(), 400);
+      },
+      (xhr) => {
+        if (xhr.total > 0) {
+          const pct = Math.round((xhr.loaded / xhr.total) * 100);
+          loadStatus.innerText = `CALIBRATING CORE SINGULARITY... ${pct}%`;
+        }
+      },
+      (err) => {
+        console.error('GLTF Load Error:', err);
+      }
+    );
+
+    window.addEventListener('resize', () => {
+      camera.aspect = window.innerWidth / window.innerHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(window.innerWidth, window.innerHeight);
+      composer.setSize(window.innerWidth, window.innerHeight);
+    });
+
+    const clock = new THREE.Clock();
+    let time = 0;
+
+    function animate() {
+      requestAnimationFrame(animate);
+      const delta = clock.getDelta();
+      time += delta;
+
+      if (mixer) mixer.update(delta);
+      if (coreModel && !mixer) {
+        coreModel.rotation.y += 0.006;
+      }
+
+      // Confined lightning flicker at core center
+      updateCoreLightning();
+
+      // Dynamic White Core Pulsing
+      const corePulse = 3.5 + Math.sin(time * 5.0) * 0.8 + (Math.random() > 0.92 ? 1.5 : 0);
+      glowingCoreMaterials.forEach(m => {
+        m.emissiveIntensity = corePulse;
+      });
+
+      coreCenterLight.intensity = 7.0 + Math.sin(time * 4.0) * 2.0;
+      coreCyanHaze.intensity = 3.5 + (Math.random() > 0.88 ? 3.0 : 0);
+
+      composer.render();
+    }
+    animate();
+  </script>
+</body>
+</html>
+

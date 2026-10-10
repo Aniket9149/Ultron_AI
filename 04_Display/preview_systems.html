@@ -1,0 +1,401 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ultron Systems Dynamic Rig</title>
+  <link href="https://fonts.googleapis.com/css2?family=Oxanium:wght@500;600;700;800&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+  <style>
+    * {
+      box-sizing: border-box !important;
+      margin: 0;
+      padding: 0;
+      user-select: none;
+    }
+
+    html, body {
+      width: 100% !important;
+      height: 100% !important;
+      background: transparent !important;
+      overflow: hidden !important;
+      font-family: 'Oxanium', monospace, sans-serif;
+      color: #00e5ff;
+    }
+
+    .systems-container {
+      width: 275px !important;
+      padding: 4px 18px 4px 2px !important;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    /* Modern Cyber Header */
+    .cyber-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid rgba(0, 229, 255, 0.4);
+      padding-bottom: 4px;
+      position: relative;
+    }
+    .cyber-header::after {
+      content: '';
+      position: absolute;
+      bottom: -1px;
+      right: 0;
+      width: 35px;
+      height: 2px;
+      background: #00ffaa;
+      box-shadow: 0 0 8px #00ffaa;
+    }
+
+    .title-text {
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: 1.5px;
+      color: #00f0ff;
+      text-shadow: 0 0 10px rgba(0, 240, 255, 0.8);
+      text-transform: uppercase;
+    }
+
+    .badge-auto {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 8px;
+      letter-spacing: 1px;
+      color: #00ffaa;
+      background: rgba(0, 255, 170, 0.12);
+      border: 1px solid rgba(0, 255, 170, 0.4);
+      padding: 1px 6px;
+      border-radius: 2px;
+    }
+
+    /* Hex / Hologram Core Radar Card */
+    .radar-envelope {
+      background: radial-gradient(circle at 50% 50%, rgba(0, 40, 70, 0.45) 0%, rgba(1, 10, 22, 0.6) 100%);
+      border: 1px solid rgba(0, 229, 255, 0.2);
+      border-radius: 8px;
+      padding: 8px;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      box-shadow: inset 0 0 20px rgba(0, 229, 255, 0.08);
+    }
+
+    /* Circular Micro-Sweep Gauge */
+    .core-telemetry-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    .sweep-dial {
+      width: 48px;
+      height: 48px;
+      position: relative;
+      border-radius: 50%;
+      border: 1px dashed rgba(0, 229, 255, 0.4);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 0 12px rgba(0, 229, 255, 0.15);
+      animation: spinDial 12s linear infinite;
+      flex-shrink: 0;
+    }
+    @keyframes spinDial {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    .sweep-inner {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      border: 1px solid rgba(0, 255, 170, 0.5);
+      background: rgba(0, 240, 255, 0.1);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 8px;
+      color: #00ffaa;
+      animation: counterSpin 12s linear infinite;
+    }
+    @keyframes counterSpin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(-360deg); }
+    }
+
+    .rig-stats {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .rig-stat-item {
+      display: flex;
+      justify-content: space-between;
+      font-size: 8.5px;
+      letter-spacing: 1px;
+      color: #8daec7;
+    }
+    .rig-val {
+      font-family: 'Share Tech Mono', monospace;
+      color: #00e5ff;
+      font-weight: 700;
+      text-shadow: 0 0 6px rgba(0, 229, 255, 0.7);
+    }
+
+    /* Dynamic Hardware Multi-Core Array */
+    .cores-heading {
+      display: flex;
+      justify-content: space-between;
+      font-size: 8px;
+      letter-spacing: 1px;
+      color: #648ba8;
+      text-transform: uppercase;
+      margin-top: 2px;
+    }
+
+    .cores-grid {
+      display: flex;
+      gap: 2.5px;
+      height: 24px;
+      align-items: flex-end;
+      background: rgba(0, 8, 18, 0.6);
+      padding: 3px;
+      border-radius: 3px;
+      border: 1px solid rgba(0, 229, 255, 0.12);
+    }
+
+    .core-bar {
+      flex: 1;
+      background: linear-gradient(180deg, #00f0ff 0%, #004488 100%);
+      border-radius: 1px;
+      transition: height 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
+      min-height: 3px;
+    }
+    .core-bar.hot {
+      background: linear-gradient(180deg, #00ffaa 0%, #0088ff 100%);
+      box-shadow: 0 0 4px #00ffaa;
+    }
+
+    /* Subsystem Glass Chips */
+    .subsystem-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+
+    .sys-chip {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 5px 8px;
+      background: linear-gradient(90deg, rgba(0, 25, 48, 0.5) 0%, rgba(2, 12, 25, 0.3) 100%);
+      border: 1px solid rgba(0, 229, 255, 0.15);
+      border-left: 2px solid #00e5ff;
+      border-radius: 3px;
+      transition: all 0.2s ease;
+    }
+    .sys-chip:hover {
+      border-color: rgba(0, 229, 255, 0.4);
+      background: rgba(0, 40, 75, 0.4);
+      transform: translateX(2px);
+    }
+
+    .sys-meta {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .sys-name {
+      font-size: 9px;
+      font-weight: 700;
+      letter-spacing: 0.9px;
+      color: #e2f1fc;
+    }
+
+    .sys-detail {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 7.5px;
+      color: #638cae;
+      letter-spacing: 0.5px;
+    }
+
+    .sys-indicator {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 8px;
+      letter-spacing: 0.8px;
+    }
+
+    .pulse-dot {
+      width: 5px;
+      height: 5px;
+      border-radius: 50%;
+      background: #00ffaa;
+      box-shadow: 0 0 6px #00ffaa;
+      animation: blinkDot 1.4s infinite alternate;
+    }
+    @keyframes blinkDot {
+      0% { opacity: 0.3; transform: scale(0.8); }
+      100% { opacity: 1; transform: scale(1.2); }
+    }
+
+    .dot-cyan { background: #00f0ff; box-shadow: 0 0 6px #00f0ff; }
+  </style>
+</head>
+<body>
+
+  <div class="systems-container">
+    <!-- Header with Dynamic Rig Detection -->
+    <div class="cyber-header">
+      <span class="title-text">// Rig Governor</span>
+      <span class="badge-auto" id="rig-arch-tag">SYS // DETECTING</span>
+    </div>
+
+    <!-- Modern Radar & Hardware Telemetry Envelope -->
+    <div class="radar-envelope">
+      <div class="core-telemetry-row">
+        <div class="sweep-dial">
+          <div class="sweep-inner" id="compute-pct">44%</div>
+        </div>
+
+        <div class="rig-stats">
+          <div class="rig-stat-item">
+            <span>HARDWARE THREADS</span>
+            <span class="rig-val" id="thread-count">-- CORES</span>
+          </div>
+          <div class="rig-stat-item">
+            <span>ESTIMATED MEMORY</span>
+            <span class="rig-val" id="ram-capacity">-- GB</span>
+          </div>
+          <div class="rig-stat-item">
+            <span>GRAPHICS ENGINE</span>
+            <span class="rig-val" id="gpu-vendor" style="max-width: 100px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">ACCELERATED</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Real Hardware Core Load Matrix -->
+      <div>
+        <div class="cores-heading">
+          <span>LOGICAL CORES DISTRIBUTION</span>
+          <span id="load-state" style="color: #00ffaa;">STABLE</span>
+        </div>
+        <div class="cores-grid" id="cores-grid">
+          <!-- Dynamic bars mapped to user's hardware concurrency -->
+        </div>
+      </div>
+    </div>
+
+    <!-- Ultron Subsystems Glass Chips -->
+    <div class="cyber-header" style="margin-top: 2px;">
+      <span class="title-text">// Active Protocols</span>
+      <span class="badge-auto" style="color: #00e5ff; border-color: rgba(0, 229, 255, 0.4);">DAEMON MESH</span>
+    </div>
+
+    <div class="subsystem-grid">
+      <div class="sys-chip">
+        <div class="sys-meta">
+          <span class="sys-name">RVC Voice Matrix</span>
+          <span class="sys-detail">Neural Pitch & Formant Engine</span>
+        </div>
+        <div class="sys-indicator" style="color: #00ffaa;">
+          <div class="pulse-dot"></div> ONLINE
+        </div>
+      </div>
+
+      <div class="sys-chip">
+        <div class="sys-meta">
+          <span class="sys-name">Local LLM Host</span>
+          <span class="sys-detail">Quantized Reasoning Daemon</span>
+        </div>
+        <div class="sys-indicator" style="color: #00f0ff;">
+          <div class="pulse-dot dot-cyan"></div> ACTIVE
+        </div>
+      </div>
+
+      <div class="sys-chip">
+        <div class="sys-meta">
+          <span class="sys-name">Synaptic Memory Index</span>
+          <span class="sys-detail">Vector Embeddings L2-Cache</span>
+        </div>
+        <div class="sys-indicator" style="color: #00ffaa;">
+          <div class="pulse-dot"></div> SYNCED
+        </div>
+      </div>
+
+      <div class="sys-chip">
+        <div class="sys-meta">
+          <span class="sys-name">Neural Bus Governor</span>
+          <span class="sys-detail">Task Scheduler & IPC Hooks</span>
+        </div>
+        <div class="sys-indicator" style="color: #00ffaa;">
+          <div class="pulse-dot"></div> READY
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // 1. Dynamic Hardware Auto-Detection (Reads actual Client PC Hardware)
+    const detectedThreads = navigator.hardwareConcurrency || 8;
+    const detectedRam = navigator.deviceMemory ? navigator.deviceMemory + ' GB' : '8+ GB';
+
+    document.getElementById('thread-count').innerText = detectedThreads + ' THREADS';
+    document.getElementById('ram-capacity').innerText = detectedRam;
+    document.getElementById('rig-arch-tag').innerText = detectedThreads + '-CORE // AUTO';
+
+    // Detect GPU Vendor via WebGL context
+    try {
+      const gl = document.createElement('canvas').getContext('webgl');
+      if (gl) {
+        const debugInfo = gl.getExtension('WEBGL_debug_renderer_info');
+        if (debugInfo) {
+          const renderer = gl.getParameter(debugInfo.UNMASKED_RENDERER_WEBGL);
+          if (renderer.includes('NVIDIA')) document.getElementById('gpu-vendor').innerText = 'NVIDIA CUDA';
+          else if (renderer.includes('AMD') || renderer.includes('Radeon')) document.getElementById('gpu-vendor').innerText = 'AMD RADEON';
+          else if (renderer.includes('Intel')) document.getElementById('gpu-vendor').innerText = 'INTEL IRIS/ARC';
+          else document.getElementById('gpu-vendor').innerText = 'GPU ACCEL';
+        }
+      }
+    } catch(e) {}
+
+    // 2. Build Exactly N Dynamic Cores Bars Based on User's System
+    const grid = document.getElementById('cores-grid');
+    const bars = [];
+
+    for (let i = 0; i < detectedThreads; i++) {
+      const bar = document.createElement('div');
+      bar.className = 'core-bar';
+      bar.style.height = (25 + Math.random() * 55) + '%';
+      grid.appendChild(bar);
+      bars.push(bar);
+    }
+
+    const computePct = document.getElementById('compute-pct');
+
+    // 3. Realistic Dynamic Telemetry Simulation (Ready for Backend IPC Hook)
+    setInterval(() => {
+      let total = 0;
+      bars.forEach(bar => {
+        const val = Math.floor(18 + Math.random() * 65);
+        bar.style.height = val + '%';
+        if (val > 65) bar.classList.add('hot');
+        else bar.classList.remove('hot');
+        total += val;
+      });
+
+      const avg = Math.round(total / detectedThreads);
+      computePct.innerText = avg + '%';
+    }, 1100);
+  </script>
+</body>
+</html>

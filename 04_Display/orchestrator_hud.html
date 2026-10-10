@@ -16,6 +16,31 @@
     .hud-element { position: absolute; background: transparent !important; }
     .viewport-scaler { position: absolute; left: 0; top: 0; transform-origin: 0 0; }
     iframe { border: none; background: transparent !important; display: block; overflow: hidden; }
+
+    /* START BUTTON CSS */
+    .ultron-start-btn {
+      position: absolute; bottom: 35px; right: 35px; z-index: 999999;
+      background: linear-gradient(135deg, rgba(0, 240, 255, 0.08) 0%, rgba(2, 6, 15, 0.85) 100%);
+      border: 1px solid rgba(0, 240, 255, 0.3); border-left: 3px solid #00f0ff; border-right: 3px solid #00f0ff;
+      padding: 14px 45px; color: #ffffff; font-family: 'Segoe UI', monospace; font-size: 15px; font-weight: 800;
+      letter-spacing: 6px; text-transform: uppercase; cursor: pointer;
+      clip-path: polygon(15px 0, 100% 0, 100% calc(100% - 15px), calc(100% - 15px) 100%, 0 100%, 0 15px);
+      backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px);
+      box-shadow: 0 15px 35px rgba(0, 0, 0, 0.9), 0 0 20px rgba(0, 240, 255, 0.15), inset 0 0 15px rgba(0, 240, 255, 0.1);
+      transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      display: flex; align-items: center; gap: 14px;
+    }
+    .ultron-start-btn::before {
+      content: ''; width: 8px; height: 8px; background: #00ffaa; border-radius: 50%;
+      box-shadow: 0 0 12px #00ffaa, 0 0 24px #00ffaa; animation: pulseStartIndicator 1.5s infinite alternate;
+    }
+    .ultron-start-btn:hover {
+      background: linear-gradient(135deg, rgba(0, 240, 255, 0.2) 0%, rgba(2, 6, 15, 0.95) 100%);
+      box-shadow: 0 15px 45px rgba(0, 0, 0, 0.95), 0 0 35px rgba(0, 240, 255, 0.4), inset 0 0 25px rgba(0, 240, 255, 0.25);
+      transform: scale(1.05) translateY(-3px); border-color: #00f0ff; text-shadow: 0 0 15px #00f0ff;
+    }
+    .ultron-start-btn:active { transform: scale(0.95) translateY(0); }
+    @keyframes pulseStartIndicator { from { opacity: 0.4; transform: scale(0.8); } to { opacity: 1; transform: scale(1.4); } }
   </style>
 </head>
 <body>
@@ -32,6 +57,9 @@
     <div class="cinematic-vignette"></div>
   </div>
 
+  <!-- THE BUTTON CALLS OUR NEW FUNCTION -->
+  <div class="ultron-start-btn" onclick="initiateUltronWarp()">START</div>
+
   <script>
     const canvas = document.getElementById('vfx-canvas');
     const ctx = canvas.getContext('2d');
@@ -39,10 +67,11 @@
     window.addEventListener('resize', resizeCanvas);
     resizeCanvas();
 
+    // IPC Forwarder for AGENTS & HOME
     window.addEventListener('message', (e) => {
       if (e.data && e.data.type === 'NAV_CLICK') {
         const deckIframe = document.getElementById('deck-target-iframe');
-        if (!deckIframe) return;
+        if (!deckIframe || !deckIframe.contentWindow) return;
         const target = (e.data.target || '').toUpperCase();
         if (target === 'INTELLIGENCE') {
           deckIframe.src = 'nav_modules/module_intelligence.html';
@@ -52,7 +81,7 @@
       }
     });
 
-    // Clean, exact non-overlapping positions
+    // Exact Main App Coordinates
     const SEAMLESS_MODULES = [
       { id: "component_sidebar.html",          w: 240, h: 1020, scale: 0.85, x: 14,  y: 14,  z: 20, useRight: false },
       { id: "component_globe_3d.html",         w: 480, h: 600,  scale: 0.48, x: 215, y: 14,  z: 12, useRight: false },
@@ -96,6 +125,43 @@
       el.appendChild(scaler);
       slab.appendChild(el);
     });
+
+    // --- 3D HYPERSPACE WARP TRANSITION ---
+    function initiateUltronWarp() {
+        const hSlab = document.getElementById('master-hologram-slab');
+        const elements = document.querySelectorAll('.hud-element');
+        const btn = document.querySelector('.ultron-start-btn');
+        
+        // Disappear button immediately
+        if(btn) {
+            btn.style.pointerEvents = 'none';
+            btn.style.transition = 'opacity 0.2s';
+            btn.style.opacity = '0';
+        }
+
+        // Apply 3D Perspective Depth
+        if(hSlab) {
+            hSlab.style.perspective = '1000px';
+            hSlab.style.transformStyle = 'preserve-3d';
+        }
+
+        // Fly out all panels towards the user
+        elements.forEach((el, index) => {
+            el.style.transition = `transform 1.2s cubic-bezier(0.55, 0.085, 0.68, 0.53) ${index * 0.05}s, opacity 0.8s ease-in ${index * 0.05}s`;
+            el.style.transform = 'translateZ(800px) scale(1.5)';
+            el.style.opacity = '0';
+        });
+
+        // Create Quantum Flash (Cyan explosion)
+        const flash = document.createElement('div');
+        flash.style.cssText = 'position:fixed;inset:0;background:#00f0ff;opacity:0;z-index:9999999;pointer-events:none;transition:opacity 1s cubic-bezier(0.8,0,0.2,1);mix-blend-mode:screen;';
+        document.body.appendChild(flash);
+
+        // Execute flash and URL change
+        setTimeout(() => { flash.style.opacity = '1'; }, 600);
+        setTimeout(() => { window.location.href = 'ultron_mainframe.html'; }, 1500);
+    }
   </script>
 </body>
 </html>
+

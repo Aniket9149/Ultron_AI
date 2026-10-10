@@ -1,0 +1,363 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<style>
+  * {
+    margin: 0; padding: 0; box-sizing: border-box;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Consolas, monospace;
+    user-select: none;
+    -webkit-font-smoothing: subpixel-antialiased;
+    text-rendering: geometricPrecision;
+  }
+  html, body {
+    background: transparent !important;
+    width: 340px;
+    height: 620px;
+    overflow: hidden;
+    color: #fff;
+    padding: 0 4px;
+  }
+
+  #agents-root {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    animation: holoProject 0.35s cubic-bezier(0.1, 0.9, 0.2, 1);
+  }
+  @keyframes holoProject {
+    from { opacity: 0; transform: scale(0.96); filter: blur(3px); }
+    to { opacity: 1; transform: scale(1); filter: blur(0); }
+  }
+
+  /* Compact Laser Header */
+  .holo-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1.5px solid rgba(0, 229, 255, 0.35);
+    padding-bottom: 5px;
+    margin-bottom: 4px;
+    flex-shrink: 0;
+    max-width: 330px;
+  }
+  .holo-header-title {
+    font-size: 11px;
+    letter-spacing: 2.5px;
+    font-weight: 900;
+    color: #00f0ff;
+    text-shadow: 0 0 10px rgba(0, 240, 255, 0.9);
+  }
+  .holo-tag {
+    font-size: 8px;
+    letter-spacing: 1px;
+    color: #00ffaa;
+    font-weight: 900;
+    background: rgba(0, 255, 170, 0.15);
+    padding: 2px 6px;
+    border-radius: 2px;
+    border: 1px solid rgba(0, 255, 170, 0.5);
+    box-shadow: 0 0 8px rgba(0, 255, 170, 0.4);
+  }
+
+  /* Expanded 3D Cybernetic Brain Stage */
+  .brain-stage {
+    width: 330px;
+    height: 220px;
+    position: relative;
+    flex-shrink: 0;
+    background: radial-gradient(circle at 50% 50%, rgba(0, 229, 255, 0.16) 0%, rgba(1, 8, 20, 0.5) 70%, transparent 92%);
+    border: 1px solid rgba(0, 229, 255, 0.25);
+    border-radius: 4px;
+    box-shadow: inset 0 0 25px rgba(0, 140, 255, 0.2);
+  }
+  #brain-canvas {
+    width: 100%;
+    height: 100%;
+    display: block;
+  }
+
+  /* Scrollable Roster */
+  .agents-scroll-viewport {
+    flex: 1;
+    max-height: 340px;
+    overflow-y: scroll;
+    overflow-x: hidden;
+    padding-right: 6px;
+    margin-top: 6px;
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+    scroll-behavior: smooth;
+    max-width: 330px;
+  }
+
+  .agents-scroll-viewport::-webkit-scrollbar {
+    width: 3px;
+  }
+  .agents-scroll-viewport::-webkit-scrollbar-track {
+    background: rgba(0, 229, 255, 0.05);
+  }
+  .agents-scroll-viewport::-webkit-scrollbar-thumb {
+    background: linear-gradient(180deg, #00ffaa, #00f0ff);
+    border-radius: 2px;
+    box-shadow: 0 0 8px #00f0ff;
+  }
+
+  .agent-card {
+    display: flex;
+    flex-direction: column;
+    padding: 7px 10px;
+    border-left: 3px solid #00f0ff;
+    background: linear-gradient(90deg, rgba(0, 229, 255, 0.07) 0%, rgba(0, 229, 255, 0.01) 100%);
+    border-bottom: 1px solid rgba(0, 229, 255, 0.15);
+    border-radius: 0 3px 3px 0;
+    transition: all 0.2s ease;
+    flex-shrink: 0;
+  }
+  .agent-card:hover {
+    border-left-color: #00ffaa;
+    background: linear-gradient(90deg, rgba(0, 255, 170, 0.14) 0%, rgba(0, 255, 170, 0.02) 100%);
+    transform: translateX(4px);
+  }
+
+  .agent-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .agent-name-wrap {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+  }
+  .beacon-pulse {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: #00ffaa;
+    box-shadow: 0 0 10px #00ffaa;
+  }
+  .agent-name {
+    font-size: 12.5px;
+    font-weight: 900;
+    letter-spacing: 2px;
+    color: #ffffff;
+    font-family: 'Consolas', monospace;
+    text-shadow: 0 0 10px rgba(0, 240, 255, 0.85);
+  }
+
+  .agent-meta-right {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .status-badge {
+    font-size: 9px;
+    font-weight: 900;
+    color: #00ffaa;
+    letter-spacing: 1.5px;
+  }
+  .ping-badge {
+    font-size: 10px;
+    color: #00e5ff;
+    font-family: 'Consolas', monospace;
+    font-weight: 800;
+  }
+
+  .agent-role {
+    font-size: 9.5px;
+    letter-spacing: 0.8px;
+    color: rgba(220, 245, 255, 0.9);
+    margin-top: 2px;
+    font-weight: 700;
+  }
+  .agent-directive {
+    font-size: 8px;
+    letter-spacing: 1.2px;
+    color: #7ee8ff;
+    font-family: 'Consolas', monospace;
+    margin-top: 2px;
+    font-weight: 700;
+  }
+</style>
+</head>
+<body>
+
+  <div id="agents-root">
+    <div class="holo-header">
+      <span class="holo-header-title">// CORTICAL AGENTS MESH</span>
+      <span class="holo-tag">● 8 LOBES ACTIVE</span>
+    </div>
+
+    <!-- Expanded 3D Cybernetic Brain Stage -->
+    <div class="brain-stage">
+      <canvas id="brain-canvas"></canvas>
+    </div>
+
+    <!-- Scrollable Roster -->
+    <div class="agents-scroll-viewport" id="scroll-roster"></div>
+  </div>
+
+  <script>
+    const cvs = document.getElementById('brain-canvas');
+    const ctx = cvs.getContext('2d', { alpha: true, desynchronized: true });
+
+    function resize16K() {
+      const scaleMultiplier = 8;
+      const rect = cvs.getBoundingClientRect();
+      cvs.width = Math.round(rect.width * scaleMultiplier);
+      cvs.height = Math.round(rect.height * scaleMultiplier);
+      ctx.scale(scaleMultiplier, scaleMultiplier);
+    }
+    window.addEventListener('resize', resize16K);
+    resize16K();
+
+    // High-Definition Anatomical Brain Mesh Generator
+    const brainNodes = [];
+    const TOTAL_POINTS = 140;
+
+    for (let i = 0; i < TOTAL_POINTS; i++) {
+      const isLeft = (i % 2 === 0);
+      const u = Math.random();
+      const v = Math.random();
+      
+      // True Anatomical Proportions (Frontal curve, Temporal bulges, Occipital slope)
+      const theta = u * Math.PI;
+      const phi = v * Math.PI * 2;
+
+      let rx = 44, ry = 32, rz = 52;
+      let x = rx * Math.sin(theta) * Math.cos(phi);
+      let y = ry * Math.sin(theta) * Math.sin(phi);
+      let z = rz * Math.cos(theta);
+
+      // Anatomical contour refinement
+      if (z > 12) { x *= 1.2; y *= 1.05; } // Frontal Lobe expansion
+      if (y < -10) { x *= 0.9; }         // Cerebellum tapering
+      if (Math.abs(x) < 14 && z < 0 && z > -20) { y *= 0.85; } // Temporal lobe indentation
+
+      // Left & Right Hemisphere Separation
+      const fissureGap = 6;
+      const hemisphereOffset = isLeft ? -(16 + fissureGap) : (16 + fissureGap);
+
+      brainNodes.push({
+        x: x + hemisphereOffset,
+        y: y - 4,
+        z: z,
+        color: (i % 6 === 0) ? '#00ffaa' : ((i % 4 === 0) ? '#d680ff' : '#00f0ff')
+      });
+    }
+
+    let rotY = 0, rotX = 0.18;
+
+    function renderHDAnatomicalBrain() {
+      const rect = cvs.getBoundingClientRect();
+      const w = rect.width;
+      const h = rect.height;
+      ctx.clearRect(0, 0, w, h);
+
+      const cx = w / 2;
+      const cy = h / 2 + 8;
+      const fov = 240;
+
+      rotY += 0.012;
+
+      // 3D Projection
+      const projected = brainNodes.map(n => {
+        let x1 = n.x * Math.cos(rotY) + n.z * Math.sin(rotY);
+        let z1 = -n.x * Math.sin(rotY) + n.z * Math.cos(rotY);
+        let y2 = n.y * Math.cos(rotX) - z1 * Math.sin(rotX);
+        let z2 = n.y * Math.sin(rotX) + z1 * Math.cos(rotX);
+
+        const scale = fov / (fov + z2 + 100);
+        return {
+          x: cx + x1 * scale,
+          y: cy + y2 * scale,
+          z: z2,
+          scale: scale,
+          color: n.color
+        };
+      });
+
+      // Render Dense Interconnected Synaptic Axons
+      for (let i = 0; i < projected.length; i++) {
+        for (let j = i + 1; j < projected.length; j++) {
+          const dx = projected[i].x - projected[j].x;
+          const dy = projected[i].y - projected[j].y;
+          const dist = Math.sqrt(dx * dx + dy * dy);
+          if (dist < 32) {
+            ctx.beginPath();
+            ctx.moveTo(projected[i].x, projected[i].y);
+            ctx.lineTo(projected[j].x, projected[j].y);
+            ctx.strokeStyle = `rgba(0, 229, 255, ${(1 - dist / 32) * 0.45})`;
+            ctx.lineWidth = 0.85;
+            ctx.stroke();
+          }
+        }
+      }
+
+      // Draw Glowing Synaptic Nodes
+      projected.sort((a, b) => b.z - a.z);
+      projected.forEach(p => {
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, Math.max(1.3, p.scale * 2.8), 0, Math.PI * 2);
+        ctx.fillStyle = p.color;
+        ctx.shadowColor = p.color;
+        ctx.shadowBlur = 10;
+        ctx.fill();
+        ctx.shadowBlur = 0;
+      });
+
+      // Central Brainstem & Corpus Callosum Energy Core
+      const corePulse = 8 + Math.sin(rotY * 4) * 2.5;
+      ctx.beginPath();
+      ctx.ellipse(cx, cy, 22, 10, 0, 0, Math.PI * 2);
+      ctx.fillStyle = 'rgba(0, 255, 170, 0.9)';
+      ctx.shadowColor = '#00ffaa';
+      ctx.shadowBlur = 24;
+      ctx.fill();
+      ctx.shadowBlur = 0;
+
+      requestAnimationFrame(renderHDAnatomicalBrain);
+    }
+    renderHDAnatomicalBrain();
+
+    const AGENTS_LIST = [
+      { name: "ARCHON", role: "Chief Systems Architect & Engine Weaver", directive: "CORE SYSTEMS & PIPELINES ARMED", status: "ONLINE", ping: "0.02 ms" },
+      { name: "ATLAS", role: "Executive Task Dispatcher & Producer", directive: "AUTONOMOUS SUB-TASK SYNCED", status: "ONLINE", ping: "0.04 ms" },
+      { name: "AURA", role: "Art Direction & Spatial Holographic Lead", directive: "16K SPATIAL SHADERS ENGAGED", status: "ONLINE", ping: "0.06 ms" },
+      { name: "CIPHER", role: "QA Lead & Sentinel Threat Auditor", directive: "KERNEL THREAT MATRIX NOMINAL", status: "ONLINE", ping: "0.01 ms" },
+      { name: "ULTRON CORE", role: "Master Autonomous Neural Coordinator", directive: "HIGH DIRECTIVE PRIME EXECUTED", status: "ONLINE", ping: "0.01 ms" },
+      { name: "VALKYRIE", role: "Autonomous Defense & Memory Shield", directive: "VECTOR EMBEDDINGS DEFENSE ACTIVE", status: "ONLINE", ping: "0.03 ms" },
+      { name: "ORACLE", role: "Predictive Heuristics & Future Inference", directive: "PROBABILITY ENGINE LOCKED", status: "STANDBY", ping: "0.05 ms" },
+      { name: "CHRONOS", role: "Temporal Scheduler & Task Pipeline Queue", directive: "ASYNC EVENT LOOP RUNNING", status: "ONLINE", ping: "0.02 ms" }
+    ];
+
+    const container = document.getElementById('scroll-roster');
+    AGENTS_LIST.forEach(agent => {
+      const card = document.createElement('div');
+      card.className = 'agent-card';
+      card.innerHTML = `
+        <div class="agent-top">
+          <div class="agent-name-wrap">
+            <div class="beacon-pulse"></div>
+            <span class="agent-name">${agent.name}</span>
+          </div>
+          <div class="agent-meta-right">
+            <span class="status-badge">${agent.status}</span>
+            <span class="ping-badge">${agent.ping}</span>
+          </div>
+        </div>
+        <span class="agent-role">${agent.role}</span>
+        <span class="agent-directive">// ${agent.directive}</span>
+      `;
+      container.appendChild(card);
+    });
+
+    window.addEventListener('wheel', (e) => {
+      container.scrollTop += e.deltaY;
+    }, { passive: true });
+  </script>
+</body>
+</html>

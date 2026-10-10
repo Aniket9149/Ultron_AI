@@ -1,0 +1,384 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ultron Network // Defense & Sockets</title>
+  <link href="https://fonts.googleapis.com/css2?family=Oxanium:wght@500;600;700;800&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+  <style>
+    * {
+      box-sizing: border-box !important;
+      margin: 0;
+      padding: 0;
+      user-select: none;
+    }
+
+    html, body {
+      width: 100% !important;
+      height: 100% !important;
+      background: transparent !important;
+      overflow: hidden !important;
+      font-family: 'Oxanium', monospace, sans-serif;
+      color: #00e5ff;
+    }
+
+    .network-container {
+      width: 275px !important;
+      padding: 4px 18px 4px 2px !important;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    /* Cyber Header */
+    .cyber-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid rgba(0, 229, 255, 0.4);
+      padding-bottom: 4px;
+      position: relative;
+    }
+    .cyber-header::after {
+      content: '';
+      position: absolute;
+      bottom: -1px;
+      right: 0;
+      width: 35px;
+      height: 2px;
+      background: #00ffaa;
+      box-shadow: 0 0 8px #00ffaa;
+    }
+
+    .title-text {
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: 1.5px;
+      color: #00f0ff;
+      text-shadow: 0 0 10px rgba(0, 240, 255, 0.8);
+      text-transform: uppercase;
+    }
+
+    .badge-auto {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 8px;
+      letter-spacing: 1px;
+      color: #00ffaa;
+      background: rgba(0, 255, 170, 0.12);
+      border: 1px solid rgba(0, 255, 170, 0.4);
+      padding: 1px 6px;
+      border-radius: 2px;
+    }
+
+    /* Top Half: Cyber Defense Envelope */
+    .defense-card {
+      background: radial-gradient(circle at 50% 50%, rgba(0, 35, 65, 0.45) 0%, rgba(1, 10, 22, 0.6) 100%);
+      border: 1px solid rgba(0, 229, 255, 0.2);
+      border-radius: 6px;
+      padding: 8px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      box-shadow: inset 0 0 15px rgba(0, 229, 255, 0.08);
+    }
+
+    .stat-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 8.5px;
+      letter-spacing: 1px;
+      color: #8daec7;
+    }
+
+    .stat-val {
+      font-family: 'Share Tech Mono', monospace;
+      color: #00e5ff;
+      font-weight: 700;
+      font-size: 9.5px;
+      text-shadow: 0 0 6px rgba(0, 229, 255, 0.7);
+    }
+
+    /* Traffic Spectrum Dual Wave */
+    .wave-box {
+      width: 100%;
+      height: 34px;
+      background: rgba(0, 8, 18, 0.6);
+      border-radius: 4px;
+      border: 1px solid rgba(0, 229, 255, 0.15);
+      overflow: hidden;
+      position: relative;
+    }
+
+    #traffic-canvas {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+
+    /* Bottom Half: Local Service Sockets */
+    .socket-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+
+    .socket-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 4px 7px;
+      background: linear-gradient(90deg, rgba(0, 25, 48, 0.5) 0%, rgba(2, 12, 25, 0.3) 100%);
+      border: 1px solid rgba(0, 229, 255, 0.15);
+      border-left: 2px solid #00ffaa;
+      border-radius: 3px;
+    }
+
+    .socket-info {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .socket-name {
+      font-size: 8.5px;
+      font-weight: 700;
+      letter-spacing: 0.9px;
+      color: #e2f1fc;
+    }
+
+    .socket-port {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 7.5px;
+      color: #638cae;
+    }
+
+    .socket-tag {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 8px;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      padding: 1px 5px;
+      border-radius: 2px;
+      color: #00ffaa;
+      background: rgba(0, 255, 170, 0.1);
+      border: 1px solid rgba(0, 255, 170, 0.3);
+      text-shadow: 0 0 6px rgba(0, 255, 170, 0.6);
+    }
+
+    .tag-standby {
+      color: #ffaa00;
+      background: rgba(255, 170, 0, 0.1);
+      border-color: rgba(255, 170, 0, 0.3);
+      text-shadow: 0 0 6px rgba(255, 170, 0, 0.6);
+    }
+
+    /* Hex Cipher & Airgap Interceptor */
+    .defense-footer {
+      display: flex;
+      gap: 6px;
+      align-items: center;
+      margin-top: 2px;
+    }
+
+    .cipher-stream {
+      flex: 1;
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 7.5px;
+      color: rgba(0, 229, 255, 0.75);
+      background: rgba(0, 8, 16, 0.4);
+      border: 1px dashed rgba(0, 229, 255, 0.15);
+      border-radius: 3px;
+      padding: 4px 6px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .airgap-btn {
+      font-family: 'Oxanium', sans-serif;
+      font-size: 8px;
+      font-weight: 700;
+      letter-spacing: 0.8px;
+      color: #00ffaa;
+      background: rgba(0, 255, 170, 0.1);
+      border: 1px solid rgba(0, 255, 170, 0.4);
+      padding: 3px 6px;
+      border-radius: 2px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .airgap-btn:hover {
+      background: rgba(0, 255, 170, 0.25);
+      box-shadow: 0 0 8px rgba(0, 255, 170, 0.5);
+    }
+  </style>
+</head>
+<body>
+
+  <div class="network-container">
+    <!-- Header with Dynamic Ping -->
+    <div class="cyber-header">
+      <span class="title-text">// Cyber Defense Grid</span>
+      <span class="badge-auto" id="net-badge">FIREWALL // ARMED</span>
+    </div>
+
+    <!-- Top Half: Threat & Traffic Envelope -->
+    <div class="defense-card">
+      <div class="stat-row">
+        <span>INTERCEPTOR STATUS</span>
+        <span class="stat-val" style="color: #00ffaa;">AIRGAP SECURED</span>
+      </div>
+      <div class="stat-row">
+        <span>QUANTUM RTT / PING</span>
+        <span class="stat-val" id="net-ping-val">11 ms</span>
+      </div>
+      <div class="stat-row">
+        <span>BANDWIDTH SPECTRUM</span>
+        <span class="stat-val" id="net-speed-val">RX: 92.4 MB/s | TX: 18.2 MB/s</span>
+      </div>
+
+      <!-- Traffic Oscilloscope Canvas -->
+      <div class="wave-box">
+        <canvas id="traffic-canvas"></canvas>
+      </div>
+    </div>
+
+    <!-- Bottom Half: Local Service Sockets Matrix -->
+    <div class="cyber-header" style="margin-top: 2px;">
+      <span class="title-text">// Local Service Sockets</span>
+      <span class="badge-auto" style="color: #00e5ff; border-color: rgba(0, 229, 255, 0.4);">4/4 BOUND</span>
+    </div>
+
+    <div class="socket-grid">
+      <div class="socket-item">
+        <div class="socket-info">
+          <span class="socket-name">Ollama LLM Engine</span>
+          <span class="socket-port">Port: 11434 // 0.0.0.0</span>
+        </div>
+        <span class="socket-tag">LISTENING</span>
+      </div>
+
+      <div class="socket-item" style="border-left-color: #00e5ff;">
+        <div class="socket-info">
+          <span class="socket-name">Ultron Core API</span>
+          <span class="socket-port">Port: 8000 // HTTP-200</span>
+        </div>
+        <span class="socket-tag" style="color: #00e5ff; border-color: rgba(0,229,255,0.4); background: rgba(0,229,255,0.1);">CONNECTED</span>
+      </div>
+
+      <div class="socket-item">
+        <div class="socket-info">
+          <span class="socket-name">RVC Realtime Audio WS</span>
+          <span class="socket-port">Port: 1883 // WebSocket</span>
+        </div>
+        <span class="socket-tag">STREAMING</span>
+      </div>
+
+      <div class="socket-item" style="border-left-color: #ffaa00;">
+        <div class="socket-info">
+          <span class="socket-name">WebUI Bridge Gateway</span>
+          <span class="socket-port">Port: 7860 // Gradio</span>
+        </div>
+        <span class="socket-tag tag-standby">STANDBY</span>
+      </div>
+    </div>
+
+    <!-- Footer: Cipher & Airgap Trigger -->
+    <div class="defense-footer">
+      <div class="cipher-stream" id="cipher-text">
+        [THREAT_SHIELD] 0 pings blocked // TLS 1.3
+      </div>
+      <button class="airgap-btn" onclick="toggleAirgap(this)">STEALTH</button>
+    </div>
+  </div>
+
+  <script>
+    // 1. Connection Check
+    if (navigator.connection) {
+      const rtt = navigator.connection.rtt || 12;
+      document.getElementById('net-ping-val').innerText = rtt + ' ms';
+    }
+
+    // 2. Traffic Flow Canvas
+    const canvas = document.getElementById('traffic-canvas');
+    const ctx = canvas.getContext('2d');
+
+    function resizeCanvas() {
+      canvas.width = canvas.parentElement.clientWidth;
+      canvas.height = canvas.parentElement.clientHeight;
+    }
+    window.addEventListener('resize', resizeCanvas);
+    resizeCanvas();
+
+    let offset = 0;
+    function drawTraffic() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      // RX Wave (Cyan)
+      ctx.beginPath();
+      ctx.moveTo(0, canvas.height / 2);
+      for (let x = 0; x < canvas.width; x++) {
+        const y = canvas.height / 2 + Math.sin((x + offset) * 0.08) * 6 + Math.cos((x - offset * 0.5) * 0.04) * 4;
+        ctx.lineTo(x, y);
+      }
+      ctx.strokeStyle = '#00f0ff';
+      ctx.lineWidth = 1.2;
+      ctx.shadowColor = '#00f0ff';
+      ctx.shadowBlur = 6;
+      ctx.stroke();
+      ctx.shadowBlur = 0;
+
+      // TX Wave (Green)
+      ctx.beginPath();
+      ctx.moveTo(0, canvas.height / 2);
+      for (let x = 0; x < canvas.width; x++) {
+        const y = canvas.height / 2 + Math.sin((x - offset * 1.3) * 0.1) * 5;
+        ctx.lineTo(x, y);
+      }
+      ctx.strokeStyle = 'rgba(0, 255, 170, 0.6)';
+      ctx.lineWidth = 1;
+      ctx.stroke();
+
+      offset += 1.6;
+      requestAnimationFrame(drawTraffic);
+    }
+    drawTraffic();
+
+    // 3. Telemetry Simulation & Airgap Toggle
+    const cipherEl = document.getElementById('cipher-text');
+    const speedEl = document.getElementById('net-speed-val');
+    const pingEl = document.getElementById('net-ping-val');
+
+    setInterval(() => {
+      const hex = Math.random().toString(16).substr(2, 6).toUpperCase();
+      const drop = Math.floor(Math.random() * 3);
+      cipherEl.innerText = `[SEC_PACKET] 0x${hex} -> VERIFIED // DROP:${drop}`;
+
+      const ping = Math.floor(9 + Math.random() * 6);
+      pingEl.innerText = ping + ' ms';
+
+      const rx = (85 + Math.random() * 20).toFixed(1);
+      const tx = (14 + Math.random() * 8).toFixed(1);
+      speedEl.innerText = `RX: ${rx} MB/s | TX: ${tx} MB/s`;
+    }, 1300);
+
+    function toggleAirgap(btn) {
+      if (btn.innerText === 'STEALTH') {
+        btn.innerText = 'ARMED';
+        btn.style.color = '#ff3366';
+        btn.style.borderColor = '#ff3366';
+        btn.style.background = 'rgba(255,51,102,0.15)';
+        document.getElementById('net-badge').innerText = 'AIRGAP // ISOLATED';
+        document.getElementById('net-badge').style.color = '#ff3366';
+      } else {
+        btn.innerText = 'STEALTH';
+        btn.style.color = '#00ffaa';
+        btn.style.borderColor = 'rgba(0,255,170,0.4)';
+        btn.style.background = 'rgba(0,255,170,0.1)';
+        document.getElementById('net-badge').innerText = 'FIREWALL // ARMED';
+        document.getElementById('net-badge').style.color = '#00ffaa';
+      }
+    }
+  </script>
+</body>
+</html>

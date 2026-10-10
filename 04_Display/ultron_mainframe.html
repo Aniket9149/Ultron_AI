@@ -1,0 +1,715 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ULTRON // CHROMATIC CORE 3D</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;700;800&family=JetBrains+Mono:wght@400;600;700&family=Orbitron:wght@700;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --neon-cyan: #00f0ff;
+            --neon-blue: #0066ff;
+            --neon-magenta: #e024c3;
+            --neon-emerald: #00ffaa;
+            --glass-bg: rgba(6, 12, 26, 0.45);
+            --glass-border: rgba(0, 240, 255, 0.25);
+        }
+
+        * { box-sizing: border-box; user-select: none; }
+        
+        body {
+            margin: 0; padding: 0; height: 100vh; width: 100vw;
+            background: #010307; color: #fff;
+            overflow: hidden; font-family: 'Plus Jakarta Sans', sans-serif;
+            perspective: 1200px;
+            background-image: 
+                radial-gradient(circle at 50% 50%, rgba(0, 102, 255, 0.12) 0%, transparent 60%),
+                radial-gradient(circle at 80% 20%, rgba(224, 36, 195, 0.08) 0%, transparent 50%),
+                radial-gradient(circle at 20% 80%, rgba(0, 240, 255, 0.08) 0%, transparent 50%);
+        }
+
+        /* 3D Depth Grid Field */
+        .ambient-grid {
+            position: absolute; inset: 0;
+            background-image: 
+                linear-gradient(rgba(0, 240, 255, 0.02) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 240, 255, 0.02) 1px, transparent 1px);
+            background-size: 60px 60px;
+            transform: perspective(900px) rotateX(65deg) translateY(-80px) scale(3.0);
+            transform-origin: center center;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        /* 3D Canvas Viewport */
+        #core-canvas {
+            position: absolute; inset: 0;
+            z-index: 2;
+            cursor: grab;
+        }
+        #core-canvas:active { cursor: grabbing; }
+
+        /* HUD Overlay */
+        .hud-overlay {
+            position: absolute; inset: 0;
+            z-index: 10;
+            pointer-events: none;
+            display: flex; flex-direction: column;
+            justify-content: space-between;
+            padding: 30px 40px;
+        }
+
+        .hud-interactive { pointer-events: auto; }
+
+        /* Top Bar */
+        .header-bar {
+            display: flex; justify-content: space-between; align-items: center;
+            width: 100%;
+        }
+
+        .brand-pill {
+            display: flex; align-items: center; gap: 14px;
+            padding: 10px 24px;
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: 999px;
+            backdrop-filter: blur(28px);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.15);
+            text-decoration: none;
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            cursor: pointer;
+        }
+        .brand-pill:hover {
+            border-color: var(--neon-cyan);
+            box-shadow: 0 0 25px rgba(0,240,255,0.35), inset 0 1px 0 rgba(255,255,255,0.3);
+            transform: translateY(-2px);
+        }
+        .brand-dot {
+            width: 8px; height: 8px; border-radius: 50%;
+            background: var(--neon-emerald);
+            box-shadow: 0 0 12px var(--neon-emerald);
+            animation: pulse-dot 1.8s infinite ease-in-out;
+        }
+        @keyframes pulse-dot { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.35; transform: scale(0.75); } }
+        .brand-title {
+            font-family: 'JetBrains Mono', monospace; font-size: 11px;
+            font-weight: 600; letter-spacing: 2px; color: #d6e8ff;
+        }
+
+        /* Center Mode Capsule */
+        .mode-capsule {
+            display: flex; gap: 6px; padding: 6px;
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: 999px;
+            backdrop-filter: blur(28px);
+            box-shadow: 0 20px 50px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.15);
+        }
+        .capsule-btn {
+            display: flex; align-items: center; gap: 8px;
+            padding: 8px 24px; border-radius: 999px;
+            border: 1px solid transparent;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-size: 12px; font-weight: 700; letter-spacing: 0.5px;
+            color: #8fa0ba; background: transparent; cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .capsule-btn svg { width: 14px; height: 14px; fill: currentColor; }
+        .capsule-btn.active {
+            color: #ffffff;
+            background: linear-gradient(135deg, rgba(0, 240, 255, 0.28) 0%, rgba(224, 36, 195, 0.22) 100%);
+            border-color: rgba(0, 240, 255, 0.45);
+            box-shadow: 0 0 25px rgba(0, 240, 255, 0.35), inset 0 1px 0 rgba(255,255,255,0.3);
+        }
+
+        /* Top Right Telemetry */
+        .telemetry-pill {
+            display: flex; align-items: center; gap: 16px;
+            padding: 10px 22px;
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: 999px;
+            backdrop-filter: blur(28px);
+            font-family: 'JetBrains Mono', monospace; font-size: 11px;
+            color: #7b94b2;
+        }
+        .telemetry-val { color: var(--neon-cyan); font-weight: 700; }
+
+        /* Bottom Controls */
+        .bottom-cluster {
+            display: flex; flex-direction: column; align-items: center; gap: 14px;
+            width: 100%;
+        }
+
+        .audio-bars {
+            display: flex; align-items: center; gap: 4px;
+            height: 28px;
+        }
+        .bar {
+            width: 3px; height: 6px; border-radius: 3px;
+            background: linear-gradient(to top, var(--neon-cyan), var(--neon-magenta));
+            box-shadow: 0 0 10px var(--neon-cyan);
+            transition: height 0.08s ease;
+        }
+
+        .status-pill {
+            font-family: 'JetBrains Mono', monospace; font-size: 11px;
+            font-weight: 600; letter-spacing: 3px; text-transform: uppercase;
+            color: var(--neon-emerald);
+            text-shadow: 0 0 15px rgba(0, 255, 170, 0.4);
+            transition: all 0.3s ease;
+        }
+
+        /* ALWAYS-LISTENING ACTIVE NEURAL NODE (No hold to speak) */
+        .listening-node {
+            position: relative;
+            width: 68px; height: 68px; border-radius: 50%;
+            display: flex; justify-content: center; align-items: center;
+            background: radial-gradient(circle at 35% 30%, rgba(255,255,255,0.25), rgba(0,255,170,0.15) 60%, rgba(0,240,255,0.25) 100%);
+            border: 1px solid rgba(0, 255, 170, 0.6);
+            backdrop-filter: blur(28px);
+            cursor: pointer;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.7), 0 0 35px rgba(0, 255, 170, 0.3), inset 0 1px 2px rgba(255,255,255,0.5);
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .listening-node::before {
+            content: ''; position: absolute; inset: -5px; border-radius: 50%;
+            background: conic-gradient(from 0deg, var(--neon-cyan), var(--neon-emerald), var(--neon-magenta), var(--neon-cyan));
+            z-index: -1; opacity: 0.6; filter: blur(10px);
+            animation: spin-halo 6s linear infinite;
+        }
+        @keyframes spin-halo { 100% { transform: rotate(360deg); } }
+
+        .listening-node svg { width: 26px; height: 26px; fill: var(--neon-emerald); filter: drop-shadow(0 0 10px var(--neon-emerald)); transition: all 0.3s; }
+        .listening-node:hover {
+            transform: scale(1.08);
+            box-shadow: 0 0 45px rgba(0, 255, 170, 0.55);
+        }
+        .listening-node.muted {
+            border-color: rgba(255, 0, 85, 0.5);
+            background: radial-gradient(circle at 50% 50%, rgba(255,0,85,0.2), rgba(20,20,30,0.5) 100%);
+            box-shadow: 0 0 25px rgba(255, 0, 85, 0.3);
+        }
+        .listening-node.muted svg { fill: #ff0055; filter: drop-shadow(0 0 8px #ff0055); }
+        .listening-node.muted::before { opacity: 0.2; }
+
+        /* ================= 3D HOLOGRAPHIC SPATIAL CHAT PANEL ================= */
+        .chat-3d-wrapper {
+            position: absolute; top: 96px; bottom: 40px; right: -550px;
+            width: 460px;
+            perspective: 1000px;
+            z-index: 20;
+            transition: right 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .chat-3d-wrapper.open { right: 40px; }
+
+        #chat-modal {
+            width: 100%; height: 100%;
+            background: linear-gradient(145deg, rgba(10, 20, 42, 0.55) 0%, rgba(5, 10, 22, 0.75) 100%);
+            border: 1px solid rgba(0, 240, 255, 0.3);
+            border-radius: 28px;
+            backdrop-filter: blur(48px);
+            box-shadow: 
+                0 30px 80px rgba(0, 0, 0, 0.85),
+                0 0 40px rgba(0, 240, 255, 0.12),
+                inset 0 1px 2px rgba(255, 255, 255, 0.25),
+                inset 0 0 30px rgba(0, 240, 255, 0.05);
+            display: flex; flex-direction: column;
+            overflow: hidden;
+            transform-style: preserve-3d;
+            transform: rotateY(-8deg) rotateX(3deg);
+            transition: transform 0.2s ease-out;
+        }
+
+        /* Ambient Scanning Grid inside Glass */
+        #chat-modal::after {
+            content: ''; position: absolute; inset: 0;
+            background: repeating-linear-gradient(0deg, transparent, transparent 3px, rgba(0, 240, 255, 0.015) 3px, rgba(0, 240, 255, 0.015) 6px);
+            pointer-events: none; opacity: 0.6;
+        }
+
+        .modal-header {
+            padding: 22px 26px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+            display: flex; justify-content: space-between; align-items: center;
+            background: linear-gradient(180deg, rgba(255,255,255,0.03), transparent);
+        }
+        .modal-title { 
+            font-family: 'Orbitron', sans-serif; font-size: 11px; font-weight: 800; 
+            letter-spacing: 2px; color: var(--neon-cyan);
+            text-shadow: 0 0 12px rgba(0, 240, 255, 0.5);
+            display: flex; align-items: center; gap: 8px;
+        }
+        .modal-title::before {
+            content: ''; width: 6px; height: 6px; border-radius: 50%;
+            background: var(--neon-magenta); box-shadow: 0 0 8px var(--neon-magenta);
+        }
+        .modal-close { 
+            background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); 
+            width: 30px; height: 30px; border-radius: 50%;
+            color: #768ca5; cursor: pointer; font-size: 14px; display: flex; align-items: center; justify-content: center;
+            transition: all 0.2s;
+        }
+        .modal-close:hover { color: #fff; border-color: var(--neon-cyan); background: rgba(0,240,255,0.1); }
+
+        .chat-stream { flex: 1; padding: 22px; overflow-y: auto; display: flex; flex-direction: column; gap: 16px; }
+        
+        .chat-bubble {
+            padding: 14px 18px; border-radius: 18px; font-size: 13.5px;
+            line-height: 1.5; max-width: 84%; backdrop-filter: blur(12px);
+            position: relative;
+        }
+        .chat-bubble.ai {
+            align-self: flex-start;
+            background: linear-gradient(135deg, rgba(0, 240, 255, 0.12) 0%, rgba(6, 16, 36, 0.6) 100%);
+            border: 1px solid rgba(0, 240, 255, 0.35);
+            color: #e0f2fe;
+            border-bottom-left-radius: 4px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.15);
+        }
+        .chat-bubble.user {
+            align-self: flex-end;
+            background: linear-gradient(135deg, rgba(0, 102, 255, 0.45) 0%, rgba(224, 36, 195, 0.35) 100%);
+            border: 1px solid rgba(255, 255, 255, 0.25);
+            color: #ffffff;
+            border-bottom-right-radius: 4px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.3);
+        }
+
+        .chat-input-bar {
+            padding: 18px 22px; border-top: 1px solid rgba(255, 255, 255, 0.08);
+            display: flex; gap: 10px; background: rgba(0,0,0,0.25);
+        }
+        .glass-input {
+            flex: 1; background: rgba(0, 0, 0, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-radius: 14px; padding: 12px 18px;
+            color: #fff; font-family: 'Plus Jakarta Sans', sans-serif; font-size: 13px;
+            outline: none; transition: all 0.3s;
+        }
+        .glass-input:focus { 
+            border-color: var(--neon-cyan); 
+            box-shadow: 0 0 15px rgba(0, 240, 255, 0.25);
+        }
+        .glass-send-btn {
+            background: linear-gradient(135deg, var(--neon-cyan), var(--neon-magenta));
+            border: none; border-radius: 14px; padding: 0 22px;
+            color: #01040a; font-weight: 800; font-size: 11px; letter-spacing: 1px;
+            cursor: pointer; transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .glass-send-btn:hover { transform: scale(1.05); box-shadow: 0 0 25px rgba(0,240,255,0.45); }
+    </style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+</head>
+<body>
+    <div class="ambient-grid"></div>
+    <div id="core-canvas"></div>
+
+    <!-- HUD OVERLAY -->
+    <div class="hud-overlay">
+        <!-- Top Bar -->
+        <div class="header-bar">
+            <a class="brand-pill hud-interactive" href="orchestrator_hud.html">
+                <div class="brand-dot"></div>
+                <div class="brand-title">ULTRON // CHROMATIC CORE</div>
+            </a>
+
+            <div class="mode-capsule hud-interactive">
+                <button class="capsule-btn active" id="btn-voice" onclick="switchMode('VOICE')">
+                    <svg viewBox="0 0 24 24"><path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z"/></svg>
+                    VOICE SYNC
+                </button>
+                <button class="capsule-btn" id="btn-chat" onclick="switchMode('CHAT')">
+                    <svg viewBox="0 0 24 24"><path d="M20 2H4c-1.1 0-1.99.9-1.99 2L2 22l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/></svg>
+                    PROTOCOL
+                </button>
+            </div>
+
+            <div class="telemetry-pill">
+                <span>FPS: <span class="telemetry-val" id="fps-counter">60</span></span>
+                <span>HARMONICS: <span class="telemetry-val">ALWAYS-SYNC</span></span>
+            </div>
+        </div>
+
+        <!-- Bottom Controls -->
+        <div class="bottom-cluster">
+            <div class="audio-bars" id="audio-visualizer">
+                <div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div>
+                <div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div>
+                <div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div>
+                <div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div>
+            </div>
+
+            <div class="status-pill" id="status-label">LISTENING // BRAIN CONNECTED</div>
+
+            <!-- ALWAYS-ON NEURAL NODE (Click toggles mute/active, NO HOLD REQUIRED) -->
+            <div class="listening-node hud-interactive" id="voice-trigger" onclick="toggleMute()" title="Click to Mute / Unmute">
+                <svg viewBox="0 0 24 24"><path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3zm5.91-3c-.49 0-.9.36-.98.85C16.52 14.2 14.47 16 12 16s-4.52-1.8-4.93-4.15c-.08-.49-.49-.85-.98-.85-.61 0-1.09.54-1 1.14.49 3 2.89 5.35 5.91 5.78V20c0 .55.45 1 1 1s1-.45 1-1v-2.08c3.02-.43 5.42-2.78 5.91-5.78.1-.6-.39-1.14-1-1.14z"/></svg>
+            </div>
+        </div>
+    </div>
+
+    <!-- 3D HOLOGRAPHIC SPATIAL CHAT PANEL -->
+    <div class="chat-3d-wrapper hud-interactive" id="chat-wrapper">
+        <div id="chat-modal">
+            <div class="modal-header">
+                <div class="modal-title">NEURAL SYNAPSE LOG</div>
+                <button class="modal-close" onclick="switchMode('VOICE')">✕</button>
+            </div>
+            <div class="chat-stream" id="chat-stream">
+                <div class="chat-bubble ai">Neural streaming pipeline connected. Mic feed is live and listening. You can speak naturally without holding any button.</div>
+            </div>
+            <div class="chat-input-bar">
+                <input type="text" class="glass-input" id="chat-input" placeholder="Transmit packet..." onkeydown="if(event.key==='Enter') sendMsg()">
+                <button class="glass-send-btn" onclick="sendMsg()">TRANSMIT</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ================= THREE.JS & 3D PARALLAX SCRIPT ================= -->
+    <script>
+        let isMuted = false;
+        let isListening = true;
+
+        function toggleMute() {
+            isMuted = !isMuted;
+            const node = document.getElementById('voice-trigger');
+            const status = document.getElementById('status-label');
+            if (isMuted) {
+                node.classList.add('muted');
+                status.innerText = "MIC MUTED // DORMANT";
+                status.style.color = "#ff0055";
+            } else {
+                node.classList.remove('muted');
+                status.innerText = "LISTENING // BRAIN CONNECTED";
+                status.style.color = "var(--neon-emerald)";
+            }
+        }
+
+        function switchMode(mode) {
+            const chatWrapper = document.getElementById('chat-3d-wrapper') || document.getElementById('chat-wrapper');
+            const btnVoice = document.getElementById('btn-voice');
+            const btnChat = document.getElementById('btn-chat');
+            const statusLabel = document.getElementById('status-label');
+
+            if (mode === 'CHAT') {
+                chatWrapper.classList.add('open');
+                btnChat.classList.add('active');
+                btnVoice.classList.remove('active');
+                if(!isMuted) {
+                    statusLabel.innerText = "DUAL INTERFACE // PROTOCOL ACTIVE";
+                    statusLabel.style.color = "#00f0ff";
+                }
+            } else {
+                chatWrapper.classList.remove('open');
+                btnVoice.classList.add('active');
+                btnChat.classList.remove('active');
+                if(!isMuted) {
+                    statusLabel.innerText = "LISTENING // BRAIN CONNECTED";
+                    statusLabel.style.color = "var(--neon-emerald)";
+                }
+            }
+        }
+
+        function sendMsg() {
+            const inp = document.getElementById('chat-input');
+            const txt = inp.value.trim();
+            if(!txt) return;
+            const stream = document.getElementById('chat-stream');
+            
+            const uMsg = document.createElement('div');
+            uMsg.className = 'chat-bubble user';
+            uMsg.innerText = txt;
+            stream.appendChild(uMsg);
+            inp.value = '';
+
+            setTimeout(() => {
+                const aiMsg = document.createElement('div');
+                aiMsg.className = 'chat-bubble ai';
+                aiMsg.innerText = "Processing directive: " + txt;
+                stream.appendChild(aiMsg);
+                stream.scrollTop = stream.scrollHeight;
+            }, 600);
+
+            stream.scrollTop = stream.scrollHeight;
+        }
+
+        // --- 3D INTERACTIVE CHAT PANEL PARALLAX TILT ---
+        const chatModal = document.getElementById('chat-modal');
+        window.addEventListener('mousemove', (e) => {
+            const xOffset = (e.clientX / window.innerWidth - 0.5) * 20;
+            const yOffset = (e.clientY / window.innerHeight - 0.5) * -20;
+            chatModal.style.transform = `rotateY(${-8 + xOffset}deg) rotateX(${3 + yOffset}deg)`;
+        });
+
+        // ================= THREE.JS CHROMATIC ORGANIC CORE =================
+        const container = document.getElementById('core-canvas');
+        const scene = new THREE.Scene();
+        scene.fog = new THREE.FogExp2(0x010307, 0.012);
+
+        const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
+        camera.position.set(0, 2, 32);
+        camera.lookAt(0, 0, 0);
+
+        const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true, powerPreference: "high-performance" });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+        container.appendChild(renderer.domElement);
+
+        const masterGroup = new THREE.Group();
+        masterGroup.rotation.x = 0.2;
+        masterGroup.rotation.y = -0.3;
+        scene.add(masterGroup);
+
+        // Mouse Drag 3D Orbit
+        let isDragging = false;
+        let prevMouse = { x: 0, y: 0 };
+        let targetRot = { x: 0.2, y: -0.3 };
+        let mouseParallax = { x: 0, y: 0 };
+
+        window.addEventListener('mousedown', (e) => {
+            if (e.target.id === 'core-canvas') {
+                isDragging = true;
+                prevMouse = { x: e.clientX, y: e.clientY };
+            }
+        });
+        window.addEventListener('mouseup', () => isDragging = false);
+        window.addEventListener('mousemove', (e) => {
+            mouseParallax.x = (e.clientX / window.innerWidth - 0.5) * 0.35;
+            mouseParallax.y = (e.clientY / window.innerHeight - 0.5) * 0.35;
+
+            if (isDragging) {
+                const dx = e.clientX - prevMouse.x;
+                const dy = e.clientY - prevMouse.y;
+                targetRot.y += dx * 0.007;
+                targetRot.x += dy * 0.007;
+                prevMouse = { x: e.clientX, y: e.clientY };
+            }
+        });
+
+        // Soft Glowing Particle Texture
+        const sCanvas = document.createElement('canvas');
+        sCanvas.width = 32; sCanvas.height = 32;
+        const sCtx = sCanvas.getContext('2d');
+        const sGrad = sCtx.createRadialGradient(16, 16, 0, 16, 16, 16);
+        sGrad.addColorStop(0, '#ffffff');
+        sGrad.addColorStop(0.25, 'rgba(0, 240, 255, 0.9)');
+        sGrad.addColorStop(0.55, 'rgba(224, 36, 195, 0.45)');
+        sGrad.addColorStop(0.85, 'rgba(0, 102, 255, 0.1)');
+        sGrad.addColorStop(1, 'rgba(0,0,0,0)');
+        sCtx.fillStyle = sGrad; sCtx.fillRect(0, 0, 32, 32);
+        const particleTex = new THREE.CanvasTexture(sCanvas);
+
+        // 1. ORGANIC CHROMATIC VOLUMETRIC FLUID CORE (52,000 PHOTONS)
+        const pCount = 52000;
+        const geometry = new THREE.BufferGeometry();
+        const positions = new Float32Array(pCount * 3);
+        const originalPositions = new Float32Array(pCount * 3);
+        const colors = new Float32Array(pCount * 3);
+        const phases = new Float32Array(pCount);
+
+        const baseRadius = 7.5;
+
+        for (let i = 0; i < pCount; i++) {
+            const phi = Math.acos(1 - 2 * (i / pCount));
+            const theta = Math.PI * (1 + Math.sqrt(5)) * i;
+
+            const r = baseRadius * (0.75 + Math.random() * 0.45);
+
+            const x = r * Math.sin(phi) * Math.cos(theta);
+            const y = r * Math.sin(phi) * Math.sin(theta);
+            const z = r * Math.cos(phi);
+
+            positions[i * 3] = x;
+            positions[i * 3 + 1] = y;
+            positions[i * 3 + 2] = z;
+            originalPositions[i * 3] = x;
+            originalPositions[i * 3 + 1] = y;
+            originalPositions[i * 3 + 2] = z;
+
+            const normY = (y / baseRadius) * 0.5 + 0.5;
+            const normZ = (z / baseRadius) * 0.5 + 0.5;
+
+            let cr = THREE.MathUtils.lerp(0.88, 0.0, normY);
+            let cg = THREE.MathUtils.lerp(0.15, 0.95, normY);
+            let cb = 1.0;
+
+            if (normZ > 0.6) {
+                cg = Math.min(1.0, cg + 0.2);
+            } else {
+                cr = Math.min(1.0, cr + 0.35);
+                cg = cg * 0.6;
+            }
+
+            colors[i * 3] = cr;
+            colors[i * 3 + 1] = cg;
+            colors[i * 3 + 2] = cb;
+
+            phases[i] = Math.random() * Math.PI * 2;
+        }
+
+        geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+        geometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+
+        const orbMaterial = new THREE.PointsMaterial({
+            size: 0.34,
+            vertexColors: true,
+            transparent: true,
+            opacity: 0.92,
+            map: particleTex,
+            blending: THREE.AdditiveBlending,
+            depthWrite: false
+        });
+
+        const volumetricCore = new THREE.Points(geometry, orbMaterial);
+        masterGroup.add(volumetricCore);
+
+        // 2. RADIANT HALO STARDUST
+        const haloCount = 6500;
+        const haloGeo = new THREE.BufferGeometry();
+        const haloPos = new Float32Array(haloCount * 3);
+        const haloCol = new Float32Array(haloCount * 3);
+
+        for (let i = 0; i < haloCount; i++) {
+            const hRadius = 9.5 + Math.random() * 5.0;
+            const hTheta = Math.random() * Math.PI * 2;
+            const hPhi = (Math.random() - 0.5) * Math.PI;
+
+            haloPos[i * 3] = hRadius * Math.cos(hPhi) * Math.cos(hTheta);
+            haloPos[i * 3 + 1] = hRadius * Math.sin(hPhi);
+            haloPos[i * 3 + 2] = hRadius * Math.cos(hPhi) * Math.sin(hTheta);
+
+            if (Math.random() > 0.5) {
+                haloCol[i * 3] = 0.0; haloCol[i * 3 + 1] = 0.95; haloCol[i * 3 + 2] = 1.0;
+            } else {
+                haloCol[i * 3] = 0.88; haloCol[i * 3 + 1] = 0.15; haloCol[i * 3 + 2] = 0.85;
+            }
+        }
+        haloGeo.setAttribute('position', new THREE.BufferAttribute(haloPos, 3));
+        haloGeo.setAttribute('color', new THREE.BufferAttribute(haloCol, 3));
+
+        const haloMat = new THREE.PointsMaterial({
+            size: 0.22,
+            vertexColors: true,
+            transparent: true,
+            opacity: 0.65,
+            map: particleTex,
+            blending: THREE.AdditiveBlending,
+            depthWrite: false
+        });
+        const haloDust = new THREE.Points(haloGeo, haloMat);
+        masterGroup.add(haloDust);
+
+        // 3. INNER RADIANT PLASMA HEART
+        const heartCanvas = document.createElement('canvas');
+        heartCanvas.width = 64; heartCanvas.height = 64;
+        const hctx = heartCanvas.getContext('2d');
+        const hGrad = hctx.createRadialGradient(32, 32, 0, 32, 32, 32);
+        hGrad.addColorStop(0, '#ffffff');
+        hGrad.addColorStop(0.3, 'rgba(0, 240, 255, 0.8)');
+        hGrad.addColorStop(0.7, 'rgba(224, 36, 195, 0.3)');
+        hGrad.addColorStop(1, 'rgba(0,0,0,0)');
+        hctx.fillStyle = hGrad; hctx.fillRect(0, 0, 64, 64);
+        const heartTex = new THREE.CanvasTexture(heartCanvas);
+
+        const heartSprite = new THREE.Sprite(new THREE.SpriteMaterial({
+            map: heartTex,
+            blending: THREE.AdditiveBlending,
+            transparent: true,
+            opacity: 0.75
+        }));
+        heartSprite.scale.set(10, 10, 1);
+        masterGroup.add(heartSprite);
+
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+
+        // ================= NATURAL ALWAYS-LISTENING BRAIN PULSE =================
+        let clock = 0;
+        let lastFrameTime = performance.now();
+        let frameCount = 0;
+        const fpsCounter = document.getElementById('fps-counter');
+        const visualizerBars = document.querySelectorAll('.bar');
+
+        // Continuous natural live audio simulation (since mic is always streaming to Ultron brain)
+        let dynamicAudio = 0.15;
+
+        function animate() {
+            requestAnimationFrame(animate);
+            clock += 0.02;
+
+            frameCount++;
+            const now = performance.now();
+            if (now - lastFrameTime >= 1000) {
+                fpsCounter.innerText = frameCount;
+                frameCount = 0;
+                lastFrameTime = now;
+            }
+
+            // Natural breathing audio harmonics
+            if (!isMuted) {
+                // Organic synaptic fluctuation
+                let ambientVoice = Math.sin(clock * 1.5) * 0.15 + Math.cos(clock * 3.2) * 0.1 + 0.25;
+                dynamicAudio += (ambientVoice - dynamicAudio) * 0.12;
+            } else {
+                dynamicAudio += (0.02 - dynamicAudio) * 0.15;
+            }
+
+            // Audio Bars reactive animation
+            visualizerBars.forEach((bar, idx) => {
+                let h = 4 + Math.sin(clock * 6 + idx * 0.4) * (dynamicAudio * 26);
+                bar.style.height = `${Math.max(4, h)}px`;
+            });
+
+            // Smooth Interpolation for 3D Drag & Mouse Parallax
+            masterGroup.rotation.y += (targetRot.y + mouseParallax.x - masterGroup.rotation.y) * 0.06;
+            masterGroup.rotation.x += (targetRot.x + mouseParallax.y - masterGroup.rotation.x) * 0.06;
+
+            if (!isDragging) {
+                targetRot.y += 0.003;
+            }
+
+            // ORGANIC HARMONIC LIQUID WAVE (Natural Voice Reactivity)
+            const posAttr = geometry.attributes.position;
+            for (let i = 0; i < pCount; i++) {
+                const ox = originalPositions[i * 3];
+                const oy = originalPositions[i * 3 + 1];
+                const oz = originalPositions[i * 3 + 2];
+
+                const wave1 = Math.sin(ox * 0.35 + clock * 2.2);
+                const wave2 = Math.cos(oy * 0.35 + clock * 1.8);
+                const wave3 = Math.sin(oz * 0.35 + clock * 2.5);
+                const fluidPulse = (wave1 + wave2 + wave3) * (0.35 + dynamicAudio * 1.45);
+
+                const len = Math.sqrt(ox * ox + oy * oy + oz * oz);
+                const dx = ox / len;
+                const dy = oy / len;
+                const dz = oz / len;
+
+                posAttr.setXYZ(
+                    i,
+                    ox + dx * fluidPulse,
+                    oy + dy * fluidPulse,
+                    oz + dz * fluidPulse
+                );
+            }
+            posAttr.needsUpdate = true;
+
+            // Halo Drift
+            haloDust.rotation.y -= 0.002;
+            haloDust.rotation.x += 0.001;
+
+            // Inner Core Pulse
+            const heartScale = 10 + dynamicAudio * 8.0 + Math.sin(clock * 3) * 0.8;
+            heartSprite.scale.set(heartScale, heartScale, 1);
+            heartSprite.material.opacity = isMuted ? 0.3 : (0.65 + dynamicAudio * 0.35);
+
+            renderer.render(scene, camera);
+        }
+        animate();
+    </script>
+</body>
+</html>

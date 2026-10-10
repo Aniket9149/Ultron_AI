@@ -1,0 +1,33 @@
+2026-09-17 19:13:14.967: [INFO] CurrentProfilePath: C:\Users\as712\ultron\04_display\.live_hud_profile\Default
+2026-09-17 19:13:14.967: [INFO] Profiles total count: 1
+2026-09-17 19:13:14.967: [INFO] Profile: name=Profile 1 path=C:\Users\as712\ultron\04_display\.live_hud_profile\Default lastActive=2026-09-17T19:13:14.888Z
+2026-09-17 19:13:14.967: [INFO] LastUsedProfileDir: C:\Users\as712\ultron\04_display\.live_hud_profile\Default
+2026-09-17 19:13:14.967: [INFO] MostRecentlyActiveProfile: name=Profile 1 path=C:\Users\as712\ultron\04_display\.live_hud_profile\Default lastActive=2026-09-17T19:13:14.888Z
+2026-09-17 19:13:14.967: [INFO] OnDoneLoading sync enabled: 0
+2026-09-17 19:13:14.967: [INFO] BookmarkModelLoaded, ids_reassigned: 0
+2026-09-17 19:13:14.967: [INFO] BookmarksLoadDropped droppedNodes=0
+2026-09-17 19:13:14.967: [INFO] BookmarksSnapshot Startup total=0 bar=0 other=0 mobile=0 showBar=0 showBarNTP=1
+2026-09-17 19:13:14.976: [INFO] RecordSyncInitDuration has_sync_been_enabled: 0 state: 0
+2026-09-17 19:13:16.326: [INFO] RecordSyncInitDuration has_sync_been_enabled: 0 state: 0
+2026-09-17 19:13:16.331: [INFO] RecordSyncInitDuration has_sync_been_enabled: 0 state: 3
+2026-09-17 19:13:16.335: [INFO] Primary account changed.
+2026-09-17 19:13:16.335: [INFO] OnPrimaryAccountChanged PrimaryAccountChangeEvent::Type::kSet
+2026-09-17 19:13:16.371: [INFO] RecordSyncInitDuration has_sync_been_enabled: 0 state: 3
+2026-09-17 19:13:17.746: [INFO] RecordSyncInitDuration has_sync_been_enabled: 0 state: 3
+2026-09-17 19:13:17.747: [INFO] RecordSyncInitDuration has_sync_been_enabled: 0 state: 3
+2026-09-17 19:13:17.748: [INFO] RecordSyncInitDuration has_sync_been_enabled: 0 state: 3
+2026-09-17 19:13:17.755: [INFO] RecordSyncInitDuration has_sync_been_enabled: 0 state: 3
+2026-09-17 19:13:17.755: [INFO] RecordSyncInitDuration has_sync_been_enabled: 0 state: 3
+2026-09-17 19:13:17.756: [INFO] RecordSyncInitDuration has_sync_been_enabled: 0 state: 3
+2026-09-17 19:13:17.757: [INFO] RecordSyncInitDuration has_sync_been_enabled: 0 state: 5
+2026-09-17 19:13:17.758: [INFO] RecordSyncInitDuration has_sync_been_enabled: 0 state: 5
+2026-09-17 19:13:18.450: [INFO] RecordSyncInitDuration has_sync_been_enabled: 0 state: 5
+2026-09-17 19:13:18.464: [INFO] RecordSyncInitDuration has_sync_been_enabled: 0 state: 5
+2026-09-17 19:13:19.250: [INFO] RecordSyncInitDuration has_sync_been_enabled: 0 state: 5
+2026-09-17 19:13:19.919: [INFO] RecordSyncInitDuration has_sync_been_enabled: 0 state: 5
+2026-09-17 19:13:19.921: [INFO] RecordSyncInitDuration has_sync_been_enabled: 0 state: 6
+2026-09-17 19:13:19.922: [INFO] RecordSyncInitDuration has_sync_been_enabled: 0 state: 6
+2026-09-17 19:13:22.532: [INFO] RecordSyncInitDuration has_sync_been_enabled: 0 state: 6
+2026-09-17 19:13:22.533: [INFO] RecordSyncInitDuration has_sync_been_enabled: 0 state: 6
+2026-09-17 19:13:22.734: [INFO] RecordSyncInitDuration has_sync_been_enabled: 0 state: 6
+2026-09-17 19:13:55.640: [INFO] BookmarksSnapshot Shutdown total=0 bar=0 other=0 mobile=0 showBar=0 showBarNTP=1
