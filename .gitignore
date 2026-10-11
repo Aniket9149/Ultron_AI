@@ -15,3 +15,9 @@ __pycache__/
 01_Memory/models/
 01_Memory/pending_tasks.json
 01_Memory/long_term_store.json
+
+04_Display/sandbox_preview/
+04_display/sandbox_preview/
+*.ort
+*.quant.ort
+*.crx
